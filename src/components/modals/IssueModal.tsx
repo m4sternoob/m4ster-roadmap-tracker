@@ -108,7 +108,7 @@ export function IssueModal({ project, issue, onClose }: IssueModalProps) {
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg motion-press"
             aria-label="Close"
           >
             <X size={20} />
@@ -303,7 +303,7 @@ export function IssueModal({ project, issue, onClose }: IssueModalProps) {
               <button
                 type="button"
                 onClick={handleDelete}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 motion-press flex items-center gap-2"
               >
                 <Trash2 size={16} /> Delete
               </button>
@@ -311,13 +311,13 @@ export function IssueModal({ project, issue, onClose }: IssueModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-slate-100 dark:hover:bg-slate-800 motion-press"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-500 text-white hover:bg-primary-600 transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-500 text-white hover:bg-primary-600 motion-press flex items-center gap-2"
             >
               <Save size={16} /> {isEditing ? 'Save Changes' : 'Create Issue'}
             </button>

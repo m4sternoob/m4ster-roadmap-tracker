@@ -29,7 +29,7 @@ export function BacklogView({
               useProjectStore.getState().setSelectedIssue(null);
               useProjectStore.getState().setShowIssueModal(true);
             }}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-500 text-white hover:bg-primary-600 transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-500 text-white hover:bg-primary-600 motion-press"
           >
             Create First Issue
           </button>

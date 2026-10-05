@@ -240,7 +240,7 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
                   setIsOpen(false);
                   onClose();
                 }}
-                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg motion-press"
                 aria-label="Close"
               >
                 <X size={20} />
@@ -292,7 +292,7 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
                       onClose();
                     }}
                     onMouseEnter={() => setSelectedActionIndex(index)}
-                    className={`px-4 py-3 rounded-lg transition-colors cursor-pointer flex items-center gap-3 ${
+                    className={`px-4 py-3 rounded-lg motion-press cursor-pointer flex items-center gap-3 ${
                       index === selectedActionIndex
                         ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
                         : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'

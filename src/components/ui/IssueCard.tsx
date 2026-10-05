@@ -86,7 +86,7 @@ export function IssueCard({ issue, onClick }: { issue: Issue; onClick: (issue: I
 
       <h4
         id={`issue-${issue.id}-description`}
-        className="font-medium text-[13px] leading-snug mb-2 text-slate-800 dark:text-dark-text line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors"
+        className="font-medium text-[13px] leading-snug mb-2 text-slate-800 dark:text-dark-text line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 motion-press"
       >
         {issue.title}
       </h4>

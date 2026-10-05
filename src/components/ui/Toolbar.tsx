@@ -67,7 +67,7 @@ export function Toolbar({ project, onSearch }: { project: Project; onSearch?: ()
                 role="tab"
                 aria-selected={activeView === id}
                 onClick={() => setActiveView(id)}
-                className={`relative px-2.5 md:px-3 py-1.5 rounded-md text-xs md:text-sm font-medium motion-interactive flex items-center gap-1.5 ${
+                className={`relative px-2.5 md:px-3 py-1.5 rounded-md text-xs md:text-sm font-medium motion-press flex items-center gap-1.5 ${
                   activeView === id
                     ? 'bg-white dark:bg-dark-card text-primary-600 dark:text-primary-400 shadow-sm'
                     : 'text-slate-500 dark:text-dark-muted hover:text-slate-700 dark:hover:text-dark-text'
@@ -96,7 +96,7 @@ export function Toolbar({ project, onSearch }: { project: Project; onSearch?: ()
               />
               <button
                 onClick={() => importInputRef.current?.click()}
-                className="p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text transition-colors"
+                className="p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text motion-press"
                 aria-label="Import project"
                 title="Import project"
               >
@@ -104,7 +104,7 @@ export function Toolbar({ project, onSearch }: { project: Project; onSearch?: ()
               </button>
               <button
                 onClick={handleExport}
-                className="p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text transition-colors"
+                className="p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text motion-press"
                 aria-label="Export project"
                 title="Export project"
               >
@@ -114,7 +114,7 @@ export function Toolbar({ project, onSearch }: { project: Project; onSearch?: ()
 
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text transition-colors"
+              className="p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text motion-press"
               aria-label="Toggle theme"
               title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
@@ -124,7 +124,7 @@ export function Toolbar({ project, onSearch }: { project: Project; onSearch?: ()
             {/* Search button */}
             <button
               onClick={onSearch}
-              className="p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text transition-colors"
+              className="p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text motion-press"
               aria-label="Search (⌘K)"
               title="Search issues (⌘K)"
             >
@@ -133,7 +133,7 @@ export function Toolbar({ project, onSearch }: { project: Project; onSearch?: ()
 
             <button
               onClick={() => useProjectStore.getState().setShowEpicModal(true)}
-              className="hidden sm:inline-flex p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text transition-colors"
+              className="hidden sm:inline-flex p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text motion-press"
               aria-label="Create Epic"
               title="Create epic"
             >
@@ -142,7 +142,7 @@ export function Toolbar({ project, onSearch }: { project: Project; onSearch?: ()
 
             <button
               onClick={() => useProjectStore.getState().setShowSprintModal(true)}
-              className="hidden sm:inline-flex p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text transition-colors"
+              className="hidden sm:inline-flex p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text motion-press"
               aria-label="Create Sprint"
               title="Create sprint"
             >
@@ -151,7 +151,7 @@ export function Toolbar({ project, onSearch }: { project: Project; onSearch?: ()
 
             <button
               onClick={() => useProjectStore.getState().setShowSettingsModal(true)}
-              className="p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text transition-colors"
+              className="p-2 rounded-lg text-slate-500 dark:text-dark-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-dark-text motion-press"
               aria-label="Settings"
               title="Settings"
             >
@@ -164,7 +164,7 @@ export function Toolbar({ project, onSearch }: { project: Project; onSearch?: ()
                 useProjectStore.getState().setSelectedIssue(null);
                 useProjectStore.getState().setShowIssueModal(true);
               }}
-              className="ml-1 px-3 py-2 rounded-lg text-sm font-medium bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 transition-colors flex items-center gap-1.5 shadow-sm shadow-primary-500/30"
+              className="ml-1 px-3 py-2 rounded-lg text-sm font-medium bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 motion-press flex items-center gap-1.5 shadow-sm shadow-primary-500/30"
             >
               <Plus size={16} /> <span className="hidden sm:inline">New issue</span>
             </button>

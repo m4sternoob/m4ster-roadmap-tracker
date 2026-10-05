@@ -12,7 +12,7 @@ reacts instantly (hover/press/focus); progressive disclosure; quiet feedback
   (`--motion-fast: 120ms`, `--motion-normal: 200ms`, `--motion-slow: 300ms`,
   ease-out curves), a `prefers-reduced-motion` guard, audit and replace ad-hoc
   transitions across the app.
-- [ ] Day 2: Button & icon micro-interactions — press scale (0.97), hover state
+- [x] Day 2: Button & icon micro-interactions — press scale (0.97), hover state
   audit on toolbar buttons, pills, selects. No dead-feeling controls.
 - [ ] Day 3: Card hover polish — IssueCard lift + shadow on hover, quick actions
   (edit/move) revealed on hover instead of always visible.

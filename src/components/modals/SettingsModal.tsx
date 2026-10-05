@@ -36,7 +36,7 @@ export function SettingsModal({ project, onClose }: SettingsModalProps) {
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg motion-press"
             aria-label="Close"
           >
             <X size={20} />
@@ -89,7 +89,7 @@ export function SettingsModal({ project, onClose }: SettingsModalProps) {
             </p>
             <button
               onClick={handleExport}
-              className="w-full px-4 py-2 rounded-lg text-sm font-medium bg-primary-500 text-white hover:bg-primary-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full px-4 py-2 rounded-lg text-sm font-medium bg-primary-500 text-white hover:bg-primary-600 motion-press flex items-center justify-center gap-2"
             >
               <Download size={16} /> Export to JSON
             </button>
@@ -112,7 +112,7 @@ export function SettingsModal({ project, onClose }: SettingsModalProps) {
             <button
               onClick={handleImport}
               disabled={!importFile}
-              className="w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-800 text-inherit hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
+              className="w-full px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-800 text-inherit hover:bg-slate-200 dark:hover:bg-slate-700 motion-press flex items-center justify-center gap-2"
             >
               <Upload size={16} /> Import from JSON
             </button>

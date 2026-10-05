@@ -25,7 +25,7 @@ export function SprintsView({
           <p className="mb-4">No sprints yet — start one from the toolbar</p>
           <button
             onClick={() => useProjectStore.getState().setShowSprintModal(true)}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-500 text-white hover:bg-primary-600 transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-500 text-white hover:bg-primary-600 motion-press"
           >
             Create First Sprint
           </button>

@@ -113,7 +113,7 @@ export function VirtualizedColumn({
           onClick={() => {
             // Use store to create new issue
           }}
-          className="w-full py-2 px-3 rounded-lg text-xs font-medium text-slate-500 dark:text-dark-muted hover:bg-white dark:hover:bg-slate-800 hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex items-center justify-center gap-1.5 border border-transparent hover:border-slate-200 dark:hover:border-dark-border"
+          className="w-full py-2 px-3 rounded-lg text-xs font-medium text-slate-500 dark:text-dark-muted hover:bg-white dark:hover:bg-slate-800 hover:text-primary-600 dark:hover:text-primary-400 motion-press flex items-center justify-center gap-1.5 border border-transparent hover:border-slate-200 dark:hover:border-dark-border"
           aria-label={`Add issue to column`}
         >
           <Plus size={14} /> Add issue

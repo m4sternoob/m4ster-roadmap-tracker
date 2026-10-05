@@ -79,7 +79,7 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
             />
             <button
               onClick={close}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 motion-press"
               aria-label="Close search"
             >
               <X size={20} />
@@ -121,7 +121,7 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
                   role="option"
                   aria-selected={index === selectedIndex}
                   onClick={() => handleSelectIssue(issue)}
-                  className={`px-4 py-3 border-t border-slate-200 dark:border-dark-border transition-colors cursor-pointer ${
+                  className={`px-4 py-3 border-t border-slate-200 dark:border-dark-border motion-press cursor-pointer ${
                     index === selectedIndex
                       ? 'bg-primary-50 dark:bg-primary-900/20'
                       : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
