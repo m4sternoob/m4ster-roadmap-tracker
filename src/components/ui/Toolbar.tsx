@@ -67,7 +67,7 @@ export function Toolbar({ project, onSearch }: { project: Project; onSearch?: ()
                 role="tab"
                 aria-selected={activeView === id}
                 onClick={() => setActiveView(id)}
-                className={`relative px-2.5 md:px-3 py-1.5 rounded-md text-xs md:text-sm font-medium transition-all flex items-center gap-1.5 ${
+                className={`relative px-2.5 md:px-3 py-1.5 rounded-md text-xs md:text-sm font-medium motion-interactive flex items-center gap-1.5 ${
                   activeView === id
                     ? 'bg-white dark:bg-dark-card text-primary-600 dark:text-primary-400 shadow-sm'
                     : 'text-slate-500 dark:text-dark-muted hover:text-slate-700 dark:hover:text-dark-text'

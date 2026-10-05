@@ -44,7 +44,7 @@ export function Column({
     <div
       ref={setNodeRef}
       id={status}
-      className={`flex flex-col w-[280px] min-w-[280px] rounded-xl border transition-all duration-150 ${
+      className={`flex flex-col w-[280px] min-w-[280px] rounded-xl border motion-layout ${
         isDragOver
           ? 'border-primary-400 bg-primary-50/60 dark:bg-primary-900/10 ring-2 ring-primary-400/40'
           : 'border-slate-200/80 dark:border-dark-border bg-slate-100/50 dark:bg-dark-card/40'

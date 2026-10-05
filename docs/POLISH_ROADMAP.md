@@ -8,7 +8,7 @@ reacts instantly (hover/press/focus); progressive disclosure; quiet feedback
 
 ## Phase 1 — Motion foundation (Days 1-5)
 
-- [ ] Day 1: Motion tokens — CSS vars for durations/easings
+- [x] Day 1: Motion tokens — CSS vars for durations/easings
   (`--motion-fast: 120ms`, `--motion-normal: 200ms`, `--motion-slow: 300ms`,
   ease-out curves), a `prefers-reduced-motion` guard, audit and replace ad-hoc
   transitions across the app.

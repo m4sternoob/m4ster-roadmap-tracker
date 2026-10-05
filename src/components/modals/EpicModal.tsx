@@ -95,7 +95,7 @@ export function EpicModal({ project, onClose }: EpicModalProps) {
                   key={color}
                   type="button"
                   onClick={() => setFormData({ ...formData, color })}
-                  className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                  className={`w-10 h-10 rounded-lg border-2 motion-interactive ${
                     formData.color === color
                       ? 'border-white dark:border-slate-900 ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900'
                       : 'border-transparent hover:ring-2 hover:ring-slate-300 dark:hover:ring-slate-600'

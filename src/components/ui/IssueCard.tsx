@@ -48,7 +48,7 @@ export function IssueCard({ issue, onClick }: { issue: Issue; onClick: (issue: I
       {...attributes}
       {...listeners}
       onClick={() => onClick(issue)}
-      className="group relative bg-white dark:bg-dark-card rounded-lg border border-slate-200 dark:border-dark-border pl-3 pr-3 py-2.5 cursor-grab active:cursor-grabbing overflow-hidden transition-all hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600"
+      className="group relative bg-white dark:bg-dark-card rounded-lg border border-slate-200 dark:border-dark-border pl-3 pr-3 py-2.5 cursor-grab active:cursor-grabbing overflow-hidden motion-interactive hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
