@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useProjectStore } from '@/store/projectStore';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { BoardView } from '@/components/views/BoardView';
@@ -6,6 +6,7 @@ import { BacklogView } from '@/components/views/BacklogView';
 import { SprintsView } from '@/components/views/SprintsView';
 import { ReportsView } from '@/components/views/ReportsView';
 import { Toolbar } from '@/components/ui/Toolbar';
+import { ViewTransition } from '@/components/ui/ViewTransition';
 import { IssueModal } from '@/components/modals/IssueModal';
 import { EpicModal } from '@/components/modals/EpicModal';
 import { SprintModal } from '@/components/modals/SprintModal';
@@ -42,6 +43,23 @@ function App() {
     initializeProject();
   }, [initializeProject]);
 
+  type ActiveView = 'board' | 'backlog' | 'sprints' | 'reports';
+
+  // Keep the outgoing view mounted for a beat so the switch crossfades
+  // instead of snapping. The timer only clears the layer after the
+  // exit animation has had time to finish.
+  const [leavingView, setLeavingView] = useState<ActiveView | null>(null);
+  const lastView = useRef<ActiveView>(activeView);
+
+  useEffect(() => {
+    if (lastView.current === activeView) return;
+    const outgoing = lastView.current;
+    lastView.current = activeView;
+    setLeavingView(outgoing);
+    const timer = window.setTimeout(() => setLeavingView(null), 240);
+    return () => window.clearTimeout(timer);
+  }, [activeView]);
+
   if (!project) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-dark-bg">
@@ -63,27 +81,35 @@ function App() {
     setShowIssueModal(true);
   };
 
+  const renderView = (view: ActiveView) => {
+    switch (view) {
+      case 'board':
+        return (
+          <BoardView
+            project={project}
+            dragOverColumn={dragOverColumn}
+            setDragOverColumn={setDragOverColumn}
+            onIssueClick={handleIssueClick}
+          />
+        );
+      case 'backlog':
+        return <BacklogView project={project} onIssueClick={handleIssueClick} />;
+      case 'sprints':
+        return <SprintsView project={project} onIssueClick={handleIssueClick} />;
+      case 'reports':
+        return <ReportsView project={project} />;
+    }
+  };
+
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-dark-bg dark:text-dark-text font-sans">
         <Toolbar project={project} onSearch={openSearch} />
 
         <main className="px-4 md:px-6 lg:px-8 py-6 max-w-[1600px] mx-auto">
-          {activeView === 'board' && (
-            <BoardView
-              project={project}
-              dragOverColumn={dragOverColumn}
-              setDragOverColumn={setDragOverColumn}
-              onIssueClick={handleIssueClick}
-            />
-          )}
-          {activeView === 'backlog' && (
-            <BacklogView project={project} onIssueClick={handleIssueClick} />
-          )}
-          {activeView === 'sprints' && (
-            <SprintsView project={project} onIssueClick={handleIssueClick} />
-          )}
-          {activeView === 'reports' && <ReportsView project={project} />}
+          <ViewTransition view={activeView} leaving={leavingView ? renderView(leavingView) : null}>
+            {renderView(activeView)}
+          </ViewTransition>
         </main>
 
         {showIssueModal && (

@@ -110,6 +110,39 @@ body {
   transform: scale(0.97);
 }
 
+/* View transitions (Day 5): crossfade when switching main views.
+   The incoming view rises slightly while fading in; the outgoing view
+   lingers for one overlap frame and fades out on top. Opacity and
+   transform only, 200ms ease-out, matching the motion tokens above. */
+@keyframes view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes view-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.view-enter {
+  animation: view-enter var(--motion-normal) var(--ease-out);
+}
+
+.view-exit {
+  animation: view-exit var(--motion-normal) var(--ease-out) forwards;
+  pointer-events: none;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
