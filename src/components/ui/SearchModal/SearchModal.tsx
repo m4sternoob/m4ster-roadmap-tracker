@@ -1,6 +1,7 @@
 import { Search, X, User, Tag, Zap } from 'lucide-react';
 import type { Issue, Priority, Status } from '@/types';
-import { ISSUE_TYPES, STATUSES } from '@/types';
+import { STATUSES } from '@/types';
+import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { useSearch } from '@/hooks/useSearch';
 
 interface SearchModalProps {
@@ -129,11 +130,8 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
                 >
                   <div className="flex items-start gap-3">
                     {/* Issue Type Icon */}
-                    <span
-                      className="text-[14px] shrink-0 mt-0.5"
-                      title={ISSUE_TYPES.find((t) => t.value === issue.type)?.label}
-                    >
-                      {ISSUE_TYPES.find((t) => t.value === issue.type)?.icon}
+                    <span className="shrink-0 mt-0.5">
+                      <IssueTypeIcon type={issue.type} size={15} />
                     </span>
 
                     {/* Issue Content */}
