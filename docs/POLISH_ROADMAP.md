@@ -16,8 +16,10 @@ reacts instantly (hover/press/focus); progressive disclosure; quiet feedback
       audit on toolbar buttons, pills, selects. No dead-feeling controls.
 - [x] Day 3: Card hover polish — IssueCard lift + shadow on hover, quick actions
       (edit/move) revealed on hover instead of always visible.
-- [ ] Day 4: Modal choreography — backdrop blur fade + panel scale/slide entry
-      for IssueModal, EpicModal, SprintModal, SettingsModal, ConfirmDialog.
+- [x] Day 4: Modal choreography — shared ModalShell (backdrop blur fade +
+      panel scale entry, Escape/click-outside close, scroll lock) for IssueModal,
+      EpicModal, SprintModal, SettingsModal, ConfirmDialog, SearchModal; legacy
+      modals restyled to the dark palette.
 - [ ] Day 5: View transitions — animated crossfade/slide when switching
       Board / Backlog / Sprints / Reports.
 
@@ -39,8 +41,9 @@ reacts instantly (hover/press/focus); progressive disclosure; quiet feedback
 
 - [ ] Day 11: Column collapse/expand (animated).
 - [ ] Day 12: Board density toggle — compact / comfortable.
-- [ ] Day 13: Column filters — board-level FilterBar (priority/type/assignee/
-      epic/sprint). Spec'd and ~80% implemented; ships as a polish item.
+- [x] Day 13: Column filters — shipped as a board-level FilterPanel
+      (type/priority/status/assignee/epic/label + grouping) in the UI overhaul;
+      dead per-column ColumnFilter removed.
 - [ ] Day 14: Focus visibility & keyboard affordance pass — visible focus rings,
       skip link, logical tab order.
 

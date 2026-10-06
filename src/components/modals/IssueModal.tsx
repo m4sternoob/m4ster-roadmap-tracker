@@ -7,6 +7,7 @@ import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { PriorityIcon } from '@/components/issues/PriorityIcon';
 import { Avatar } from '@/components/issues/Avatar';
 import { StatusPill } from '@/components/issues/StatusPill';
+import { ModalShell } from '@/components/ui/ModalShell';
 import { CURRENT_USER } from '@/components/board/boardFilters';
 import { formatRelativeTime } from '@/utils/helpers';
 
@@ -705,40 +706,24 @@ export function IssueModal({
 }) {
   const isEditing = !!issue;
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start md:items-center justify-center p-3 md:p-6 bg-black/60 overflow-y-auto"
-      role="dialog"
-      aria-modal="true"
-      aria-label={isEditing ? `Issue ${issue.key}` : 'Create issue'}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <ModalShell
+      onClose={onClose}
+      label={isEditing ? `Issue ${issue.key}` : 'Create issue'}
+      panel={`w-full rounded-xl border border-white/10 bg-[#1c1f26] text-slate-100 shadow-2xl shadow-black/60 animate-scale-in max-h-[90vh] overflow-y-auto ${
+        isEditing ? 'max-w-4xl' : 'max-w-2xl'
+      }`}
     >
       <datalist id="assignee-suggestions">
         {Array.from(new Set(project.issues.map((i) => i.assignee).filter(Boolean))).map((a) => (
           <option key={a} value={a!} />
         ))}
       </datalist>
-      <div
-        className={`bg-[#282e33] rounded-xl border border-[#2c333a] shadow-2xl shadow-black/60 w-full animate-scale-in ${
-          isEditing ? 'max-w-4xl' : 'max-w-2xl'
-        }`}
-      >
-        {isEditing && issue ? (
-          <DetailView project={project} issue={issue} onClose={onClose} />
-        ) : (
-          <CreateForm project={project} onClose={onClose} />
-        )}
-      </div>
-    </div>
+      {isEditing && issue ? (
+        <DetailView project={project} issue={issue} onClose={onClose} />
+      ) : (
+        <CreateForm project={project} onClose={onClose} />
+      )}
+    </ModalShell>
   );
 }
