@@ -127,7 +127,9 @@ export function IssueCard({ issue, onClick }: { issue: Issue; onClick: (issue: I
       {/* Quick actions: revealed on hover / keyboard focus, never cluttering the card. */}
       <div
         className={`absolute top-2 right-2 flex items-center gap-0.5 p-0.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white/95 dark:bg-dark-card/95 shadow-sm backdrop-blur motion-interactive ${
-          moveOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+          moveOpen
+            ? 'opacity-100'
+            : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
         }`}
       >
         <button

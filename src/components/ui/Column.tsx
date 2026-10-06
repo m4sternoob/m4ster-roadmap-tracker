@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { useProjectStore } from '@/store/projectStore';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { ColumnFilter } from '@/components/ui/ColumnFilter';
 
 const STATUS_LABELS: Record<Status, string> = {
   backlog: 'Backlog',
@@ -64,7 +63,6 @@ export function Column({
           <span className="text-xs font-medium min-w-[20px] text-center px-1.5 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-dark-muted">
             {issues.length}
           </span>
-          <ColumnFilter status={status} />
         </div>
       </div>
 
