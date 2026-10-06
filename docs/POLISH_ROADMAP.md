@@ -14,7 +14,7 @@ reacts instantly (hover/press/focus); progressive disclosure; quiet feedback
   transitions across the app.
 - [x] Day 2: Button & icon micro-interactions — press scale (0.97), hover state
   audit on toolbar buttons, pills, selects. No dead-feeling controls.
-- [ ] Day 3: Card hover polish — IssueCard lift + shadow on hover, quick actions
+- [x] Day 3: Card hover polish — IssueCard lift + shadow on hover, quick actions
   (edit/move) revealed on hover instead of always visible.
 - [ ] Day 4: Modal choreography — backdrop blur fade + panel scale/slide entry
   for IssueModal, EpicModal, SprintModal, SettingsModal, ConfirmDialog.
