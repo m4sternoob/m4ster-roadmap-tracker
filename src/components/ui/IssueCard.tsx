@@ -18,28 +18,21 @@ function formatDue(dueDate: string) {
   return new Date(dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
-export function IssueCard({
+export function IssueCardView({
   issue,
   epicColor,
   epicName,
   onClick,
+  overlay = false,
 }: {
   issue: Issue;
   epicColor?: string;
   epicName?: string;
-  onClick: (issue: Issue) => void;
+  onClick?: (issue: Issue) => void;
+  /** Rendered inside the drag overlay: lifted look, no interactions. */
+  overlay?: boolean;
 }) {
   const moveIssue = useProjectStore((s) => s.moveIssue);
-
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: issue.id,
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
 
   // Move-to-status menu (fixed positioned, closes on outside click / Escape).
   const [moveOpen, setMoveOpen] = useState(false);
@@ -86,59 +79,51 @@ export function IssueCard({
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      onClick={() => onClick(issue)}
-      className="group relative bg-[#22272b] rounded-lg border border-[#2c333a] px-3 py-2.5 cursor-grab active:cursor-grabbing motion-interactive hover:border-[#3d474f] hover:bg-[#282e33] hover:shadow-lg hover:shadow-black/30"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick(issue);
-        }
-      }}
-      role="button"
-      aria-label={`${issue.key}: ${issue.title}`}
+      className={`relative bg-[#22272b] rounded-lg border border-[#2c333a] px-3 py-2.5 motion-interactive ${
+        overlay
+          ? 'border-[#3d474f] shadow-2xl shadow-black/60 rotate-[1.5deg] scale-[1.02] cursor-grabbing'
+          : 'hover:border-[#3d474f] hover:bg-[#282e33] hover:shadow-lg hover:shadow-black/30'
+      }`}
     >
       {/* Hover quick actions */}
-      <div
-        className={`absolute top-1.5 right-1.5 flex items-center gap-0.5 p-0.5 rounded-md border border-[#2c333a] bg-[#282e33]/95 shadow-md backdrop-blur motion-interactive ${
-          moveOpen
-            ? 'opacity-100'
-            : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
-        }`}
-      >
-        <button
-          type="button"
-          aria-label={`Open ${issue.key}`}
-          title="Open details"
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick(issue);
-          }}
-          onPointerDown={stop}
-          className="p-1.5 rounded text-[#8c9bab] hover:bg-[#22272b] hover:text-[#e6edf3] motion-press"
+      {!overlay && (
+        <div
+          className={`absolute top-1.5 right-1.5 flex items-center gap-0.5 p-0.5 rounded-md border border-[#2c333a] bg-[#282e33]/95 shadow-md backdrop-blur motion-interactive ${
+            moveOpen
+              ? 'opacity-100'
+              : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+          }`}
         >
-          <Pencil size={13} aria-hidden="true" />
-        </button>
-        <button
-          ref={moveBtnRef}
-          type="button"
-          aria-label={`Move ${issue.key} to another column`}
-          aria-haspopup="menu"
-          aria-expanded={moveOpen}
-          title="Move to column"
-          onClick={openMoveMenu}
-          onPointerDown={stop}
-          className="p-1.5 rounded text-[#8c9bab] hover:bg-[#22272b] hover:text-[#e6edf3] motion-press"
-        >
-          <ArrowRightLeft size={13} aria-hidden="true" />
-        </button>
-      </div>
+          <button
+            type="button"
+            aria-label={`Open ${issue.key}`}
+            title="Open details"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.(issue);
+            }}
+            onPointerDown={stop}
+            className="p-1.5 rounded text-[#8c9bab] hover:bg-[#22272b] hover:text-[#e6edf3] motion-press"
+          >
+            <Pencil size={13} aria-hidden="true" />
+          </button>
+          <button
+            ref={moveBtnRef}
+            type="button"
+            aria-label={`Move ${issue.key} to another column`}
+            aria-haspopup="menu"
+            aria-expanded={moveOpen}
+            title="Move to column"
+            onClick={openMoveMenu}
+            onPointerDown={stop}
+            className="p-1.5 rounded text-[#8c9bab] hover:bg-[#22272b] hover:text-[#e6edf3] motion-press"
+          >
+            <ArrowRightLeft size={13} aria-hidden="true" />
+          </button>
+        </div>
+      )}
 
-      {moveOpen && menuPos && (
+      {!overlay && moveOpen && menuPos && (
         <div
           ref={menuRef}
           role="menu"
@@ -264,6 +249,53 @@ export function IssueCard({
           </span>
         )}
       </div>
+    </div>
+  );
+}
+
+export function IssueCard({
+  issue,
+  epicColor,
+  epicName,
+  onClick,
+}: {
+  issue: Issue;
+  epicColor?: string;
+  epicName?: string;
+  onClick: (issue: Issue) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: issue.id,
+  });
+
+  // While dragging, the DragOverlay carries the visual — the original stays
+  // put as a faded placeholder instead of trailing the cursor on a transition.
+  const style = isDragging
+    ? { opacity: 0.35 }
+    : {
+        transform: CSS.Transform.toString(transform),
+        transition,
+      };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={() => onClick(issue)}
+      className="group cursor-grab active:cursor-grabbing rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0ea5e9]"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick(issue);
+        }
+      }}
+      role="button"
+      aria-label={`${issue.key}: ${issue.title}`}
+    >
+      <IssueCardView issue={issue} epicColor={epicColor} epicName={epicName} onClick={onClick} />
     </div>
   );
 }

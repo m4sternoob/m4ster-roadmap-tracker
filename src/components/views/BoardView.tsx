@@ -1,16 +1,21 @@
 import { useMemo, useState } from 'react';
 import {
   DndContext,
+  DragOverlay,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  defaultDropAnimation,
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragStartEvent,
+  type DropAnimation,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { SearchX } from 'lucide-react';
 import { Column } from '@/components/ui/Column';
+import { IssueCardView } from '@/components/ui/IssueCard';
 import { BoardToolbar } from '@/components/board/BoardToolbar';
 import {
   EMPTY_FILTERS,
@@ -69,6 +74,13 @@ function buildGroups(issues: Issue[], groupBy: GroupBy): BoardGroup[] {
 
 const priorityRank: Record<Priority, number> = { critical: 3, high: 2, medium: 1, low: 0 };
 
+// Snap-back when a drag is cancelled: quick ease-out, transform only.
+const dropAnimation: DropAnimation = {
+  ...defaultDropAnimation,
+  duration: 200,
+  easing: 'cubic-bezier(0, 0, 0.2, 1)',
+};
+
 export function BoardView({
   project,
   onIssueClick,
@@ -84,6 +96,7 @@ export function BoardView({
   const [filters, setFilters] = useState<BoardFilters>(EMPTY_FILTERS);
   const [groupBy, setGroupBy] = useState<GroupBy>('status');
   const [dragOverGroup, setDragOverGroup] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const issues = useMemo(() => project?.issues ?? [], [project?.issues]);
   const filtered = useMemo(() => applyBoardFilters(issues, filters), [issues, filters]);
@@ -104,6 +117,12 @@ export function BoardView({
 
   const groupIds = useMemo(() => new Set(sortedGroups.map((g) => g.id)), [sortedGroups]);
 
+  const activeIssue = useMemo(
+    () => (activeId ? (filtered.find((i) => i.id === activeId) ?? null) : null),
+    [activeId, filtered]
+  );
+  const activeEpic = activeIssue?.epicId ? epicsById.get(activeIssue.epicId) : undefined;
+
   const resolveGroup = (overId: string): BoardGroup | null => {
     if (groupIds.has(overId)) return sortedGroups.find((g) => g.id === overId) ?? null;
     const overIssue = filtered.find((i) => i.id === overId);
@@ -118,7 +137,17 @@ export function BoardView({
     return sortedGroups.find((g) => g.id === `status:${overIssue.status}`) ?? null;
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setDragOverGroup(null);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null);
     setDragOverGroup(null);
     const { active, over } = event;
     if (!over || !project) return;
@@ -182,7 +211,9 @@ export function BoardView({
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
           onDragOver={(e) =>
             setDragOverGroup(e.over ? (resolveGroup(e.over.id as string)?.id ?? null) : null)
           }
@@ -204,6 +235,20 @@ export function BoardView({
               />
             ))}
           </div>
+
+          {/* Floating drag preview: follows the cursor 1:1, no transition lag. */}
+          <DragOverlay dropAnimation={dropAnimation}>
+            {activeIssue ? (
+              <div className="w-[270px]">
+                <IssueCardView
+                  issue={activeIssue}
+                  epicColor={activeEpic?.color}
+                  epicName={activeEpic?.name}
+                  overlay
+                />
+              </div>
+            ) : null}
+          </DragOverlay>
         </DndContext>
       )}
     </div>

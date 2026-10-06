@@ -32,8 +32,9 @@ reacts instantly (hover/press/focus); progressive disclosure; quiet feedback
 - [ ] Day 8: Empty states with CTAs — Notion-style helpful empties
       ("Create your first issue", "No issues match these filters") with actions.
       Fixes the dead-zeros first impression for new visitors.
-- [ ] Day 9: Drag & drop feel — smoother drag overlay, clearer drop indicators,
-      snap-back animation on cancel.
+- [x] Day 9: Drag & drop feel — DragOverlay preview follows the cursor 1:1
+      (lifted, tilted card; original stays as faded placeholder), column drop
+      ring highlight, 200ms ease-out snap-back on cancel.
 - [ ] Day 10: Command palette motion pass — stagger results, smooth open/close,
       hover/active states on rows.
 
