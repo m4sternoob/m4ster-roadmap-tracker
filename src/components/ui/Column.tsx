@@ -1,118 +1,106 @@
-import { Plus } from 'lucide-react';
-import type { Issue, Status } from '@/types';
+import { Ellipsis, Plus } from 'lucide-react';
+import type { Issue } from '@/types';
 import { IssueCard } from '@/components/ui/IssueCard';
 import { useState } from 'react';
-import { useProjectStore } from '@/store/projectStore';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { ColumnFilter } from '@/components/ui/ColumnFilter';
-
-const STATUS_LABELS: Record<Status, string> = {
-  backlog: 'Backlog',
-  todo: 'To Do',
-  'in-progress': 'In Progress',
-  review: 'Review',
-  done: 'Done',
-};
-
-const STATUS_ACCENTS: Record<Status, string> = {
-  backlog: 'bg-slate-400',
-  todo: 'bg-sky-500',
-  'in-progress': 'bg-amber-500',
-  review: 'bg-violet-500',
-  done: 'bg-emerald-500',
-};
 
 export function Column({
-  status,
+  id,
+  title,
   issues,
+  epicsById,
   isDragOver,
   onIssueClick,
+  onAddIssue,
 }: {
-  status: Status;
+  id: string;
+  title: string;
   issues: Issue[];
+  epicsById: Map<string, { name: string; color: string }>;
   isDragOver: boolean;
   onIssueClick: (issue: Issue) => void;
+  onAddIssue: () => void;
 }) {
   const [showAll, setShowAll] = useState(false);
   const visibleIssues = showAll || issues.length <= 8 ? issues : issues.slice(0, 8);
   const hasMore = issues.length > 8 && !showAll;
 
-  const { setNodeRef } = useDroppable({ id: status });
+  const { setNodeRef } = useDroppable({ id });
 
   return (
     <div
       ref={setNodeRef}
-      id={status}
-      className={`flex flex-col w-[280px] min-w-[280px] rounded-xl border motion-layout ${
-        isDragOver
-          ? 'border-primary-400 bg-primary-50/60 dark:bg-primary-900/10 ring-2 ring-primary-400/40'
-          : 'border-slate-200/80 dark:border-dark-border bg-slate-100/50 dark:bg-dark-card/40'
+      className={`flex flex-col w-[270px] min-w-[270px] max-h-full rounded-xl motion-layout ${
+        isDragOver ? 'bg-[#0c66e4]/10 ring-2 ring-[#0c66e4]/50' : 'bg-[#1d2125]'
       }`}
       role="list"
-      aria-label={`${STATUS_LABELS[status]} column`}
-      aria-roledescription="kanban column"
+      aria-label={`${title} column`}
     >
-      <div className="flex items-center justify-between px-3.5 pt-3.5 pb-2">
-        <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${STATUS_ACCENTS[status]}`} aria-hidden="true" />
-          <h3 className="font-semibold text-[13px] uppercase tracking-wide text-slate-600 dark:text-dark-muted">
-            {STATUS_LABELS[status]}
-          </h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium min-w-[20px] text-center px-1.5 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-dark-muted">
-            {issues.length}
-          </span>
-          <ColumnFilter status={status} />
-        </div>
+      {/* Header: plain label + count */}
+      <div className="flex items-center gap-2 px-2 pt-2 pb-2">
+        <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[#8c9bab] truncate">
+          {title}
+        </h3>
+        <span className="text-[12px] text-[#626f86] font-medium">{issues.length}</span>
+        <span className="flex-1" />
+        <button
+          className="p-1 rounded text-[#626f86] hover:bg-[#22272b] hover:text-[#b6c2cf] opacity-0 hover:opacity-100 focus:opacity-100 motion-press"
+          aria-label={`Column options for ${title}`}
+          title="Column options"
+        >
+          <Ellipsis size={14} />
+        </button>
       </div>
 
+      {/* Cards */}
       <div
-        className="flex-1 flex flex-col gap-2 min-h-[160px] px-2.5 pb-2.5 overflow-y-auto"
+        className="flex-1 flex flex-col gap-2 min-h-[120px] px-1 pb-1 overflow-y-auto"
         role="list"
-        aria-label={`${STATUS_LABELS[status]} issues`}
+        aria-label={`${title} issues`}
       >
         <SortableContext
           items={visibleIssues.map((i) => i.id)}
           strategy={verticalListSortingStrategy}
         >
-          {visibleIssues.map((issue) => (
-            <IssueCard key={issue.id} issue={issue} onClick={onIssueClick} />
-          ))}
+          {visibleIssues.map((issue) => {
+            const epic = issue.epicId ? epicsById.get(issue.epicId) : undefined;
+            return (
+              <IssueCard
+                key={issue.id}
+                issue={issue}
+                epicColor={epic?.color}
+                epicName={epic?.name}
+                onClick={onIssueClick}
+              />
+            );
+          })}
         </SortableContext>
 
         {hasMore && (
           <button
             onClick={() => setShowAll(true)}
-            className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline py-1.5 self-start px-1"
+            className="text-[12px] font-medium text-[#579dff] hover:underline py-1.5 self-start px-1"
           >
             Show {issues.length - 8} more
           </button>
         )}
 
         {visibleIssues.length === 0 && (
-          <div
-            className="flex-1 flex items-center justify-center text-slate-400 dark:text-dark-muted/60 text-xs rounded-lg border border-dashed border-slate-300 dark:border-dark-border min-h-[100px]"
-            role="status"
-            aria-live="polite"
-          >
+          <div className="flex items-center justify-center text-[#626f86] text-[12px] rounded-lg border border-dashed border-[#2c333a] min-h-[80px]">
             Drop issues here
           </div>
         )}
       </div>
 
-      <div className="px-2.5 pb-2.5">
+      {/* Dashed create button */}
+      <div className="px-1 pb-1 pt-1">
         <button
-          onClick={() => {
-            useProjectStore.getState().setNewIssueDefaultStatus(status);
-            useProjectStore.getState().setSelectedIssue(null);
-            useProjectStore.getState().setShowIssueModal(true);
-          }}
-          className="w-full py-2 px-3 rounded-lg text-xs font-medium text-slate-500 dark:text-dark-muted hover:bg-white dark:hover:bg-slate-800 hover:text-primary-600 dark:hover:text-primary-400 motion-press flex items-center justify-center gap-1.5 border border-transparent hover:border-slate-200 dark:hover:border-dark-border"
-          aria-label={`Add issue to ${STATUS_LABELS[status]}`}
+          onClick={onAddIssue}
+          className="w-full py-2 px-3 rounded-lg text-[13px] font-medium text-[#8c9bab] hover:text-[#e6edf3] hover:bg-[#22272b] border border-dashed border-[#2c333a] hover:border-[#3d474f] motion-interactive flex items-center justify-center gap-1.5"
+          aria-label={`Create issue in ${title}`}
         >
-          <Plus size={14} aria-hidden="true" /> Add issue
+          <Plus size={14} aria-hidden="true" /> Create
         </button>
       </div>
     </div>
