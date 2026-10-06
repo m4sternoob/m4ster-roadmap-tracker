@@ -96,12 +96,12 @@ export function IssueModal({ project, issue, onClose }: IssueModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="issue-modal-title"
     >
-      <div className="dark:bg-dark-card bg-white rounded-xl border dark:border-dark-border max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="dark:bg-dark-card bg-white rounded-xl border dark:border-dark-border max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
         <div className="flex items-center justify-between p-4 border-b dark:border-dark-border sticky top-0 bg-inherit z-10">
           <h2 id="issue-modal-title" className="text-xl font-semibold">
             {isEditing ? 'Edit Issue' : 'Create Issue'}

@@ -16,7 +16,7 @@ reacts instantly (hover/press/focus); progressive disclosure; quiet feedback
   audit on toolbar buttons, pills, selects. No dead-feeling controls.
 - [x] Day 3: Card hover polish — IssueCard lift + shadow on hover, quick actions
   (edit/move) revealed on hover instead of always visible.
-- [ ] Day 4: Modal choreography — backdrop blur fade + panel scale/slide entry
+- [x] Day 4: Modal choreography — backdrop blur fade + panel scale/slide entry
   for IssueModal, EpicModal, SprintModal, SettingsModal, ConfirmDialog.
 - [ ] Day 5: View transitions — animated crossfade/slide when switching
   Board / Backlog / Sprints / Reports.
