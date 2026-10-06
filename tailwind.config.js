@@ -34,6 +34,8 @@ export default {
         'fade-in': 'fadeIn 0.15s ease-out',
         'scale-in': 'scaleIn 0.15s ease-out',
         'slide-in': 'slideIn 0.2s ease-out',
+        // View switch enter: fade + gentle rise, on the shared motion tokens.
+        'view-enter': 'viewEnter var(--motion-normal) var(--ease-out)',
       },
       keyframes: {
         fadeIn: {
@@ -47,6 +49,10 @@ export default {
         slideIn: {
           '0%': { opacity: '0', transform: 'translateX(-10px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        viewEnter: {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },
     },

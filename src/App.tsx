@@ -69,21 +69,24 @@ function App() {
         <Toolbar project={project} onSearch={openSearch} />
 
         <main className="px-4 md:px-6 lg:px-8 py-6 max-w-[1600px] mx-auto">
-          {activeView === 'board' && (
-            <BoardView
-              project={project}
-              dragOverColumn={dragOverColumn}
-              setDragOverColumn={setDragOverColumn}
-              onIssueClick={handleIssueClick}
-            />
-          )}
-          {activeView === 'backlog' && (
-            <BacklogView project={project} onIssueClick={handleIssueClick} />
-          )}
-          {activeView === 'sprints' && (
-            <SprintsView project={project} onIssueClick={handleIssueClick} />
-          )}
-          {activeView === 'reports' && <ReportsView project={project} />}
+          {/* key remounts on view switch, replaying the enter transition */}
+          <div key={activeView} className="animate-view-enter">
+            {activeView === 'board' && (
+              <BoardView
+                project={project}
+                dragOverColumn={dragOverColumn}
+                setDragOverColumn={setDragOverColumn}
+                onIssueClick={handleIssueClick}
+              />
+            )}
+            {activeView === 'backlog' && (
+              <BacklogView project={project} onIssueClick={handleIssueClick} />
+            )}
+            {activeView === 'sprints' && (
+              <SprintsView project={project} onIssueClick={handleIssueClick} />
+            )}
+            {activeView === 'reports' && <ReportsView project={project} />}
+          </div>
         </main>
 
         {showIssueModal && (

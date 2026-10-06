@@ -18,7 +18,7 @@ reacts instantly (hover/press/focus); progressive disclosure; quiet feedback
   (edit/move) revealed on hover instead of always visible.
 - [x] Day 4: Modal choreography — backdrop blur fade + panel scale/slide entry
   for IssueModal, EpicModal, SprintModal, SettingsModal, ConfirmDialog.
-- [ ] Day 5: View transitions — animated crossfade/slide when switching
+- [x] Day 5: View transitions — animated crossfade/slide when switching
   Board / Backlog / Sprints / Reports.
 
 ## Phase 2 — Feedback & states (Days 6-10)
