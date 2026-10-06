@@ -39,7 +39,17 @@ function App() {
 
   const { close: closeSearch, isOpen: showSearchModal } = useSearch();
   useKeyboardShortcuts();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // Start collapsed on small screens so the board gets the room.
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 1024
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023.5px)');
+    const onChange = (e: MediaQueryListEvent) => setSidebarCollapsed(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   useEffect(() => {
     initializeProject();

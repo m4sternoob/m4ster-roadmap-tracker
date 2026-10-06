@@ -109,7 +109,7 @@ export function BoardToolbar({
         <button
           onClick={() => setFilterOpen((v) => !v)}
           aria-expanded={filterOpen}
-          className={`h-8 px-3 rounded-md flex items-center gap-1.5 text-[13px] font-medium border motion-interactive ${
+          className={`h-8 px-3 rounded-md flex items-center gap-1.5 text-[13px] font-medium border motion-interactive whitespace-nowrap shrink-0 ${
             activeCount > 0 || filterOpen
               ? 'bg-[#0c66e4]/15 border-[#0c66e4] text-[#579dff]'
               : 'bg-[#22272b] border-[#2c333a] text-[#b6c2cf] hover:border-[#3d474f]'
@@ -140,7 +140,7 @@ export function BoardToolbar({
         <button
           onClick={() => setGroupOpen((v) => !v)}
           aria-expanded={groupOpen}
-          className={`h-8 px-3 rounded-md flex items-center gap-1.5 text-[13px] font-medium border motion-interactive ${
+          className={`h-8 px-3 rounded-md flex items-center gap-1.5 text-[13px] font-medium border motion-interactive whitespace-nowrap shrink-0 ${
             groupOpen || groupBy !== 'status'
               ? 'bg-[#0c66e4]/15 border-[#0c66e4] text-[#579dff]'
               : 'bg-[#22272b] border-[#2c333a] text-[#b6c2cf] hover:border-[#3d474f]'
