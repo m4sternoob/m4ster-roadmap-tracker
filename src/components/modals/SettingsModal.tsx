@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import type { Project } from '@/types';
-import { X, Download, Upload, Settings, BarChart2, FolderOpen } from 'lucide-react';
+import {
+  X,
+  Download,
+  Upload,
+  Settings,
+  BarChart2,
+  FolderOpen,
+  Database,
+  Trash2,
+} from 'lucide-react';
 import { useProjectStore } from '@/store/projectStore';
 
 interface SettingsModalProps {
@@ -10,7 +19,8 @@ interface SettingsModalProps {
 
 export function SettingsModal({ project, onClose }: SettingsModalProps) {
   const [importFile, setImportFile] = useState<File | null>(null);
-  const { exportProject, importProject } = useProjectStore.getState();
+  const { exportProject, importProject, loadSampleData, clearWorkspace, setShowConfirmDialog } =
+    useProjectStore.getState();
 
   const handleExport = () => {
     exportProject();
@@ -116,6 +126,42 @@ export function SettingsModal({ project, onClose }: SettingsModalProps) {
             >
               <Upload size={16} /> Import from JSON
             </button>
+          </div>
+
+          <div className="border-t dark:border-dark-border pt-4">
+            <h3 className="font-medium mb-3 flex items-center gap-2">
+              <Database size={18} /> Sample Data
+            </h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              Load a Jira-like sample workspace to explore the UI, or wipe everything and start
+              empty.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  loadSampleData();
+                  onClose();
+                }}
+                className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-800 text-inherit hover:bg-slate-200 dark:hover:bg-slate-700 motion-press flex items-center justify-center gap-2"
+              >
+                <Database size={16} /> Load sample dataset
+              </button>
+              <button
+                onClick={() =>
+                  setShowConfirmDialog({
+                    title: 'Reset workspace?',
+                    message: 'This deletes all issues, epics and sprints. This cannot be undone.',
+                    onConfirm: () => {
+                      clearWorkspace();
+                      onClose();
+                    },
+                  })
+                }
+                className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 motion-press flex items-center justify-center gap-2"
+              >
+                <Trash2 size={16} /> Reset workspace
+              </button>
+            </div>
           </div>
 
           <div className="border-t dark:border-dark-border pt-4">
