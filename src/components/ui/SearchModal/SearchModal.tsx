@@ -1,7 +1,9 @@
 import { Search, X, User, Tag, Zap } from 'lucide-react';
 import type { Issue, Priority, Status } from '@/types';
-import { ISSUE_TYPES, STATUSES } from '@/types';
+import { STATUSES } from '@/types';
+import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { useSearch } from '@/hooks/useSearch';
+import { ModalShell } from '@/components/ui/ModalShell';
 
 interface SearchModalProps {
   onSelectIssue: (issue: Issue) => void;
@@ -29,7 +31,7 @@ function highlightMatch(text: string, query: string): React.ReactNode {
   const parts = text.split(new RegExp(`(${query})`, 'gi'));
   return parts.map((part, i) =>
     part.toLowerCase() === query.toLowerCase() ? (
-      <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 rounded px-0.5">
+      <mark key={i} className="rounded bg-yellow-500/30 px-0.5 text-yellow-200">
         {part}
       </mark>
     ) : (
@@ -47,173 +49,166 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
     onClose();
   };
 
-  // Close on overlay click
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      close();
-      onClose();
-    }
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/50 dark:bg-black/70"
-      onClick={handleOverlayClick}
+    <ModalShell
+      onClose={close}
+      align="top"
+      label="Search issues"
+      panel="w-full max-w-3xl animate-scale-in"
     >
-      <div className="w-full max-w-3xl animate-scale-in">
-        {/* Search Input */}
-        <div className="bg-white dark:bg-dark-card rounded-t-xl border border-slate-200 dark:border-dark-border shadow-xl">
-          <div className="relative p-4">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              autoFocus
-              placeholder="Search issues... (title, key, labels, assignee)"
-              className="w-full pl-10 pr-12 py-3 text-lg bg-slate-100 dark:bg-slate-800 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-inherit"
-              aria-label="Search issues"
-            />
-            <button
-              onClick={close}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 motion-press"
-              aria-label="Close search"
-            >
-              <X size={20} />
-            </button>
-          </div>
-
-          {/* Keyboard Shortcuts Hint */}
-          <div className="px-4 pb-3 border-t border-slate-200 dark:border-dark-border">
-            <div className="flex flex-wrap gap-2 text-xs text-slate-500 dark:text-dark-muted">
-              <kbd className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">⌘K</kbd> Close
-              <kbd className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">↑↓</kbd> Navigate
-              <kbd className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">⏎</kbd> Select
-              <kbd className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded">Esc</kbd> Close
-            </div>
-          </div>
+      {/* Search Input */}
+      <div className="rounded-t-xl border border-white/10 bg-[#1c1f26] shadow-2xl shadow-black/50">
+        <div className="relative p-4">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            autoFocus
+            placeholder="Search issues... (title, key, labels, assignee)"
+            className="w-full rounded-lg border border-white/10 bg-[#0f1115] py-3 pl-10 pr-12 text-lg text-slate-100 placeholder:text-slate-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+            aria-label="Search issues"
+          />
+          <button
+            onClick={close}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 motion-press"
+            aria-label="Close search"
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        {/* Results */}
-        <div className="bg-white dark:bg-dark-card rounded-b-xl border border-slate-200 dark:border-dark-border border-t-0 max-h-[60vh] overflow-y-auto shadow-xl">
-          {results.length === 0 ? (
-            query.trim() ? (
-              <div className="p-8 text-center text-slate-500 dark:text-dark-muted">
-                <Search className="mx-auto mb-3 text-slate-300 dark:text-slate-600" size={32} />
-                <p className="text-lg">No issues found for "{query}"</p>
-                <p className="text-sm mt-1">Try different keywords or create a new issue</p>
-              </div>
-            ) : (
-              <div className="p-8 text-center text-slate-500 dark:text-dark-muted">
-                <Search className="mx-auto mb-3 text-slate-300 dark:text-slate-600" size={32} />
-                <p className="text-lg">Start typing to search issues</p>
-                <p className="text-sm mt-1">Searches title, description, key, labels, assignee</p>
-              </div>
-            )
-          ) : (
-            <ul role="listbox" aria-label="Search results">
-              {results.map(({ issue, matchedFields }, index) => (
-                <li
-                  key={issue.id}
-                  role="option"
-                  aria-selected={index === selectedIndex}
-                  onClick={() => handleSelectIssue(issue)}
-                  className={`px-4 py-3 border-t border-slate-200 dark:border-dark-border motion-press cursor-pointer ${
-                    index === selectedIndex
-                      ? 'bg-primary-50 dark:bg-primary-900/20'
-                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    {/* Issue Type Icon */}
-                    <span
-                      className="text-[14px] shrink-0 mt-0.5"
-                      title={ISSUE_TYPES.find((t) => t.value === issue.type)?.label}
-                    >
-                      {ISSUE_TYPES.find((t) => t.value === issue.type)?.icon}
-                    </span>
-
-                    {/* Issue Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm font-medium text-slate-600 dark:text-dark-text">
-                          {issue.key}
-                        </span>
-                        <span
-                          className="px-1.5 py-0.5 text-[10px] font-medium rounded-full"
-                          style={{
-                            backgroundColor: PRIORITY_COLORS[issue.priority] + '20',
-                            color: PRIORITY_COLORS[issue.priority],
-                          }}
-                        >
-                          {issue.priority}
-                        </span>
-                        <span
-                          className="px-1.5 py-0.5 text-[10px] font-medium rounded-full"
-                          style={{
-                            backgroundColor: STATUS_COLORS[issue.status] + '20',
-                            color: STATUS_COLORS[issue.status],
-                          }}
-                        >
-                          {STATUSES.find((s) => s.value === issue.status)?.label}
-                        </span>
-                      </div>
-
-                      <h4 className="mt-1 font-medium text-base text-slate-900 dark:text-dark-text truncate">
-                        {highlightMatch(issue.title, query)}
-                      </h4>
-
-                      {issue.description && (
-                        <p className="mt-1 text-sm text-slate-500 dark:text-dark-muted line-clamp-2">
-                          {highlightMatch(issue.description, query)}
-                        </p>
-                      )}
-
-                      {/* Matched fields badges */}
-                      {matchedFields.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {matchedFields.map((field) => (
-                            <span
-                              key={field}
-                              className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300"
-                            >
-                              {field}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Meta */}
-                      <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-400 dark:text-dark-muted">
-                        {issue.assignee && (
-                          <span className="flex items-center gap-1">
-                            <User size={12} /> {issue.assignee}
-                          </span>
-                        )}
-                        {issue.labels.length > 0 && (
-                          <span className="flex items-center gap-1">
-                            <Tag size={12} />
-                            {issue.labels.slice(0, 3).join(', ')}
-                            {issue.labels.length > 3 && ` +${issue.labels.length - 3}`}
-                          </span>
-                        )}
-                        {issue.storyPoints > 0 && (
-                          <span className="flex items-center gap-1 text-amber-500">
-                            <Zap size={12} /> {issue.storyPoints} pts
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+        {/* Keyboard Shortcuts Hint */}
+        <div className="border-t border-white/10 px-4 pb-3 pt-2">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+            <span>
+              <kbd className="rounded bg-white/10 px-1.5 py-0.5 text-slate-300">⌘K</kbd> Close
+            </span>
+            <span>
+              <kbd className="rounded bg-white/10 px-1.5 py-0.5 text-slate-300">↑↓</kbd> Navigate
+            </span>
+            <span>
+              <kbd className="rounded bg-white/10 px-1.5 py-0.5 text-slate-300">⏎</kbd> Select
+            </span>
+            <span>
+              <kbd className="rounded bg-white/10 px-1.5 py-0.5 text-slate-300">Esc</kbd> Close
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Results */}
+      <div className="max-h-[60vh] overflow-y-auto rounded-b-xl border border-t-0 border-white/10 bg-[#1c1f26] shadow-2xl shadow-black/50">
+        {results.length === 0 ? (
+          query.trim() ? (
+            <div className="p-8 text-center text-slate-400">
+              <Search className="mx-auto mb-3 text-slate-600" size={32} />
+              <p className="text-lg text-slate-200">No issues found for "{query}"</p>
+              <p className="mt-1 text-sm">Try different keywords or create a new issue</p>
+            </div>
+          ) : (
+            <div className="p-8 text-center text-slate-400">
+              <Search className="mx-auto mb-3 text-slate-600" size={32} />
+              <p className="text-lg text-slate-200">Start typing to search issues</p>
+              <p className="mt-1 text-sm">Searches title, description, key, labels, assignee</p>
+            </div>
+          )
+        ) : (
+          <ul role="listbox" aria-label="Search results">
+            {results.map(({ issue, matchedFields }, index) => (
+              <li
+                key={issue.id}
+                role="option"
+                aria-selected={index === selectedIndex}
+                onClick={() => handleSelectIssue(issue)}
+                // Staggered entry: first few rows rise in one after another.
+                style={{ animationDelay: `${Math.min(index, 8) * 24}ms` }}
+                className={`animate-fade-up cursor-pointer border-t border-white/5 px-4 py-3 motion-press ${
+                  index === selectedIndex ? 'bg-primary-500/10' : 'hover:bg-white/5'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 shrink-0">
+                    <IssueTypeIcon type={issue.type} size={15} />
+                  </span>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm font-medium text-slate-400">
+                        {issue.key}
+                      </span>
+                      <span
+                        className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+                        style={{
+                          backgroundColor: PRIORITY_COLORS[issue.priority] + '20',
+                          color: PRIORITY_COLORS[issue.priority],
+                        }}
+                      >
+                        {issue.priority}
+                      </span>
+                      <span
+                        className="rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+                        style={{
+                          backgroundColor: STATUS_COLORS[issue.status] + '20',
+                          color: STATUS_COLORS[issue.status],
+                        }}
+                      >
+                        {STATUSES.find((s) => s.value === issue.status)?.label}
+                      </span>
+                    </div>
+
+                    <h4 className="mt-1 truncate text-base font-medium text-slate-100">
+                      {highlightMatch(issue.title, query)}
+                    </h4>
+
+                    {issue.description && (
+                      <p className="mt-1 line-clamp-2 text-sm text-slate-400">
+                        {highlightMatch(issue.description, query)}
+                      </p>
+                    )}
+
+                    {matchedFields.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {matchedFields.map((field) => (
+                          <span
+                            key={field}
+                            className="rounded bg-primary-500/20 px-1.5 py-0.5 text-[10px] font-medium text-primary-300"
+                          >
+                            {field}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                      {issue.assignee && (
+                        <span className="flex items-center gap-1">
+                          <User size={12} /> {issue.assignee}
+                        </span>
+                      )}
+                      {issue.labels.length > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Tag size={12} />
+                          {issue.labels.slice(0, 3).join(', ')}
+                          {issue.labels.length > 3 && ` +${issue.labels.length - 3}`}
+                        </span>
+                      )}
+                      {issue.storyPoints > 0 && (
+                        <span className="flex items-center gap-1 text-amber-500">
+                          <Zap size={12} /> {issue.storyPoints} pts
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </ModalShell>
   );
 }
