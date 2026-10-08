@@ -22,22 +22,18 @@ No backend required. Data persists in localStorage. Deploy anywhere as static fi
 
 | Category             | Features                                                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| **Kanban Board**     | Drag-and-drop (@dnd-kit), 5 columns (Backlog → To Do → In Progress → Review → Done), priority sorting, virtualized columns           |
+| **Kanban Board**     | Drag-and-drop (@dnd-kit), 5 columns (Backlog → To Do → In Progress → Review → Done), priority sorting, paginated columns             |
 | **Issue Management** | Create/edit/delete, types (Epic/Story/Task/Subtask/Bug), priorities, story points, assignees, labels, due dates, epic/sprint linking |
 | **Epics**            | Color-coded, issue grouping, progress tracking                                                                                       |
 | **Sprints**          | Planning → Active → Complete lifecycle, sprint goals, burndown charts, issue assignment                                              |
-| **Reports**          | SVG burndown charts (ideal vs actual), velocity tracking, sprint health indicators                                                   |
+| **Reports**          | SVG burndown charts (ideal vs actual), sprint progress and behind/on-track indicators                                                |
 | **UX**               | Dark/light theme (system + manual), keyboard navigation, ARIA labels, focus management, responsive grid                              |
 | **Data**             | localStorage persistence, export/import JSON backups, zero-config                                                                    |
-| **DevEx**            | TypeScript strict, ESLint + Oxlint, Prettier, Vitest, CI/CD, Docker                                                                  |
+| **DevEx**            | TypeScript strict, Oxlint, Prettier, Vitest, CI/CD, Docker                                                                           |
 
 ## 📸 Screenshots
 
-| Board View                           | Backlog                                  | Sprint Burndown                            |
-| ------------------------------------ | ---------------------------------------- | ------------------------------------------ |
-| ![board](docs/screenshots/board.png) | ![backlog](docs/screenshots/backlog.png) | ![burndown](docs/screenshots/burndown.png) |
-
-_Add screenshots to `docs/screenshots/` after first deploy_
+_Screenshots will be added to `docs/screenshots/` after the first deploy._
 
 ## 🚀 Quick Start
 
@@ -50,8 +46,8 @@ _Add screenshots to `docs/screenshots/` after first deploy_
 
 ```bash
 # Clone
-git clone https://github.com/YOUR_USERNAME/m4ster-tracker.git
-cd m4ster-tracker
+git clone https://github.com/m4sternoob/m4ster-roadmap-tracker.git
+cd m4ster-roadmap-tracker
 
 # Install dependencies
 npm install
@@ -69,7 +65,7 @@ npm run preview      # Preview production build locally
 npm run test         # Run unit tests (Vitest)
 npm run test:watch   # Watch mode
 npm run test:coverage # Coverage report
-npm run lint         # Oxlint + ESLint
+npm run lint         # Oxlint
 npm run lint:fix     # Auto-fix lint issues
 npm run format       # Prettier format
 npm run format:check # Check formatting
@@ -84,27 +80,9 @@ docker build -t m4ster-tracker .
 
 # Run container (port 80)
 docker run -d -p 80:80 --name m4ster-tracker m4ster-tracker
-
-# Or with docker-compose
-docker-compose up -d
 ```
 
-**docker-compose.yml** (for production):
-
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - '80:80'
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost/']
-      interval: 30s
-      timeout: 3s
-      retries: 3
-```
+> No `docker-compose.yml` is shipped with this repo — the container above is all you need for a static deploy.
 
 ## ☁️ Deployment
 
@@ -132,8 +110,8 @@ npm run build
 ### Docker Hub / Container Registry
 
 ```bash
-docker tag m4ster-tracker YOUR_USERNAME/m4ster-tracker:latest
-docker push YOUR_USERNAME/m4ster-tracker:latest
+docker tag m4ster-tracker m4sternoob/m4ster-roadmap-tracker:latest
+docker push m4sternoob/m4ster-roadmap-tracker:latest
 ```
 
 ## 🏗️ Architecture
@@ -268,13 +246,13 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/m4ster-tracker/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/m4ster-tracker/discussions)
+- **Issues**: [GitHub Issues](https://github.com/m4sternoob/m4ster-roadmap-tracker/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/m4sternoob/m4ster-roadmap-tracker/discussions)
 - **Security**: Email masternoob102030@gmail.com (see SECURITY.md)
 
 ---
 
 <p align="center">
   Built with ❤️ for product teams everywhere.<br>
-  <a href="https://github.com/YOUR_USERNAME/m4ster-tracker">⭐ Star this repo</a> if you find it useful!
+  <a href="https://github.com/m4sternoob/m4ster-roadmap-tracker">⭐ Star this repo</a> if you find it useful!
 </p>
