@@ -12,6 +12,7 @@ function getSprintBurndownData(project: Project, sprintId: string) {
   const start = new Date(sprint.startDate);
   const end = new Date(sprint.endDate);
   const totalDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+  if (totalDays < 1) return null;
   const today = new Date();
   const elapsedDays = Math.max(
     0,
@@ -69,6 +70,8 @@ export function ReportsView({ project }: { project: Project }) {
         if (!data) return null;
 
         const { ideal, actual, totalPoints, donePoints, totalDays, elapsedDays, sprint: s } = data;
+        // Unique per sprint so multiple charts on the page never share an SVG id.
+        const gridPatternId = `burndown-grid-${s.id}`;
         const progress = totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : 0;
         const isComplete = s.status === 'completed' || progress >= 100;
         const isBehind =
@@ -127,7 +130,7 @@ export function ReportsView({ project }: { project: Project }) {
               >
                 {/* Grid lines */}
                 <defs>
-                  <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                  <pattern id={gridPatternId} width="50" height="50" patternUnits="userSpaceOnUse">
                     <path
                       d="M 50 0 L 0 0 0 50"
                       fill="none"
@@ -137,7 +140,7 @@ export function ReportsView({ project }: { project: Project }) {
                     />
                   </pattern>
                 </defs>
-                <rect width={chartWidth} height={chartHeight} fill="url(#grid)" />
+                <rect width={chartWidth} height={chartHeight} fill={`url(#${gridPatternId})`} />
 
                 {/* Axes */}
                 <line
