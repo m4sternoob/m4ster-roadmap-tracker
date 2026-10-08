@@ -5,6 +5,7 @@ import {
   formatDate,
   isOverdue,
   initials,
+  getEpicProgress,
 } from '@/utils/helpers';
 
 describe('helpers', () => {
@@ -78,6 +79,51 @@ describe('helpers', () => {
 
     it('handles multiple spaces', () => {
       expect(initials('John  Middle  Doe')).toBe('JM');
+    });
+  });
+
+  describe('getEpicProgress', () => {
+    const project = {
+      issues: [
+        { id: 'i1', epicId: 'e1', status: 'done', storyPoints: 3 },
+        { id: 'i2', epicId: 'e1', status: 'done', storyPoints: 5 },
+        { id: 'i3', epicId: 'e1', status: 'in-progress', storyPoints: 2 },
+        { id: 'i4', epicId: 'e1', status: 'todo', storyPoints: 4 },
+        { id: 'i5', epicId: 'e2', status: 'done', storyPoints: 1 },
+        { id: 'i6', status: 'done', storyPoints: 8 },
+      ],
+    } as any;
+
+    it('counts issues and story points per epic', () => {
+      const p = getEpicProgress(project, 'e1');
+      expect(p.totalIssues).toBe(4);
+      expect(p.doneIssues).toBe(2);
+      expect(p.percentComplete).toBe(50);
+      expect(p.totalPoints).toBe(14);
+      expect(p.donePoints).toBe(8);
+      expect(p.pointsPercent).toBe(57);
+    });
+
+    it('builds a per-status breakdown', () => {
+      const p = getEpicProgress(project, 'e1');
+      expect(p.statusBreakdown.done).toBe(2);
+      expect(p.statusBreakdown['in-progress']).toBe(1);
+      expect(p.statusBreakdown.todo).toBe(1);
+      expect(p.statusBreakdown.backlog).toBe(0);
+    });
+
+    it('ignores issues from other epics or none', () => {
+      const p = getEpicProgress(project, 'e2');
+      expect(p.totalIssues).toBe(1);
+      expect(p.percentComplete).toBe(100);
+    });
+
+    it('handles epics with no issues', () => {
+      const p = getEpicProgress(project, 'e3');
+      expect(p.totalIssues).toBe(0);
+      expect(p.percentComplete).toBe(0);
+      expect(p.pointsPercent).toBe(0);
+      expect(p.totalPoints).toBe(0);
     });
   });
 });

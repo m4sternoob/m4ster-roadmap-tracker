@@ -1,4 +1,4 @@
-import type { Project } from '@/types';
+import type { Project, Status } from '@/types';
 
 export function generateIssueKey(project: Project): string {
   return `${project.key}-${project.nextIssueNumber}`;
@@ -93,4 +93,48 @@ export function generateId(): string {
 
 export function classNames(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(' ');
+}
+
+export interface EpicProgress {
+  epicId: string;
+  totalIssues: number;
+  doneIssues: number;
+  percentComplete: number;
+  totalPoints: number;
+  donePoints: number;
+  pointsPercent: number;
+  statusBreakdown: Record<Status, number>;
+}
+
+/** Completion stats for one epic, computed from the project's issue list. */
+export function getEpicProgress(project: Project, epicId: string): EpicProgress {
+  const issues = project.issues.filter((i) => i.epicId === epicId);
+  const totalIssues = issues.length;
+  const doneIssues = issues.filter((i) => i.status === 'done').length;
+  const totalPoints = issues.reduce((sum, i) => sum + i.storyPoints, 0);
+  const donePoints = issues
+    .filter((i) => i.status === 'done')
+    .reduce((sum, i) => sum + i.storyPoints, 0);
+
+  const statusBreakdown: Record<Status, number> = {
+    backlog: 0,
+    todo: 0,
+    'in-progress': 0,
+    review: 0,
+    done: 0,
+  };
+  for (const issue of issues) {
+    statusBreakdown[issue.status] += 1;
+  }
+
+  return {
+    epicId,
+    totalIssues,
+    doneIssues,
+    percentComplete: totalIssues > 0 ? Math.round((doneIssues / totalIssues) * 100) : 0,
+    totalPoints,
+    donePoints,
+    pointsPercent: totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : 0,
+    statusBreakdown,
+  };
 }
