@@ -1,6 +1,8 @@
 # m4ster-tracker
 
-> Professional roadmap tracker for product teams — Kanban, sprints, burndown, dark mode.
+> Roadmap tracker for product teams — Kanban board, sprints, epic progress, burndown charts, dark mode.
+
+**Live demo:** https://m4ster-tracker.vercel.app
 
 ![m4ster-tracker banner](https://img.shields.io/badge/m4ster--tracker-v1.0.0-0ea5e9?style=for-the-badge&logo=react&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
@@ -14,7 +16,7 @@
 
 ## 🎯 Overview
 
-**m4ster-tracker** is a production-ready, offline-first roadmap tracker built for product teams and solo developers. It combines a clean Kanban board with sprint planning, burndown analytics, and epic management — all in a fast, accessible, dark-mode-friendly SPA.
+**m4ster-tracker** is an offline-first roadmap tracker for product teams and solo developers. It combines a Kanban board with sprint planning, epic progress reporting, and burndown analytics — all in a fast, accessible, dark-mode-friendly single-page app.
 
 No backend required. Data persists in localStorage. Deploy anywhere as static files.
 
@@ -24,20 +26,16 @@ No backend required. Data persists in localStorage. Deploy anywhere as static fi
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | **Kanban Board**     | Drag-and-drop (@dnd-kit), 5 columns (Backlog → To Do → In Progress → Review → Done), priority sorting, virtualized columns           |
 | **Issue Management** | Create/edit/delete, types (Epic/Story/Task/Subtask/Bug), priorities, story points, assignees, labels, due dates, epic/sprint linking |
-| **Epics**            | Color-coded, issue grouping, progress tracking                                                                                       |
+| **Epics**            | Color-coded, issue grouping, per-epic progress in Reports (completion %, story points, per-status breakdown)                         |
 | **Sprints**          | Planning → Active → Complete lifecycle, sprint goals, burndown charts, issue assignment                                              |
-| **Reports**          | SVG burndown charts (ideal vs actual), velocity tracking, sprint health indicators                                                   |
+| **Reports**          | Epic progress dashboard, SVG sprint burndown charts (ideal vs actual), sprint health indicators                                      |
 | **UX**               | Dark/light theme (system + manual), keyboard navigation, ARIA labels, focus management, responsive grid                              |
 | **Data**             | localStorage persistence, export/import JSON backups, zero-config                                                                    |
 | **DevEx**            | TypeScript strict, ESLint + Oxlint, Prettier, Vitest, CI/CD, Docker                                                                  |
 
 ## 📸 Screenshots
 
-| Board View                           | Backlog                                  | Sprint Burndown                            |
-| ------------------------------------ | ---------------------------------------- | ------------------------------------------ |
-| ![board](docs/screenshots/board.png) | ![backlog](docs/screenshots/backlog.png) | ![burndown](docs/screenshots/burndown.png) |
-
-_Add screenshots to `docs/screenshots/` after first deploy_
+No screenshots checked in yet — the fastest way to see it is the [live demo](https://m4ster-tracker.vercel.app).
 
 ## 🚀 Quick Start
 
@@ -50,8 +48,8 @@ _Add screenshots to `docs/screenshots/` after first deploy_
 
 ```bash
 # Clone
-git clone https://github.com/YOUR_USERNAME/m4ster-tracker.git
-cd m4ster-tracker
+git clone https://github.com/m4sternoob/m4ster-roadmap-tracker.git
+cd m4ster-roadmap-tracker
 
 # Install dependencies
 npm install
@@ -84,26 +82,6 @@ docker build -t m4ster-tracker .
 
 # Run container (port 80)
 docker run -d -p 80:80 --name m4ster-tracker m4ster-tracker
-
-# Or with docker-compose
-docker-compose up -d
-```
-
-**docker-compose.yml** (for production):
-
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - '80:80'
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost/']
-      interval: 30s
-      timeout: 3s
-      retries: 3
 ```
 
 ## ☁️ Deployment
@@ -132,8 +110,8 @@ npm run build
 ### Docker Hub / Container Registry
 
 ```bash
-docker tag m4ster-tracker YOUR_USERNAME/m4ster-tracker:latest
-docker push YOUR_USERNAME/m4ster-tracker:latest
+docker tag m4ster-tracker m4sternoob/m4ster-tracker:latest
+docker push m4sternoob/m4ster-tracker:latest
 ```
 
 ## 🏗️ Architecture
@@ -268,13 +246,13 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/m4ster-tracker/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/m4ster-tracker/discussions)
+- **Issues**: [GitHub Issues](https://github.com/m4sternoob/m4ster-roadmap-tracker/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/m4sternoob/m4ster-roadmap-tracker/discussions)
 - **Security**: Email masternoob102030@gmail.com (see SECURITY.md)
 
 ---
 
 <p align="center">
   Built with ❤️ for product teams everywhere.<br>
-  <a href="https://github.com/YOUR_USERNAME/m4ster-tracker">⭐ Star this repo</a> if you find it useful!
+  <a href="https://github.com/m4sternoob/m4ster-roadmap-tracker">⭐ Star this repo</a> if you find it useful!
 </p>
