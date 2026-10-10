@@ -270,7 +270,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 - **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/m4ster-tracker/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/m4ster-tracker/discussions)
-- **Security**: Email masternoob102030@gmail.com (see SECURITY.md)
+- **Security**: Email xyaz@gmail.com (see SECURITY.md)
 
 ---
 

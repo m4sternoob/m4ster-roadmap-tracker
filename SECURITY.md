@@ -10,7 +10,7 @@
 
 **Please do NOT open a public issue for security vulnerabilities.**
 
-Instead, email **masternoob102030@gmail.com** with:
+Instead, email **xyaz@gmail.com** with:
 
 1. Description of the vulnerability
 2. Steps to reproduce
