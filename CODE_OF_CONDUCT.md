@@ -24,7 +24,7 @@ We pledge to make participation in our community a harassment-free experience fo
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainers at **masternoob102030@gmail.com**. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainers at **xyaz@gmail.com**. All complaints will be reviewed and investigated promptly and fairly.
 
 Project maintainers have the right to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that don't align with this Code of Conduct.
 
