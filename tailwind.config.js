@@ -5,24 +5,24 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#082f49',
+          50: '#e9f2ff',
+          100: '#cce0ff',
+          200: '#85b8ff',
+          300: '#579dff',
+          400: '#388bff',
+          500: '#0c66e4',
+          600: '#0055cc',
+          700: '#004491',
+          800: '#00387a',
+          900: '#002e5f',
+          950: '#001f3d',
         },
         dark: {
-          bg: '#0f172a',
-          card: '#1e293b',
-          border: '#334155',
-          text: '#f1f5f9',
-          muted: '#94a3b8',
+          bg: '#1d2125',
+          card: '#22272b',
+          border: '#2c333a',
+          text: '#e6edf3',
+          muted: '#8c9bab',
         },
         'muted-foreground': 'var(--muted-foreground)',
       },
@@ -34,8 +34,8 @@ export default {
         'fade-in': 'fadeIn 0.15s ease-out',
         'scale-in': 'scaleIn 0.15s ease-out',
         'slide-in': 'slideIn 0.2s ease-out',
-        // View switch enter: fade + gentle rise, on the shared motion tokens.
-        'view-enter': 'viewEnter var(--motion-normal) var(--ease-out)',
+        'toast-in': 'toastIn 0.2s cubic-bezier(0, 0, 0.2, 1)',
+        'fade-up': 'fadeUp 0.25s cubic-bezier(0, 0, 0.2, 1) both',
       },
       keyframes: {
         fadeIn: {
@@ -50,8 +50,12 @@ export default {
           '0%': { opacity: '0', transform: 'translateX(-10px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
-        viewEnter: {
-          '0%': { opacity: '0', transform: 'translateY(8px)' },
+        toastIn: {
+          '0%': { opacity: '0', transform: 'translateY(8px) scale(0.97)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        fadeUp: {
+          '0%': { opacity: '0', transform: 'translateY(6px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },

@@ -12,7 +12,21 @@ import type {
   SearchFilters,
   Status,
 } from '@/types';
+import { STATUSES } from '@/types';
 import { generateIssueKey, generateEpicKey } from '@/utils/helpers';
+import { createSampleProject } from '@/utils/demoData';
+
+export type AppView = 'board' | 'list' | 'backlog' | 'sprints' | 'reports';
+
+export type ToastKind = 'success' | 'error' | 'info';
+
+export interface Toast {
+  id: string;
+  kind: ToastKind;
+  message: string;
+}
+
+const TOAST_TTL_MS = 3600;
 
 interface ProjectState {
   project: Project | null;
@@ -20,8 +34,8 @@ interface ProjectState {
   error: string | null;
 
   // UI State
-  activeView: 'board' | 'backlog' | 'sprints' | 'reports';
-  setActiveView: (view: 'board' | 'backlog' | 'sprints' | 'reports') => void;
+  activeView: AppView;
+  setActiveView: (view: AppView) => void;
   selectedIssue: Issue | null;
   setSelectedIssue: (issue: Issue | null) => void;
   showIssueModal: boolean;
@@ -40,8 +54,15 @@ interface ProjectState {
   setDragOverColumn: (status: Status | null) => void;
   newIssueDefaultStatus: Status;
   setNewIssueDefaultStatus: (status: Status) => void;
+  newIssuePreset: Partial<CreateIssueInput> | null;
+  setNewIssuePreset: (preset: Partial<CreateIssueInput> | null) => void;
   showSearchModal: boolean;
   setShowSearchModal: (show: boolean) => void;
+
+  // Toasts
+  toasts: Toast[];
+  pushToast: (kind: ToastKind, message: string) => void;
+  dismissToast: (id: string) => void;
 
   // Actions
   initializeProject: () => Promise<void>;
@@ -55,6 +76,8 @@ interface ProjectState {
   deleteIssue: (issueId: string) => void;
   moveIssue: (issueId: string, newStatus: Status) => void;
   bulkUpdateIssues: (issueIds: string[], input: UpdateIssueInput) => void;
+  addComment: (issueId: string, author: string, text: string) => void;
+  deleteComment: (issueId: string, commentId: string) => void;
 
   // Epic actions
   createEpic: (input: CreateEpicInput) => Epic;
@@ -79,24 +102,24 @@ interface ProjectState {
   // Export/Import
   exportProject: () => void;
   importProject: (file: File) => Promise<void>;
+  loadSampleData: () => void;
+  clearWorkspace: () => void;
 }
 
 const STORAGE_KEY = 'm4ster-tracker-project';
 
-function createDefaultProject(): Project {
-  const now = new Date().toISOString();
+/** Normalize issues loaded from older stored projects (pre-comments, etc). */
+function normalizeProject(project: Project): Project {
   return {
-    id: crypto.randomUUID(),
-    key: 'MT',
-    name: 'M4ster Roadmap Tracker',
-    description: 'Professional roadmap tracker for product teams',
-    issues: [],
-    epics: [],
-    sprints: [],
-    nextIssueNumber: 1,
-    createdAt: now,
-    updatedAt: now,
+    ...project,
+    issues: project.issues.map((i) => ({ ...i, comments: i.comments ?? [] })),
+    epics: project.epics ?? [],
+    sprints: project.sprints ?? [],
   };
+}
+
+function createDefaultProject(): Project {
+  return createSampleProject();
 }
 
 export const useProjectStore = create<ProjectState>()(
@@ -125,8 +148,21 @@ export const useProjectStore = create<ProjectState>()(
       setDragOverColumn: (status) => set({ dragOverColumn: status }),
       newIssueDefaultStatus: 'backlog',
       setNewIssueDefaultStatus: (status) => set({ newIssueDefaultStatus: status }),
+      newIssuePreset: null,
+      setNewIssuePreset: (preset) => set({ newIssuePreset: preset }),
       showSearchModal: false,
       setShowSearchModal: (show) => set({ showSearchModal: show }),
+
+      // Toasts
+      toasts: [],
+      pushToast: (kind, message) => {
+        const id = crypto.randomUUID();
+        set((state) => ({ toasts: [...state.toasts, { id, kind, message }] }));
+        window.setTimeout(() => {
+          set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+        }, TOAST_TTL_MS);
+      },
+      dismissToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 
       initializeProject: async () => {
         set({ isLoading: true, error: null });
@@ -135,7 +171,7 @@ export const useProjectStore = create<ProjectState>()(
           // For now, use localStorage
           const stored = localStorage.getItem(STORAGE_KEY);
           if (stored) {
-            const project = JSON.parse(stored) as Project;
+            const project = normalizeProject(JSON.parse(stored) as Project);
             set({ project, isLoading: false });
           } else {
             const project = createDefaultProject();
@@ -185,6 +221,7 @@ export const useProjectStore = create<ProjectState>()(
           epicId: input.epicId,
           parentId: input.parentId,
           sprintId: input.sprintId,
+          comments: [],
           createdAt: now,
           updatedAt: now,
           dueDate: input.dueDate,
@@ -202,6 +239,7 @@ export const useProjectStore = create<ProjectState>()(
         }));
 
         get().saveProject();
+        get().pushToast('success', `Issue ${key} created`);
         return newIssue;
       },
 
@@ -221,8 +259,58 @@ export const useProjectStore = create<ProjectState>()(
         get().saveProject();
       },
 
+      addComment: (issueId: string, author: string, text: string) => {
+        const now = new Date().toISOString();
+        const trimmed = text.trim();
+        if (!trimmed) return;
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((issue) =>
+                  issue.id === issueId
+                    ? {
+                        ...issue,
+                        comments: [
+                          ...(issue.comments ?? []),
+                          { id: crypto.randomUUID(), author, text: trimmed, createdAt: now },
+                        ],
+                        updatedAt: now,
+                      }
+                    : issue
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+      },
+
+      deleteComment: (issueId: string, commentId: string) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((issue) =>
+                  issue.id === issueId
+                    ? {
+                        ...issue,
+                        comments: (issue.comments ?? []).filter((c) => c.id !== commentId),
+                        updatedAt: now,
+                      }
+                    : issue
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+      },
+
       deleteIssue: (issueId: string) => {
         const now = new Date().toISOString();
+        const doomed = get().project?.issues.find((i) => i.id === issueId);
         set((state) => ({
           project: state.project
             ? {
@@ -241,6 +329,7 @@ export const useProjectStore = create<ProjectState>()(
             : null,
         }));
         get().saveProject();
+        if (doomed) get().pushToast('success', `Issue ${doomed.key} deleted`);
       },
 
       moveIssue: (issueId: string, newStatus: Status) => {
@@ -267,6 +356,8 @@ export const useProjectStore = create<ProjectState>()(
             : null,
         }));
         get().saveProject();
+        const label = STATUSES.find((s) => s.value === newStatus)?.label ?? newStatus;
+        get().pushToast('success', `${issue.key} moved to ${label}`);
       },
 
       bulkUpdateIssues: (issueIds: string[], input: UpdateIssueInput) => {
@@ -609,6 +700,7 @@ export const useProjectStore = create<ProjectState>()(
         a.download = `${project.key}-roadmap-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
+        get().pushToast('success', 'Project exported');
       },
 
       importProject: async (file: File) => {
@@ -618,11 +710,39 @@ export const useProjectStore = create<ProjectState>()(
           if (!project.id || !project.key || !project.name) {
             throw new Error('Invalid project structure');
           }
-          set({ project });
+          set({ project: normalizeProject(project) });
           get().saveProject();
+          get().pushToast('success', 'Project imported');
         } catch (e) {
+          get().pushToast('error', 'Invalid project file');
           throw new Error('Invalid project file');
         }
+      },
+
+      loadSampleData: () => {
+        const project = createSampleProject();
+        set({ project });
+        get().saveProject();
+        get().pushToast('success', 'Sample dataset loaded');
+      },
+
+      clearWorkspace: () => {
+        const now = new Date().toISOString();
+        const project: Project = {
+          id: crypto.randomUUID(),
+          key: 'MT',
+          name: 'M4ster Roadmap Tracker',
+          description: '',
+          issues: [],
+          epics: [],
+          sprints: [],
+          nextIssueNumber: 1,
+          createdAt: now,
+          updatedAt: now,
+        };
+        set({ project });
+        get().saveProject();
+        get().pushToast('success', 'Workspace cleared');
       },
     }),
     {
