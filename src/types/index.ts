@@ -3,6 +3,13 @@ export type Status = 'backlog' | 'todo' | 'in-progress' | 'review' | 'done';
 export type IssueType = 'epic' | 'story' | 'task' | 'subtask' | 'bug';
 export type SprintStatus = 'planning' | 'active' | 'completed';
 
+export interface IssueComment {
+  id: string;
+  author: string;
+  text: string;
+  createdAt: string;
+}
+
 export interface Issue {
   id: string;
   key: string;
@@ -17,6 +24,7 @@ export interface Issue {
   epicId?: string;
   parentId?: string;
   sprintId?: string;
+  comments: IssueComment[];
   createdAt: string;
   updatedAt: string;
   dueDate?: string;

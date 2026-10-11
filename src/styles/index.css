@@ -67,6 +67,27 @@ body {
   overflow: hidden;
 }
 
+/* Skip link — visually hidden until keyboard focus lands on it. */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 12px;
+  z-index: 100;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #0c66e4;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top var(--motion-fast) var(--ease-out);
+}
+.skip-link:focus-visible {
+  top: 8px;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
 /* Focus visible for accessibility */
 :focus-visible {
   outline: 2px solid #0ea5e9;
@@ -108,6 +129,11 @@ body {
 }
 .motion-press:active {
   transform: scale(0.97);
+}
+
+/* Column collapse: width transition only, same ease as the motion tokens. */
+.motion-collapse {
+  transition: width var(--motion-normal) var(--ease-out);
 }
 
 /* Reduced motion */

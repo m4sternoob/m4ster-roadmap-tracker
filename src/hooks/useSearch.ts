@@ -4,9 +4,11 @@ import type { SearchFilters } from '@/types';
 
 export function useSearch() {
   const [query, setQuery] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const searchIssues = useProjectStore((state) => state.searchIssues);
+  // Single source of truth lives in the store so TopBar, Cmd+K and App all agree.
+  const isOpen = useProjectStore((state) => state.showSearchModal);
+  const setStoreOpen = useProjectStore((state) => state.setShowSearchModal);
 
   // Perform search with current query
   const results = useMemo(() => {
@@ -56,15 +58,15 @@ export function useSearch() {
   );
 
   const open = useCallback(() => {
-    setIsOpen(true);
+    setStoreOpen(true);
     setSelectedIndex(0);
-  }, []);
+  }, [setStoreOpen]);
 
   const close = useCallback(() => {
-    setIsOpen(false);
+    setStoreOpen(false);
     setQuery('');
     setSelectedIndex(0);
-  }, []);
+  }, [setStoreOpen]);
 
   // Cmd+K to open
   useEffect(() => {
@@ -83,7 +85,7 @@ export function useSearch() {
     query,
     setQuery,
     isOpen,
-    setIsOpen,
+    setIsOpen: setStoreOpen,
     results,
     selectedIndex,
     handleKeyDown,
@@ -145,14 +147,19 @@ export function useKeyboardShortcuts() {
         case '2':
           if (e.metaKey || e.ctrlKey) return;
           e.preventDefault();
-          setActiveView('backlog');
+          setActiveView('list');
           break;
         case '3':
           if (e.metaKey || e.ctrlKey) return;
           e.preventDefault();
-          setActiveView('sprints');
+          setActiveView('backlog');
           break;
         case '4':
+          if (e.metaKey || e.ctrlKey) return;
+          e.preventDefault();
+          setActiveView('sprints');
+          break;
+        case '5':
           if (e.metaKey || e.ctrlKey) return;
           e.preventDefault();
           setActiveView('reports');

@@ -1,18 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useProjectStore } from '@/store/projectStore';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { TopBar } from '@/components/layout/TopBar';
+import { SideNav } from '@/components/layout/SideNav';
+import { ProjectHeader } from '@/components/layout/ProjectHeader';
 import { BoardView } from '@/components/views/BoardView';
+import { ListView } from '@/components/views/ListView';
 import { BacklogView } from '@/components/views/BacklogView';
 import { SprintsView } from '@/components/views/SprintsView';
 import { ReportsView } from '@/components/views/ReportsView';
-import { Toolbar } from '@/components/ui/Toolbar';
 import { IssueModal } from '@/components/modals/IssueModal';
 import { EpicModal } from '@/components/modals/EpicModal';
 import { SprintModal } from '@/components/modals/SprintModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SearchModal } from '@/components/ui/SearchModal/SearchModal';
+import { Toasts } from '@/components/ui/Toasts';
+import { AppSkeleton } from '@/components/ui/Skeletons';
 import { useSearch, useKeyboardShortcuts } from '@/hooks/useSearch';
+import type { Issue } from '@/types';
 
 function App() {
   const {
@@ -31,63 +37,76 @@ function App() {
     setShowSettingsModal,
     showConfirmDialog,
     setShowConfirmDialog,
-    dragOverColumn,
-    setDragOverColumn,
   } = useProjectStore();
 
-  const { open: openSearch, close: closeSearch, isOpen: showSearchModal } = useSearch();
+  const { close: closeSearch, isOpen: showSearchModal } = useSearch();
   useKeyboardShortcuts();
+  // Start collapsed on small screens so the board gets the room.
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 1024
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023.5px)');
+    const onChange = (e: MediaQueryListEvent) => setSidebarCollapsed(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   useEffect(() => {
     initializeProject();
   }, [initializeProject]);
 
   if (!project) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-dark-bg">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-primary-500 border-t-transparent animate-spin" />
-          <p className="text-sm text-slate-500 dark:text-dark-muted">Loading project…</p>
-        </div>
-      </div>
-    );
+    return <AppSkeleton />;
   }
 
-  const handleIssueClick = (issue: typeof selectedIssue) => {
+  const handleIssueClick = (issue: Issue | null) => {
     setSelectedIssue(issue);
     setShowIssueModal(true);
   };
 
-  const handleSearchSelectIssue = (issue: typeof selectedIssue) => {
+  const handleSearchSelectIssue = (issue: Issue | null) => {
     setSelectedIssue(issue);
     setShowIssueModal(true);
   };
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-dark-bg dark:text-dark-text font-sans">
-        <Toolbar project={project} onSearch={openSearch} />
+      <div className="h-screen flex flex-col bg-[#1d2125] text-[#e6edf3] font-sans overflow-hidden">
+        {/* Skip link: first tab stop, visible only on keyboard focus. */}
+        <a href="#board-content" className="skip-link">
+          Skip to board content
+        </a>
+        <TopBar onToggleSidebar={() => setSidebarCollapsed((v) => !v)} />
 
-        <main className="px-4 md:px-6 lg:px-8 py-6 max-w-[1600px] mx-auto">
-          {/* key remounts on view switch, replaying the enter transition */}
-          <div key={activeView} className="animate-view-enter">
-            {activeView === 'board' && (
-              <BoardView
-                project={project}
-                dragOverColumn={dragOverColumn}
-                setDragOverColumn={setDragOverColumn}
-                onIssueClick={handleIssueClick}
-              />
-            )}
-            {activeView === 'backlog' && (
-              <BacklogView project={project} onIssueClick={handleIssueClick} />
-            )}
-            {activeView === 'sprints' && (
-              <SprintsView project={project} onIssueClick={handleIssueClick} />
-            )}
-            {activeView === 'reports' && <ReportsView project={project} />}
+        <div className="flex flex-1 min-h-0">
+          <SideNav project={project} collapsed={sidebarCollapsed} />
+
+          <div className="flex-1 flex flex-col min-w-0 min-h-0">
+            <ProjectHeader project={project} />
+
+            <main
+              id="board-content"
+              tabIndex={-1}
+              className="flex-1 min-h-0 overflow-y-auto px-5 py-4"
+            >
+              {activeView === 'board' && (
+                <BoardView project={project} onIssueClick={handleIssueClick} />
+              )}
+              {activeView === 'list' && (
+                <ListView project={project} onIssueClick={handleIssueClick} />
+              )}
+              {activeView === 'backlog' && (
+                <BacklogView project={project} onIssueClick={handleIssueClick} />
+              )}
+              {activeView === 'sprints' && (
+                <SprintsView project={project} onIssueClick={handleIssueClick} />
+              )}
+              {activeView === 'reports' && <ReportsView project={project} />}
+            </main>
           </div>
-        </main>
+        </div>
 
         {showIssueModal && (
           <IssueModal
@@ -96,6 +115,7 @@ function App() {
             onClose={() => {
               setShowIssueModal(false);
               setSelectedIssue(null);
+              useProjectStore.getState().setNewIssuePreset(null);
             }}
           />
         )}
@@ -125,6 +145,8 @@ function App() {
         {showSearchModal && (
           <SearchModal onSelectIssue={handleSearchSelectIssue} onClose={() => closeSearch()} />
         )}
+
+        <Toasts />
       </div>
     </ThemeProvider>
   );
