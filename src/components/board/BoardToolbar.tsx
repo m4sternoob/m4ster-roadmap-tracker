@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, ListFilter, Search, User } from 'lucide-react';
 import type { Issue } from '@/types';
 import { Avatar } from '@/components/issues/Avatar';
+import { useProjectStore } from '@/store/projectStore';
 import {
   CURRENT_USER,
   UNASSIGNED,
@@ -37,7 +38,9 @@ export function BoardToolbar({
   issues: Issue[];
   epics: { id: string; name: string; color: string }[];
 }) {
-  const [filterOpen, setFilterOpen] = useState(false);
+  // Filter panel visibility lives in the store so the sidebar can open it.
+  const filterOpen = useProjectStore((s) => s.boardFilterPanelOpen);
+  const setFilterOpen = useProjectStore((s) => s.setBoardFilterPanelOpen);
   const [groupOpen, setGroupOpen] = useState(false);
 
   const assignees = Array.from(new Set(issues.map((i) => i.assignee ?? UNASSIGNED))).sort((a, b) =>
@@ -112,7 +115,7 @@ export function BoardToolbar({
       {/* Filter button + panel */}
       <div className="relative">
         <button
-          onClick={() => setFilterOpen((v) => !v)}
+          onClick={() => setFilterOpen(!filterOpen)}
           aria-expanded={filterOpen}
           className={`h-8 px-3 rounded-md flex items-center gap-1.5 text-[13px] font-medium border motion-interactive whitespace-nowrap shrink-0 ${
             activeCount > 0 || filterOpen

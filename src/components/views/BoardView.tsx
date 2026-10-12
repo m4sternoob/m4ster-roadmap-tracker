@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -100,6 +100,16 @@ export function BoardView({
   const [groupBy, setGroupBy] = useState<GroupBy>('status');
   const [dragOverGroup, setDragOverGroup] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  // One-shot filter patches from the sidebar (For you, Teams, Goals).
+  const filterSignal = useProjectStore((s) => s.boardFilterSignal);
+  const appliedNonce = useRef(0);
+  useEffect(() => {
+    if (filterSignal && filterSignal.nonce !== appliedNonce.current) {
+      appliedNonce.current = filterSignal.nonce;
+      setFilters((f) => ({ ...f, ...filterSignal.patch }));
+    }
+  }, [filterSignal]);
   // Collapsed columns, keyed by group id.
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   // Board density, remembered across visits.

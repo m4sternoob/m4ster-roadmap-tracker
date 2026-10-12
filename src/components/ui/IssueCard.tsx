@@ -1,6 +1,6 @@
 import type { Issue, Status } from '@/types';
 import { STATUSES } from '@/types';
-import { Calendar, Check, MessageSquare, Pencil, ArrowRightLeft } from 'lucide-react';
+import { Calendar, Check, MessageSquare, Pencil, ArrowRightLeft, Star } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useEffect, useRef, useState } from 'react';
@@ -37,6 +37,8 @@ export function IssueCardView({
 }) {
   const compact = density === 'compact' && !overlay;
   const moveIssue = useProjectStore((s) => s.moveIssue);
+  const toggleStarred = useProjectStore((s) => s.toggleStarred);
+  const isStarred = useProjectStore((s) => s.starredIds.includes(issue.id));
 
   // Move-to-status menu (fixed positioned, closes on outside click / Escape).
   const [moveOpen, setMoveOpen] = useState(false);
@@ -100,6 +102,24 @@ export function IssueCardView({
               : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
           }`}
         >
+          <button
+            type="button"
+            aria-label={`${isStarred ? 'Unstar' : 'Star'} ${issue.key}`}
+            title={isStarred ? 'Remove star' : 'Star this issue'}
+            aria-pressed={isStarred}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleStarred(issue.id);
+            }}
+            onPointerDown={stop}
+            className="p-1.5 rounded text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] motion-press"
+          >
+            <Star
+              size={13}
+              aria-hidden="true"
+              className={isStarred ? 'fill-[var(--accent-bright)] text-[var(--accent-bright)]' : ''}
+            />
+          </button>
           <button
             type="button"
             aria-label={`Open ${issue.key}`}
