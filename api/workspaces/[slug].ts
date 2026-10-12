@@ -1,25 +1,16 @@
 /**
  * Workspace sync API — GET/PUT /api/workspaces/:slug
  *
- * Stores the whole workspace JSON in Vercel KV. Requires a KV database
- * attached to the project (Vercel dashboard → Storage → Create KV).
+ * Stores the whole workspace JSON in Vercel KV, scoped per signed-in user.
+ * Requires a KV database attached to the project
+ * (Vercel dashboard → Storage → Create KV).
  * Without KV env vars, returns 503 and the app stays local-only.
+ * Without a session cookie, returns 401 — sign in to sync.
  */
 
-const SLUG_RE = /^[a-z0-9-_]{1,32}$/i;
+import { getKv, getSessionUser } from '../auth/_shared';
 
-// Lazy-load @vercel/kv so the function still boots without it.
-let kvModule: typeof import('@vercel/kv') | null = null;
-async function getKv() {
-  // Vercel KV uses KV_REST_API_*; Upstash marketplace uses UPSTASH_REDIS_REST_*.
-  // @vercel/kv reads both — just need one pair present.
-  const hasKv =
-    (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
-    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
-  if (!hasKv) return null;
-  if (!kvModule) kvModule = await import('@vercel/kv');
-  return kvModule.kv;
-}
+const SLUG_RE = /^[a-z0-9-_]{1,32}$/i;
 
 interface WorkspaceRecord {
   data: unknown;
@@ -38,7 +29,13 @@ export default async function handler(req: any, res: any) {
     return res.status(503).json({ error: 'sync not configured' });
   }
 
-  const key = `workspace:${slug.toLowerCase()}`;
+  const user = await getSessionUser(req, kv);
+  if (!user) {
+    return res.status(401).json({ error: 'sign in required' });
+  }
+
+  // Per-user namespace — one account, same boards on every device.
+  const key = `u:${user.id}:ws:${slug.toLowerCase()}`;
 
   try {
     if (req.method === 'GET') {
