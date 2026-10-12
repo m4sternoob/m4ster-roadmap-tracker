@@ -13,7 +13,7 @@ export function ConfirmDialog({ title, message, onConfirm, onCancel }: ConfirmDi
     <ModalShell
       onClose={onCancel}
       label={title}
-      panel="max-w-sm w-full rounded-xl border border-white/10 bg-[#1c1f26] text-slate-100 shadow-2xl shadow-black/50 animate-scale-in"
+      panel="max-w-sm w-full rounded-xl border border-white/10 bg-[var(--bg-deep)] text-slate-100 shadow-2xl shadow-black/50 animate-scale-in"
     >
       <ModalHeader
         title={title}

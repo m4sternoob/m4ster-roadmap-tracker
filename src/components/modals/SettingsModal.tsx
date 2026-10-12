@@ -33,7 +33,7 @@ export function SettingsModal({ project, onClose }: SettingsModalProps) {
     <ModalShell
       onClose={onClose}
       label="Project settings"
-      panel="max-w-lg w-full rounded-xl border border-white/10 bg-[#1c1f26] text-slate-100 shadow-2xl shadow-black/50 animate-scale-in max-h-[90vh] overflow-y-auto"
+      panel="max-w-lg w-full rounded-xl border border-white/10 bg-[var(--bg-deep)] text-slate-100 shadow-2xl shadow-black/50 animate-scale-in max-h-[90vh] overflow-y-auto"
     >
       <ModalHeader
         title="Project Settings"
@@ -95,7 +95,7 @@ export function SettingsModal({ project, onClose }: SettingsModalProps) {
             type="file"
             accept=".json"
             onChange={(e) => setImportFile(e.target.files?.[0] || null)}
-            className="mb-3 w-full rounded-lg border border-white/10 bg-[#0f1115] px-3 py-2 text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-1 file:text-sm file:text-slate-200 focus:outline-none"
+            className="mb-3 w-full rounded-lg border border-white/10 bg-[var(--bg-deep)] px-3 py-2 text-sm text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-1 file:text-sm file:text-slate-200 focus:outline-none"
           />
           <button
             onClick={handleImport}
