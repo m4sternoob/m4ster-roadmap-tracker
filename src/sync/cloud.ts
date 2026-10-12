@@ -14,7 +14,7 @@ export type CloudResult<T> =
   | { ok: true; record: T }
   | {
       ok: false;
-      reason: 'not-found' | 'not-configured' | 'conflict' | 'network' | 'stale';
+      reason: 'not-found' | 'not-configured' | 'unauthorized' | 'conflict' | 'network' | 'stale';
       record?: CloudRecord;
     };
 
@@ -24,6 +24,7 @@ export async function cloudPull(slug: string): Promise<CloudResult<CloudRecord>>
   try {
     const res = await fetch(slugPath(slug), { method: 'GET' });
     if (res.status === 404) return { ok: false, reason: 'not-found' };
+    if (res.status === 401) return { ok: false, reason: 'unauthorized' };
     if (res.status === 503) return { ok: false, reason: 'not-configured' };
     if (!res.ok) return { ok: false, reason: 'network' };
     const record = (await res.json()) as CloudRecord;
@@ -44,6 +45,7 @@ export async function cloudPush(
       body: JSON.stringify(record),
     });
     if (res.status === 503) return { ok: false, reason: 'not-configured' };
+    if (res.status === 401) return { ok: false, reason: 'unauthorized' };
     if (res.status === 409) {
       const record = (await res.json()) as CloudRecord;
       return { ok: false, reason: 'conflict', record };
