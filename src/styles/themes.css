@@ -203,11 +203,7 @@ body {
 .live-vignette {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    ellipse 90% 70% at 50% 40%,
-    transparent 55%,
-    var(--bg-app) 130%
-  );
+  background: radial-gradient(ellipse 90% 70% at 50% 40%, transparent 55%, var(--bg-app) 130%);
 }
 
 @keyframes orb-drift-1 {

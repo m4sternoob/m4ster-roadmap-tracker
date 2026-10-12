@@ -14,7 +14,9 @@ function IssueRow({ issue, onClick }: { issue: Issue; onClick: (i: Issue) => voi
       className="w-full flex items-center gap-2.5 px-3 py-[7px] hover:bg-[var(--bg-surface)] text-left motion-interactive border-b border-[var(--bg-raised)]/40 last:border-0"
     >
       <IssueTypeIcon type={issue.type} size={15} />
-      <span className="font-mono text-[11.5px] text-[var(--text-faint)] w-[68px] shrink-0">{issue.key}</span>
+      <span className="font-mono text-[11.5px] text-[var(--text-faint)] w-[68px] shrink-0">
+        {issue.key}
+      </span>
       <span className="flex-1 text-[13px] text-[var(--text-primary)] truncate">{issue.title}</span>
       <StatusPill status={issue.status} className="hidden sm:inline-flex" />
       {issue.storyPoints > 0 && (
@@ -63,7 +65,9 @@ function SprintPanel({
         >
           <ChevronDown size={15} className={`motion-interactive ${open ? '' : '-rotate-90'}`} />
         </button>
-        <span className="text-[13.5px] font-semibold text-[var(--text-primary)]">{sprint.name}</span>
+        <span className="text-[13.5px] font-semibold text-[var(--text-primary)]">
+          {sprint.name}
+        </span>
         <span className="text-[12px] text-[var(--text-faint)]">
           {issues.length} issue{issues.length === 1 ? '' : 's'}
           {points > 0 && ` · ${points} pts`}
@@ -168,7 +172,9 @@ export function BacklogView({
       <section className="rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-app)] overflow-hidden">
         <div className="px-3 py-2.5 bg-[var(--bg-surface)]/60 flex items-center gap-2">
           <span className="text-[13.5px] font-semibold text-[var(--text-primary)]">Backlog</span>
-          <span className="text-[12px] text-[var(--text-faint)]">{backlogIssues.length} issues</span>
+          <span className="text-[12px] text-[var(--text-faint)]">
+            {backlogIssues.length} issues
+          </span>
         </div>
         {backlogIssues.length === 0 ? (
           <EmptyState

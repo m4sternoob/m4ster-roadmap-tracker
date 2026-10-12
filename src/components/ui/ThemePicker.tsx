@@ -27,7 +27,7 @@ export function ThemePicker() {
       document.removeEventListener('pointerdown', onPointerDown);
       document.removeEventListener('keydown', onKeyDown);
     };
-  }, [open ]);
+  }, [open]);
 
   const active = themes.find((t) => t.id === theme);
 

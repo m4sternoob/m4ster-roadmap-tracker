@@ -52,8 +52,12 @@ function Item({
     >
       <Icon size={16} className="shrink-0" />
       {!collapsed && <span className="flex-1 text-left truncate">{label}</span>}
-      {!collapsed && chevron && <ChevronRight size={13} className="text-[var(--text-faint)] shrink-0" />}
-      {!collapsed && external && <ExternalLink size={12} className="text-[var(--text-faint)] shrink-0" />}
+      {!collapsed && chevron && (
+        <ChevronRight size={13} className="text-[var(--text-faint)] shrink-0" />
+      )}
+      {!collapsed && external && (
+        <ExternalLink size={12} className="text-[var(--text-faint)] shrink-0" />
+      )}
     </button>
   );
 }
@@ -115,7 +119,7 @@ function NavPopover({
       document.removeEventListener('mousedown', onDown);
       document.removeEventListener('keydown', onKey);
     };
-  }, [open ]);
+  }, [open]);
 
   return (
     <>
@@ -203,7 +207,7 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
       const name = i.assignee ?? 'Unassigned';
       m.set(name, (m.get(name) ?? 0) + 1);
       return m;
-    }, new Map<string, number>()),
+    }, new Map<string, number>())
   ).sort((a, b) => b[1] - a[1]);
 
   const epics = (project.epics ?? []).map((e) => ({
@@ -333,11 +337,11 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
               {project.key.slice(0, 2).toUpperCase()}
             </span>
             {!collapsed && (
-              <span className="flex-1 text-left truncate text-[13px] font-medium">{project.name}</span>
+              <span className="flex-1 text-left truncate text-[13px] font-medium">
+                {project.name}
+              </span>
             )}
-            {!collapsed && (
-              <ChevronRight size={13} className="text-[var(--text-faint)] shrink-0" />
-            )}
+            {!collapsed && <ChevronRight size={13} className="text-[var(--text-faint)] shrink-0" />}
           </button>
 
           {!collapsed && (
@@ -410,7 +414,9 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
                   >
                     <Avatar name={name} size={22} />
                     <span className="flex-1 text-left text-[13px] truncate">{name}</span>
-                    <span className="text-[11px] text-[var(--text-faint)] font-semibold">{count}</span>
+                    <span className="text-[11px] text-[var(--text-faint)] font-semibold">
+                      {count}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -446,7 +452,9 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
                       aria-hidden="true"
                     />
                     <span className="flex-1 text-left text-[13px] truncate">{e.name}</span>
-                    <span className="text-[11px] text-[var(--text-faint)] font-semibold">{e.count}</span>
+                    <span className="text-[11px] text-[var(--text-faint)] font-semibold">
+                      {e.count}
+                    </span>
                   </button>
                 ))}
               </div>

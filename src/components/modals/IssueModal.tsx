@@ -395,7 +395,9 @@ function DetailView({
           />
 
           <div className="mt-4">
-            <div className="text-[13px] font-semibold text-[var(--text-primary)] mb-1.5">Description</div>
+            <div className="text-[13px] font-semibold text-[var(--text-primary)] mb-1.5">
+              Description
+            </div>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -510,7 +512,9 @@ function DetailView({
                     <Avatar name={c.author} size={28} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-2">
-                        <span className="text-[13px] font-semibold text-[var(--text-primary)]">{c.author}</span>
+                        <span className="text-[13px] font-semibold text-[var(--text-primary)]">
+                          {c.author}
+                        </span>
                         <span className="text-[11.5px] text-[var(--text-faint)]">
                           {formatRelativeTime(c.createdAt)}
                         </span>

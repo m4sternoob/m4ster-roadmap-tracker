@@ -168,7 +168,9 @@ export function IssueCardView({
                 role="menuitem"
                 onClick={pickStatus(s.value)}
                 className={`w-full flex items-center justify-between px-3 py-1.5 text-[13px] text-left motion-interactive ${
-                  current ? 'text-[var(--accent-bright)] font-medium' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]'
+                  current
+                    ? 'text-[var(--accent-bright)] font-medium'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]'
                 }`}
               >
                 {s.label}

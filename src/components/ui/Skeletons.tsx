@@ -2,7 +2,12 @@
  *  global reduced-motion guard kills it for users who ask for calm. */
 
 function Bar({ className }: { className: string }) {
-  return <div className={`rounded bg-[var(--bg-raised)] animate-pulse ${className}`} aria-hidden="true" />;
+  return (
+    <div
+      className={`rounded bg-[var(--bg-raised)] animate-pulse ${className}`}
+      aria-hidden="true"
+    />
+  );
 }
 
 function SkeletonCard() {

@@ -79,7 +79,9 @@ export function ProjectHeader({ project }: { project: Project }) {
               aria-selected={active}
               onClick={() => setActiveView(id)}
               className={`relative px-3 py-2 text-[13.5px] motion-interactive ${
-                active ? 'text-[var(--accent-bright)] font-medium' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                active
+                  ? 'text-[var(--accent-bright)] font-medium'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
               }`}
             >
               {label}

@@ -136,7 +136,10 @@ export function FilterPanel({
         <span className="text-[13px] font-semibold text-[var(--text-primary)]">Filters</span>
         <div className="flex items-center gap-1">
           {hasAny && (
-            <button onClick={clearAll} className="text-[12px] text-[var(--accent-bright)] hover:underline px-1">
+            <button
+              onClick={clearAll}
+              className="text-[12px] text-[var(--accent-bright)] hover:underline px-1"
+            >
               Clear all
             </button>
           )}

@@ -28,7 +28,9 @@ export function Toasts() {
             className="animate-toast-in flex items-center gap-2.5 pl-3 pr-2 py-2.5 rounded-lg border border-[var(--bg-raised)] bg-[var(--bg-sunken)]/95 shadow-xl shadow-black/40 backdrop-blur max-w-[320px]"
           >
             <Icon size={16} className={`${color} shrink-0`} aria-hidden="true" />
-            <span className="text-[13px] text-[var(--text-primary)] leading-snug">{toast.message}</span>
+            <span className="text-[13px] text-[var(--text-primary)] leading-snug">
+              {toast.message}
+            </span>
             <button
               onClick={() => dismissToast(toast.id)}
               aria-label="Dismiss notification"

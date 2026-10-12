@@ -249,8 +249,12 @@ export function BoardView({
           <span className="w-12 h-12 rounded-full bg-[var(--bg-surface)] flex items-center justify-center">
             <SearchX size={20} className="text-[var(--text-faint)]" />
           </span>
-          <p className="text-[14px] font-medium text-[var(--text-primary)]">No issues match your filters</p>
-          <p className="text-[13px] text-[var(--text-muted)]">Try widening the search or clearing filters.</p>
+          <p className="text-[14px] font-medium text-[var(--text-primary)]">
+            No issues match your filters
+          </p>
+          <p className="text-[13px] text-[var(--text-muted)]">
+            Try widening the search or clearing filters.
+          </p>
           <button
             onClick={() => setFilters(EMPTY_FILTERS)}
             className="mt-1 px-3 py-1.5 rounded-md text-[13px] font-medium bg-[var(--bg-surface)] border border-[var(--bg-raised)] text-[var(--text-secondary)] hover:border-[var(--chrome)] motion-press"
