@@ -100,6 +100,8 @@ interface ProjectState {
   // Cross-device sync
   workspaceSlug: string;
   syncStatus: 'idle' | 'loading' | 'saving' | 'synced' | 'local' | 'error';
+  /** True when cloud sync is available but the user isn't signed in. */
+  syncNeedsLogin: boolean;
   syncPush: () => Promise<void>;
   syncPushDebounced: () => void;
   syncPull: () => Promise<void>;
@@ -278,8 +280,9 @@ export const useProjectStore = create<ProjectState>()(
               get().syncPushDebounced();
               return;
             }
-          } else if (cloud.reason === 'not-configured') {
+          } else if (cloud.reason === 'not-configured' || cloud.reason === 'unauthorized') {
             status = 'local';
+            set({ syncNeedsLogin: cloud.reason === 'unauthorized' });
             project = local ? normalizeProject(local) : createDefaultProject();
             if (!local) {
               try {
@@ -337,6 +340,7 @@ export const useProjectStore = create<ProjectState>()(
       // Cross-device sync
       workspaceSlug: DEFAULT_SLUG,
       syncStatus: 'idle',
+      syncNeedsLogin: false,
 
       syncPush: async () => {
         const { project, workspaceSlug, syncStatus } = get();
@@ -349,9 +353,11 @@ export const useProjectStore = create<ProjectState>()(
         };
         const res = await cloudPush(workspaceSlug, record);
         if (res.ok) {
-          set({ syncStatus: 'synced' });
+          set({ syncStatus: 'synced', syncNeedsLogin: false });
         } else if (res.reason === 'not-configured') {
-          set({ syncStatus: 'local' });
+          set({ syncStatus: 'local', syncNeedsLogin: false });
+        } else if (res.reason === 'unauthorized') {
+          set({ syncStatus: 'local', syncNeedsLogin: true });
         } else if (res.reason === 'conflict' && res.record) {
           // Cloud is newer — take it.
           const project = normalizeProject(res.record.data as Project);
@@ -383,7 +389,9 @@ export const useProjectStore = create<ProjectState>()(
         const { workspaceSlug, project } = get();
         const res = await cloudPull(workspaceSlug);
         if (!res.ok) {
-          if (res.reason === 'not-configured') set({ syncStatus: 'local' });
+          if (res.reason === 'not-configured') set({ syncStatus: 'local', syncNeedsLogin: false });
+          else if (res.reason === 'unauthorized')
+            set({ syncStatus: 'local', syncNeedsLogin: true });
           return;
         }
         const cloudTime = res.record.updatedAt;

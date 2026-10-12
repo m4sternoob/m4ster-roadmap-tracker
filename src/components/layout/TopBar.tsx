@@ -1,9 +1,11 @@
+import { useEffect, useRef, useState } from 'react';
 import {
   Bell,
   CircleHelp,
   Cloud,
   CloudOff,
   Loader2,
+  LogOut,
   PanelLeft,
   Plus,
   Save,
@@ -14,13 +16,29 @@ import { useProjectStore } from '@/store/projectStore';
 import { Avatar } from '@/components/issues/Avatar';
 import { ThemePicker } from '@/components/ui/ThemePicker';
 import { DEFAULT_SLUG } from '@/sync/workspace';
+import { useAuth } from '@/sync/auth';
 
 function SyncStatus() {
   const syncStatus = useProjectStore((s) => s.syncStatus);
+  const syncNeedsLogin = useProjectStore((s) => s.syncNeedsLogin);
   const workspaceSlug = useProjectStore((s) => s.workspaceSlug);
   const syncPush = useProjectStore((s) => s.syncPush);
+  const { openAuth, authAvailable } = useAuth();
 
   const label = workspaceSlug === DEFAULT_SLUG ? 'My board' : workspaceSlug;
+
+  if (syncNeedsLogin && authAvailable) {
+    return (
+      <button
+        onClick={() => openAuth('login')}
+        className="hidden md:flex items-center gap-1.5 h-7 px-2 rounded-md text-[12px] font-medium text-[var(--accent-bright)] hover:bg-[var(--bg-surface)] btn-artcraft"
+        title="Sign in to sync your boards across devices"
+      >
+        <Cloud size={14} />
+        <span>Sign in to sync</span>
+      </button>
+    );
+  }
 
   if (syncStatus === 'local') {
     return (
@@ -53,6 +71,84 @@ function SyncStatus() {
         <span className="max-w-28 truncate">{label}</span>
       </button>
     </span>
+  );
+}
+
+function AccountButton() {
+  const { user, authAvailable, authLoading, openAuth, logout } = useAuth();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('pointerdown', onDown);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  if (!authAvailable || authLoading) {
+    return (
+      <span className="ml-0.5 rounded-full" aria-label="Account" title="Master Noob">
+        <Avatar name="Master Noob" size={26} />
+      </span>
+    );
+  }
+
+  if (!user) {
+    return (
+      <button
+        onClick={() => openAuth('login')}
+        className="ml-1 h-8 px-3 rounded-md border border-[var(--bg-raised)] text-[13px] font-medium text-[var(--text-secondary)] hover:border-[var(--chrome)] hover:text-[var(--text-primary)] btn-artcraft"
+      >
+        Sign in
+      </button>
+    );
+  }
+
+  return (
+    <div ref={ref} className="relative ml-0.5">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="rounded-full motion-press"
+        aria-label={`Account: ${user.username}`}
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <Avatar name={user.username} size={26} />
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-9 w-52 rounded-lg border border-[var(--bg-raised)] bg-[var(--bg-deep)] shadow-xl shadow-black/40 p-1.5 z-50 animate-scale-in"
+        >
+          <div className="px-2.5 py-2 border-b border-[var(--bg-raised)] mb-1">
+            <p className="text-[13px] font-semibold text-[var(--text-primary)] truncate">
+              {user.username}
+            </p>
+            <p className="text-[11px] text-[var(--text-muted)]">Boards sync across devices</p>
+          </div>
+          <button
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              void logout();
+            }}
+            className="w-full flex items-center gap-2 px-2.5 py-2 rounded-md text-[13px] text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+          >
+            <LogOut size={14} /> Sign out
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -134,13 +230,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         >
           <Settings size={17} />
         </button>
-        <button
-          className="ml-0.5 rounded-full motion-press"
-          aria-label="Account"
-          title="Master Noob"
-        >
-          <Avatar name="Master Noob" size={26} />
-        </button>
+        <AccountButton />
       </div>
     </header>
   );
