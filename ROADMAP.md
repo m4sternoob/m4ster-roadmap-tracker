@@ -34,7 +34,7 @@ one focused improvement per day, every day.
 
 ## Phase 3 — Feature days
 
-- [ ] **Comments on cards** — discuss work right on the issue
+- [x] **Comments on cards** — discuss work right on the issue
 - [ ] **File attachments** — Vercel Blob storage for screenshots and docs
 - [ ] **Due dates + reminders** — date picker, overdue highlighting
 - [ ] **Subtasks / checklists** — break a card into checkable steps
