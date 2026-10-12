@@ -1,7 +1,7 @@
 /**
  * GET /api/auth/google — start "Sign in with Google".
  * Sets a CSRF state cookie, then redirects to Google's consent screen.
- * Requires GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET env vars.
+ * Requires GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET env vars. Deployed 2026-10-12 10:06.
  *
  * Fully self-contained (no imports): Vercel's function bundler does not
  * resolve shared-module imports for these routes (500s at runtime).
