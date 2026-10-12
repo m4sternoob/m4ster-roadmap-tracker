@@ -15,6 +15,8 @@ import type {
 import { STATUSES } from '@/types';
 import { generateIssueKey, generateEpicKey } from '@/utils/helpers';
 import { createSampleProject } from '@/utils/demoData';
+import { getWorkspaceSlug, workspaceStorageKey, getDeviceId, DEFAULT_SLUG } from '@/sync/workspace';
+import { cloudPull, cloudPush } from '@/sync/cloud';
 
 import type { BoardFilters } from '@/components/board/boardFilters';
 
@@ -95,6 +97,13 @@ interface ProjectState {
   setProject: (project: Project) => void;
   clearError: () => void;
 
+  // Cross-device sync
+  workspaceSlug: string;
+  syncStatus: 'idle' | 'loading' | 'saving' | 'synced' | 'local' | 'error';
+  syncPush: () => Promise<void>;
+  syncPushDebounced: () => void;
+  syncPull: () => Promise<void>;
+
   // Issue actions
   createIssue: (input: CreateIssueInput) => Issue;
   updateIssue: (issueId: string, input: UpdateIssueInput) => void;
@@ -130,8 +139,6 @@ interface ProjectState {
   loadSampleData: () => void;
   clearWorkspace: () => void;
 }
-
-const STORAGE_KEY = 'm4ster-tracker-project';
 
 /** Normalize issues loaded from older stored projects (pre-comments, etc). */
 function normalizeProject(project: Project): Project {
@@ -232,33 +239,92 @@ export const useProjectStore = create<ProjectState>()(
       dismissToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 
       initializeProject: async () => {
-        set({ isLoading: true, error: null });
+        const slug = getWorkspaceSlug();
+        const storageKey = workspaceStorageKey(slug);
+        set({ isLoading: true, error: null, workspaceSlug: slug, syncStatus: 'loading' });
         try {
-          // In production, this would be an API call
-          // For now, use localStorage
-          const stored = localStorage.getItem(STORAGE_KEY);
-          if (stored) {
-            const project = normalizeProject(JSON.parse(stored) as Project);
-            set({ project, isLoading: false });
-          } else {
-            const project = createDefaultProject();
-            set({ project, isLoading: false });
-            await get().saveProject();
+          // Pull from cloud and read local in parallel; newest wins.
+          const [cloud, localRaw] = await Promise.all([
+            cloudPull(slug),
+            Promise.resolve(localStorage.getItem(storageKey)),
+          ]);
+
+          let local: (Project & { updatedAt?: string }) | null = null;
+          try {
+            local = localRaw ? (JSON.parse(localRaw) as Project) : null;
+          } catch {
+            local = null;
           }
+
+          let project: Project;
+          let status: ProjectState['syncStatus'] = 'idle';
+
+          if (cloud.ok) {
+            status = 'synced';
+            const cloudData = cloud.record.data as Project & { updatedAt?: string };
+            const cloudTime = cloud.record.updatedAt;
+            const localTime = local?.updatedAt ?? '';
+            if (!local || cloudTime >= localTime) {
+              project = normalizeProject(cloudData);
+              try {
+                localStorage.setItem(storageKey, JSON.stringify(cloudData));
+              } catch {
+                // Storage full — cloud copy is still authoritative.
+              }
+            } else {
+              project = normalizeProject(local);
+              // Local is newer — push it up to converge.
+              set({ project, isLoading: false, syncStatus: status });
+              get().syncPushDebounced();
+              return;
+            }
+          } else if (cloud.reason === 'not-configured') {
+            status = 'local';
+            project = local ? normalizeProject(local) : createDefaultProject();
+            if (!local) {
+              try {
+                localStorage.setItem(storageKey, JSON.stringify(project));
+              } catch {
+                // Non-fatal.
+              }
+            }
+          } else {
+            // Network error or cloud empty — fall back to local.
+            if (local) {
+              project = normalizeProject(local);
+            } else if (cloud.reason === 'not-found') {
+              project = createDefaultProject();
+              try {
+                localStorage.setItem(storageKey, JSON.stringify(project));
+              } catch {
+                // Non-fatal.
+              }
+              set({ project, isLoading: false, syncStatus: status });
+              // First save for this workspace — push it to the cloud.
+              get().syncPushDebounced();
+              return;
+            } else {
+              project = createDefaultProject();
+            }
+          }
+
+          set({ project, isLoading: false, syncStatus: status });
         } catch (e) {
-          set({ error: 'Failed to load project', isLoading: false });
+          set({ error: 'Failed to load project', isLoading: false, syncStatus: 'error' });
           const project = createDefaultProject();
           set({ project });
         }
       },
 
       saveProject: async () => {
-        const { project } = get();
+        const { project, workspaceSlug } = get();
         if (!project) return;
         try {
           const updated = { ...project, updatedAt: new Date().toISOString() };
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+          localStorage.setItem(workspaceStorageKey(workspaceSlug), JSON.stringify(updated));
           set({ project: updated });
+          // Sync to cloud in the background (debounced).
+          get().syncPushDebounced();
         } catch (e) {
           set({ error: 'Failed to save project' });
         }
@@ -267,6 +333,75 @@ export const useProjectStore = create<ProjectState>()(
       setProject: (project: Project) => set({ project }),
 
       clearError: () => set({ error: null }),
+
+      // Cross-device sync
+      workspaceSlug: DEFAULT_SLUG,
+      syncStatus: 'idle',
+
+      syncPush: async () => {
+        const { project, workspaceSlug, syncStatus } = get();
+        if (!project || syncStatus === 'saving' || syncStatus === 'loading') return;
+        set({ syncStatus: 'saving' });
+        const record = {
+          data: project,
+          updatedAt: project.updatedAt ?? new Date().toISOString(),
+          deviceId: getDeviceId(),
+        };
+        const res = await cloudPush(workspaceSlug, record);
+        if (res.ok) {
+          set({ syncStatus: 'synced' });
+        } else if (res.reason === 'not-configured') {
+          set({ syncStatus: 'local' });
+        } else if (res.reason === 'conflict' && res.record) {
+          // Cloud is newer — take it.
+          const project = normalizeProject(res.record.data as Project);
+          try {
+            localStorage.setItem(
+              workspaceStorageKey(workspaceSlug),
+              JSON.stringify(res.record.data)
+            );
+          } catch {
+            // Non-fatal.
+          }
+          set({ project, syncStatus: 'synced' });
+          get().pushToast('info', 'Updated from another device');
+        } else {
+          set({ syncStatus: 'error' });
+        }
+      },
+
+      syncPushDebounced: () => {
+        if (typeof window === 'undefined') return;
+        const w = window as unknown as { __syncTimer?: number };
+        if (w.__syncTimer) window.clearTimeout(w.__syncTimer);
+        w.__syncTimer = window.setTimeout(() => {
+          get().syncPush();
+        }, 2000);
+      },
+
+      syncPull: async () => {
+        const { workspaceSlug, project } = get();
+        const res = await cloudPull(workspaceSlug);
+        if (!res.ok) {
+          if (res.reason === 'not-configured') set({ syncStatus: 'local' });
+          return;
+        }
+        const cloudTime = res.record.updatedAt;
+        const localTime = project?.updatedAt ?? '';
+        if (cloudTime > localTime) {
+          const next = normalizeProject(res.record.data as Project);
+          try {
+            localStorage.setItem(
+              workspaceStorageKey(workspaceSlug),
+              JSON.stringify(res.record.data)
+            );
+          } catch {
+            // Non-fatal.
+          }
+          set({ project: next, syncStatus: 'synced' });
+          get().pushToast('info', 'Board updated from another device');
+        }
+      },
 
       createIssue: (input: CreateIssueInput) => {
         const { project } = get();

@@ -58,6 +58,16 @@ function App() {
     initializeProject();
   }, [initializeProject]);
 
+  // Poll for changes from other devices every 30s.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const s = useProjectStore.getState();
+      if (document.hidden || s.syncStatus === 'saving' || s.syncStatus === 'loading') return;
+      s.syncPull();
+    }, 30000);
+    return () => window.clearInterval(id);
+  }, []);
+
   // Tell the boot guard in index.html the app mounted successfully.
   useEffect(() => {
     (window as unknown as { __APP_MOUNTED?: boolean }).__APP_MOUNTED = true;

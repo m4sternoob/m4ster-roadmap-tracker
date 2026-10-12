@@ -1,7 +1,60 @@
-import { Bell, CircleHelp, PanelLeft, Plus, Search, Settings } from 'lucide-react';
+import {
+  Bell,
+  CircleHelp,
+  Cloud,
+  CloudOff,
+  Loader2,
+  PanelLeft,
+  Plus,
+  Save,
+  Search,
+  Settings,
+} from 'lucide-react';
 import { useProjectStore } from '@/store/projectStore';
 import { Avatar } from '@/components/issues/Avatar';
 import { ThemePicker } from '@/components/ui/ThemePicker';
+import { DEFAULT_SLUG } from '@/sync/workspace';
+
+function SyncStatus() {
+  const syncStatus = useProjectStore((s) => s.syncStatus);
+  const workspaceSlug = useProjectStore((s) => s.workspaceSlug);
+  const syncPush = useProjectStore((s) => s.syncPush);
+
+  const label = workspaceSlug === DEFAULT_SLUG ? 'My board' : workspaceSlug;
+
+  if (syncStatus === 'local') {
+    return (
+      <span
+        className="hidden md:flex items-center gap-1.5 text-[12px] text-[var(--text-muted)]"
+        title="Sync not connected — working locally on this device"
+      >
+        <CloudOff size={14} />
+        <span className="max-w-28 truncate">{label}</span>
+      </span>
+    );
+  }
+
+  return (
+    <span className="hidden md:flex items-center gap-1.5">
+      <button
+        onClick={() => syncPush()}
+        className="flex items-center gap-1.5 h-7 px-2 rounded-md text-[12px] text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] btn-artcraft"
+        title="Save to cloud now"
+      >
+        {syncStatus === 'saving' || syncStatus === 'loading' ? (
+          <Loader2 size={14} className="animate-spin" />
+        ) : syncStatus === 'synced' ? (
+          <Cloud size={14} className="text-[var(--accent-bright)]" />
+        ) : syncStatus === 'error' ? (
+          <CloudOff size={14} className="text-red-400" />
+        ) : (
+          <Save size={14} />
+        )}
+        <span className="max-w-28 truncate">{label}</span>
+      </button>
+    </span>
+  );
+}
 
 export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const openCreate = () => {
@@ -50,6 +103,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
 
       {/* Right actions */}
       <div className="flex items-center gap-1">
+        <SyncStatus />
         <button
           onClick={openCreate}
           className="h-8 px-3 rounded-md bg-[var(--accent)] text-white text-[13px] font-medium flex items-center gap-1.5 btn-artcraft shadow-sm"
