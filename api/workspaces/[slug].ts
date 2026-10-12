@@ -11,7 +11,12 @@ const SLUG_RE = /^[a-z0-9-_]{1,32}$/i;
 // Lazy-load @vercel/kv so the function still boots without it.
 let kvModule: typeof import('@vercel/kv') | null = null;
 async function getKv() {
-  if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) return null;
+  // Vercel KV uses KV_REST_API_*; Upstash marketplace uses UPSTASH_REDIS_REST_*.
+  // @vercel/kv reads both — just need one pair present.
+  const hasKv =
+    (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
+    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+  if (!hasKv) return null;
   if (!kvModule) kvModule = await import('@vercel/kv');
   return kvModule.kv;
 }
