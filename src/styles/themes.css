@@ -146,6 +146,33 @@ html[data-theme='porcelain'] {
   --orb-opacity: 0.7;
 }
 
+html[data-theme='violet'] {
+  color-scheme: dark;
+  --bg-app: #0d0d14;
+  --bg-surface: #14141d;
+  --bg-raised: #1c1c28;
+  --bg-sunken: #17171f;
+  --bg-deep: #101016;
+  --chrome: #2e2e3d;
+  --text-primary: #f4f2ff;
+  --text-secondary: #c4bff0;
+  --text-muted: #9a94c7;
+  --text-faint: #6b6594;
+  --accent: #8b5cf6;
+  --accent-bright: #a78bfa;
+  --accent-deep: #6d28d9;
+  --accent-soft: rgba(139, 92, 246, 0.14);
+  --danger: #f43f5e;
+  --info: #38bdf8;
+
+  --success: #34d399;
+  --muted-foreground: #9a94c7;
+  --orb-1: #8b5cf6;
+  --orb-2: #d946ef;
+  --orb-3: #6366f1;
+  --orb-opacity: 0.5;
+}
+
 /* Smooth repaint when the theme changes (colors only — cheap). */
 body {
   transition:

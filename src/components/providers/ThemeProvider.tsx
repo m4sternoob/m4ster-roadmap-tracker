@@ -5,6 +5,7 @@ export const THEMES = [
   { id: 'ocean', name: 'Ocean', swatch: '#0ea5e9' },
   { id: 'ember', name: 'Ember', swatch: '#f97316' },
   { id: 'forest', name: 'Forest', swatch: '#22c55e' },
+  { id: 'violet', name: 'Violet', swatch: '#8b5cf6' },
   { id: 'porcelain', name: 'Porcelain', swatch: '#e2e8f0' },
 ] as const;
 
