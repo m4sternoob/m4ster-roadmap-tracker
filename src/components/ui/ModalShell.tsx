@@ -12,7 +12,7 @@ interface ModalShellProps {
 }
 
 const DEFAULT_PANEL =
-  'max-w-md w-full rounded-xl border border-white/10 bg-[#1c1f26] text-slate-100 shadow-2xl shadow-black/50 animate-scale-in max-h-[90vh] overflow-y-auto';
+  'max-w-md w-full rounded-xl border border-white/10 bg-[var(--bg-deep)] text-slate-100 shadow-2xl shadow-black/50 animate-scale-in max-h-[90vh] overflow-y-auto';
 
 /**
  * Shared modal chrome: fading blurred backdrop, scaling panel entry,
@@ -85,7 +85,7 @@ export function ModalHeader({
 
 /** Shared field styling for modal forms. */
 export const modalFieldClass =
-  'w-full rounded-lg border border-white/10 bg-[#0f1115] px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40';
+  'w-full rounded-lg border border-white/10 bg-[var(--bg-deep)] px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40';
 
 /** Shared footer button row. */
 export function ModalFooter({ children }: { children: ReactNode }) {

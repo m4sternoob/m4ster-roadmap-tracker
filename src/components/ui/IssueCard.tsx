@@ -1,6 +1,6 @@
 import type { Issue, Status } from '@/types';
 import { STATUSES } from '@/types';
-import { Calendar, Check, MessageSquare, Pencil, ArrowRightLeft } from 'lucide-react';
+import { Calendar, Check, MessageSquare, Pencil, ArrowRightLeft, Star } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useEffect, useRef, useState } from 'react';
@@ -37,6 +37,8 @@ export function IssueCardView({
 }) {
   const compact = density === 'compact' && !overlay;
   const moveIssue = useProjectStore((s) => s.moveIssue);
+  const toggleStarred = useProjectStore((s) => s.toggleStarred);
+  const isStarred = useProjectStore((s) => s.starredIds.includes(issue.id));
 
   // Move-to-status menu (fixed positioned, closes on outside click / Escape).
   const [moveOpen, setMoveOpen] = useState(false);
@@ -83,23 +85,41 @@ export function IssueCardView({
 
   return (
     <div
-      className={`relative bg-[#22272b] rounded-lg border border-[#2c333a] motion-interactive ${
+      className={`relative bg-[var(--bg-surface)] rounded-lg border border-[var(--bg-raised)] motion-interactive glow-hover ${
         compact ? 'px-2 py-1.5' : 'px-3 py-2.5'
       } ${
         overlay
-          ? 'border-[#3d474f] shadow-2xl shadow-black/60 rotate-[1.5deg] scale-[1.02] cursor-grabbing'
-          : 'hover:border-[#3d474f] hover:bg-[#282e33] hover:shadow-lg hover:shadow-black/30'
+          ? 'border-[var(--chrome)] shadow-2xl shadow-black/60 rotate-[1.5deg] scale-[1.02] cursor-grabbing'
+          : 'hover:border-[var(--chrome)] hover:bg-[var(--bg-sunken)] hover:shadow-lg hover:shadow-black/30'
       }`}
     >
       {/* Hover quick actions */}
       {!overlay && (
         <div
-          className={`absolute top-1.5 right-1.5 flex items-center gap-0.5 p-0.5 rounded-md border border-[#2c333a] bg-[#282e33]/95 shadow-md backdrop-blur motion-interactive ${
+          className={`absolute top-1.5 right-1.5 flex items-center gap-0.5 p-0.5 rounded-md border border-[var(--bg-raised)] bg-[var(--bg-sunken)]/95 shadow-md backdrop-blur motion-interactive ${
             moveOpen
               ? 'opacity-100'
               : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
           }`}
         >
+          <button
+            type="button"
+            aria-label={`${isStarred ? 'Unstar' : 'Star'} ${issue.key}`}
+            title={isStarred ? 'Remove star' : 'Star this issue'}
+            aria-pressed={isStarred}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleStarred(issue.id);
+            }}
+            onPointerDown={stop}
+            className="p-1.5 rounded text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] motion-press"
+          >
+            <Star
+              size={13}
+              aria-hidden="true"
+              className={isStarred ? 'fill-[var(--accent-bright)] text-[var(--accent-bright)]' : ''}
+            />
+          </button>
           <button
             type="button"
             aria-label={`Open ${issue.key}`}
@@ -109,7 +129,7 @@ export function IssueCardView({
               onClick?.(issue);
             }}
             onPointerDown={stop}
-            className="p-1.5 rounded text-[#8c9bab] hover:bg-[#22272b] hover:text-[#e6edf3] motion-press"
+            className="p-1.5 rounded text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] motion-press"
           >
             <Pencil size={13} aria-hidden="true" />
           </button>
@@ -122,7 +142,7 @@ export function IssueCardView({
             title="Move to column"
             onClick={openMoveMenu}
             onPointerDown={stop}
-            className="p-1.5 rounded text-[#8c9bab] hover:bg-[#22272b] hover:text-[#e6edf3] motion-press"
+            className="p-1.5 rounded text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] motion-press"
           >
             <ArrowRightLeft size={13} aria-hidden="true" />
           </button>
@@ -134,7 +154,7 @@ export function IssueCardView({
           ref={menuRef}
           role="menu"
           aria-label={`Move ${issue.key} to column`}
-          className="fixed z-50 w-44 rounded-lg border border-[#2c333a] bg-[#282e33] shadow-2xl shadow-black/50 py-1 animate-scale-in"
+          className="fixed z-50 w-44 rounded-lg border border-[var(--bg-raised)] bg-[var(--bg-sunken)] shadow-2xl shadow-black/50 py-1 animate-scale-in"
           style={{ top: menuPos.top, left: menuPos.left }}
           onClick={stop}
           onPointerDown={stop}
@@ -148,7 +168,9 @@ export function IssueCardView({
                 role="menuitem"
                 onClick={pickStatus(s.value)}
                 className={`w-full flex items-center justify-between px-3 py-1.5 text-[13px] text-left motion-interactive ${
-                  current ? 'text-[#579dff] font-medium' : 'text-[#b6c2cf] hover:bg-[#22272b]'
+                  current
+                    ? 'text-[var(--accent-bright)] font-medium'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]'
                 }`}
               >
                 {s.label}
@@ -176,7 +198,7 @@ export function IssueCardView({
 
       {/* Title */}
       <h4
-        className={`leading-snug text-[#e6edf3] line-clamp-2 mb-1.5 pr-6 ${
+        className={`leading-snug text-[var(--text-primary)] line-clamp-2 mb-1.5 pr-6 ${
           compact ? 'text-[12.5px]' : 'text-[13.5px]'
         }`}
       >
@@ -186,9 +208,9 @@ export function IssueCardView({
       {/* Type + key row */}
       <div className="flex items-center gap-1.5 mb-2">
         <IssueTypeIcon type={issue.type} size={15} />
-        <span className="font-mono text-[11.5px] text-[#8c9bab]">{issue.key}</span>
+        <span className="font-mono text-[11.5px] text-[var(--text-muted)]">{issue.key}</span>
         {issue.status === 'done' && (
-          <Check size={13} className="text-[#36b37e] ml-auto" aria-label="Done" />
+          <Check size={13} className="text-[var(--success)] ml-auto" aria-label="Done" />
         )}
       </div>
 
@@ -198,7 +220,7 @@ export function IssueCardView({
           {issue.labels.slice(0, 3).map((label) => (
             <span
               key={label}
-              className="px-1.5 py-px text-[10.5px] font-medium rounded bg-[#3d474f]/60 text-[#b6c2cf]"
+              className="px-1.5 py-px text-[10.5px] font-medium rounded bg-[var(--chrome)]/60 text-[var(--text-secondary)]"
             >
               {label}
             </span>
@@ -211,7 +233,7 @@ export function IssueCardView({
         <PriorityIcon priority={issue.priority} size={14} />
         {!compact && issue.storyPoints > 0 && (
           <span
-            className="min-w-[20px] h-5 px-1 rounded-full bg-[#3d474f]/70 text-[#b6c2cf] text-[11px] font-semibold inline-flex items-center justify-center"
+            className="min-w-[20px] h-5 px-1 rounded-full bg-[var(--chrome)]/70 text-[var(--text-secondary)] text-[11px] font-semibold inline-flex items-center justify-center"
             title="Story points"
           >
             {issue.storyPoints}
@@ -220,7 +242,7 @@ export function IssueCardView({
         {!compact && issue.dueDate && (
           <span
             className={`flex items-center gap-1 text-[11.5px] font-medium ${
-              isOverdue(issue.dueDate) ? 'text-[#e5493a]' : 'text-[#8c9bab]'
+              isOverdue(issue.dueDate) ? 'text-[var(--danger)]' : 'text-[var(--text-muted)]'
             }`}
             title={`Due ${new Date(issue.dueDate).toLocaleDateString()}`}
           >
@@ -230,7 +252,7 @@ export function IssueCardView({
         )}
         {!compact && issue.comments.length > 0 && (
           <span
-            className="flex items-center gap-1 text-[11px] text-[#626f86]"
+            className="flex items-center gap-1 text-[11px] text-[var(--text-faint)]"
             title={`${issue.comments.length} comment${issue.comments.length === 1 ? '' : 's'}`}
           >
             <MessageSquare size={11} aria-hidden="true" />
@@ -242,7 +264,7 @@ export function IssueCardView({
           <Avatar name={issue.assignee} size={22} />
         ) : (
           <span
-            className="w-[22px] h-[22px] rounded-full border border-dashed border-[#3d474f] flex items-center justify-center text-[#626f86]"
+            className="w-[22px] h-[22px] rounded-full border border-dashed border-[var(--chrome)] flex items-center justify-center text-[var(--text-faint)]"
             title="Unassigned"
           >
             <svg
@@ -296,7 +318,7 @@ export function IssueCard({
       {...attributes}
       {...listeners}
       onClick={() => onClick(issue)}
-      className="group cursor-grab active:cursor-grabbing rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0ea5e9]"
+      className="group cursor-grab active:cursor-grabbing rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--info)]"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {

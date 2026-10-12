@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -100,6 +100,16 @@ export function BoardView({
   const [groupBy, setGroupBy] = useState<GroupBy>('status');
   const [dragOverGroup, setDragOverGroup] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  // One-shot filter patches from the sidebar (For you, Teams, Goals).
+  const filterSignal = useProjectStore((s) => s.boardFilterSignal);
+  const appliedNonce = useRef(0);
+  useEffect(() => {
+    if (filterSignal && filterSignal.nonce !== appliedNonce.current) {
+      appliedNonce.current = filterSignal.nonce;
+      setFilters((f) => ({ ...f, ...filterSignal.patch }));
+    }
+  }, [filterSignal]);
   // Collapsed columns, keyed by group id.
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   // Board density, remembered across visits.
@@ -236,14 +246,18 @@ export function BoardView({
         />
       ) : hasFilters && filtered.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center gap-3 py-20 text-center">
-          <span className="w-12 h-12 rounded-full bg-[#22272b] flex items-center justify-center">
-            <SearchX size={20} className="text-[#626f86]" />
+          <span className="w-12 h-12 rounded-full bg-[var(--bg-surface)] flex items-center justify-center">
+            <SearchX size={20} className="text-[var(--text-faint)]" />
           </span>
-          <p className="text-[14px] font-medium text-[#e6edf3]">No issues match your filters</p>
-          <p className="text-[13px] text-[#8c9bab]">Try widening the search or clearing filters.</p>
+          <p className="text-[14px] font-medium text-[var(--text-primary)]">
+            No issues match your filters
+          </p>
+          <p className="text-[13px] text-[var(--text-muted)]">
+            Try widening the search or clearing filters.
+          </p>
           <button
             onClick={() => setFilters(EMPTY_FILTERS)}
-            className="mt-1 px-3 py-1.5 rounded-md text-[13px] font-medium bg-[#22272b] border border-[#2c333a] text-[#b6c2cf] hover:border-[#3d474f] motion-press"
+            className="mt-1 px-3 py-1.5 rounded-md text-[13px] font-medium bg-[var(--bg-surface)] border border-[var(--bg-raised)] text-[var(--text-secondary)] hover:border-[var(--chrome)] motion-press"
           >
             Clear filters
           </button>
@@ -263,20 +277,25 @@ export function BoardView({
             className="flex gap-2 overflow-x-auto pb-4 px-0.5 flex-1 items-start"
             style={{ minHeight: 'calc(100vh - 300px)' }}
           >
-            {sortedGroups.map((group) => (
-              <Column
+            {sortedGroups.map((group, i) => (
+              <div
                 key={group.id}
-                id={group.id}
-                title={group.title}
-                issues={group.issues}
-                epicsById={epicsById}
-                isDragOver={dragOverGroup === group.id}
-                onIssueClick={onIssueClick}
-                onAddIssue={() => handleAddIssue(group)}
-                collapsed={!!collapsed[group.id]}
-                onToggleCollapse={() => toggleCollapse(group.id)}
-                density={density}
-              />
+                className="animate-column-enter"
+                style={{ animationDelay: `${Math.min(i, 6) * 55}ms` }}
+              >
+                <Column
+                  id={group.id}
+                  title={group.title}
+                  issues={group.issues}
+                  epicsById={epicsById}
+                  isDragOver={dragOverGroup === group.id}
+                  onIssueClick={onIssueClick}
+                  onAddIssue={() => handleAddIssue(group)}
+                  collapsed={!!collapsed[group.id]}
+                  onToggleCollapse={() => toggleCollapse(group.id)}
+                  density={density}
+                />
+              </div>
             ))}
           </div>
 

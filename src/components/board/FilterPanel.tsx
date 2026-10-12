@@ -8,8 +8,8 @@ import { UNASSIGNED, type BoardFilters } from '@/components/board/boardFilters';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="py-2.5 border-b border-[#2c333a] last:border-0">
-      <div className="text-[11px] font-semibold uppercase tracking-wider text-[#626f86] mb-1.5 px-1">
+    <div className="py-2.5 border-b border-[var(--bg-raised)] last:border-0">
+      <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-faint)] mb-1.5 px-1">
         {title}
       </div>
       <div className="flex flex-wrap gap-1">{children}</div>
@@ -35,8 +35,8 @@ function Chip({
       aria-pressed={active}
       className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[12.5px] border motion-interactive ${
         active
-          ? 'bg-[#0c66e4]/20 border-[#0c66e4] text-[#579dff] font-medium'
-          : 'bg-[#22272b] border-[#2c333a] text-[#8c9bab] hover:border-[#3d474f] hover:text-[#b6c2cf]'
+          ? 'bg-[var(--accent)]/20 border-[var(--accent)] text-[var(--accent-bright)] font-medium'
+          : 'bg-[var(--bg-surface)] border-[var(--bg-raised)] text-[var(--text-muted)] hover:border-[var(--chrome)] hover:text-[var(--text-secondary)]'
       }`}
     >
       {children}
@@ -130,19 +130,22 @@ export function FilterPanel({
       ref={ref}
       role="dialog"
       aria-label="Board filters"
-      className="absolute top-full left-0 mt-2 w-[340px] max-h-[70vh] overflow-y-auto rounded-xl border border-[#2c333a] bg-[#282e33] shadow-2xl shadow-black/50 p-3 z-50 animate-scale-in"
+      className="absolute top-full left-0 mt-2 w-[340px] max-h-[70vh] overflow-y-auto rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-sunken)] shadow-2xl shadow-black/50 p-3 z-50 animate-scale-in"
     >
       <div className="flex items-center justify-between px-1 pb-1">
-        <span className="text-[13px] font-semibold text-[#e6edf3]">Filters</span>
+        <span className="text-[13px] font-semibold text-[var(--text-primary)]">Filters</span>
         <div className="flex items-center gap-1">
           {hasAny && (
-            <button onClick={clearAll} className="text-[12px] text-[#579dff] hover:underline px-1">
+            <button
+              onClick={clearAll}
+              className="text-[12px] text-[var(--accent-bright)] hover:underline px-1"
+            >
               Clear all
             </button>
           )}
           <button
             onClick={onClose}
-            className="p-1 rounded text-[#8c9bab] hover:bg-[#22272b] hover:text-[#b6c2cf]"
+            className="p-1 rounded text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]"
             aria-label="Close filters"
           >
             <X size={14} />
@@ -200,7 +203,7 @@ export function FilterPanel({
             ariaLabel={`Filter by assignee ${a === UNASSIGNED ? 'unassigned' : a}`}
           >
             {a === UNASSIGNED ? (
-              <span className="w-[18px] h-[18px] rounded-full bg-[#3d474f] flex items-center justify-center text-[9px] text-[#8c9bab] font-bold">
+              <span className="w-[18px] h-[18px] rounded-full bg-[var(--chrome)] flex items-center justify-center text-[9px] text-[var(--text-muted)] font-bold">
                 ?
               </span>
             ) : (
@@ -210,7 +213,7 @@ export function FilterPanel({
           </Chip>
         ))}
         {assignees.length === 0 && (
-          <span className="text-[12px] text-[#626f86] px-1">No assignees yet</span>
+          <span className="text-[12px] text-[var(--text-faint)] px-1">No assignees yet</span>
         )}
       </Section>
 

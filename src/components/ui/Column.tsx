@@ -45,18 +45,18 @@ export function Column({
         aria-expanded={false}
         aria-label={`Expand ${title} column (${issues.length} issues)`}
         title={`Expand ${title}`}
-        className={`motion-collapse shrink-0 w-11 min-w-[44px] self-stretch rounded-xl border border-[#2c333a] bg-[#1d2125] hover:bg-[#22272b] hover:border-[#3d474f] flex flex-col items-center py-2 gap-2 ${
-          isDragOver ? 'ring-2 ring-[#0c66e4]/50 bg-[#0c66e4]/10' : ''
+        className={`motion-collapse shrink-0 w-11 min-w-[44px] self-stretch rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-app)] hover:bg-[var(--bg-surface)] hover:border-[var(--chrome)] flex flex-col items-center py-2 gap-2 ${
+          isDragOver ? 'ring-2 ring-[var(--accent)]/50 bg-[var(--accent)]/10' : ''
         }`}
       >
-        <ChevronsRight size={15} className="text-[#626f86] shrink-0" aria-hidden="true" />
+        <ChevronsRight size={15} className="text-[var(--text-faint)] shrink-0" aria-hidden="true" />
         <span
-          className="text-[12px] font-semibold uppercase tracking-wide text-[#8c9bab] truncate"
+          className="text-[12px] font-semibold uppercase tracking-wide text-[var(--text-muted)] truncate"
           style={{ writingMode: 'vertical-rl' }}
         >
           {title}
         </span>
-        <span className="text-[11px] font-semibold text-[#626f86]">{issues.length}</span>
+        <span className="text-[11px] font-semibold text-[var(--text-faint)]">{issues.length}</span>
       </button>
     );
   }
@@ -65,7 +65,7 @@ export function Column({
     <div
       ref={setNodeRef}
       className={`motion-collapse flex flex-col w-[270px] min-w-[270px] max-h-full rounded-xl ${
-        isDragOver ? 'bg-[#0c66e4]/10 ring-2 ring-[#0c66e4]/50' : 'bg-[#1d2125]'
+        isDragOver ? 'bg-[var(--accent)]/10 ring-2 ring-[var(--accent)]/50' : 'bg-[var(--bg-app)]'
       }`}
       role="list"
       aria-label={`${title} column`}
@@ -77,17 +77,17 @@ export function Column({
           aria-expanded={true}
           aria-label={`Collapse ${title} column`}
           title={`Collapse ${title}`}
-          className="p-1 rounded text-[#626f86] hover:bg-[#22272b] hover:text-[#b6c2cf] motion-press"
+          className="p-1 rounded text-[var(--text-faint)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
         >
           <ChevronsLeft size={14} aria-hidden="true" />
         </button>
-        <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[#8c9bab] truncate">
+        <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--text-muted)] truncate">
           {title}
         </h3>
-        <span className="text-[12px] text-[#626f86] font-medium">{issues.length}</span>
+        <span className="text-[12px] text-[var(--text-faint)] font-medium">{issues.length}</span>
         <span className="flex-1" />
         <button
-          className="p-1 rounded text-[#626f86] hover:bg-[#22272b] hover:text-[#b6c2cf] opacity-0 hover:opacity-100 focus:opacity-100 motion-press"
+          className="p-1 rounded text-[var(--text-faint)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] opacity-0 hover:opacity-100 focus:opacity-100 motion-press"
           aria-label={`Column options for ${title}`}
           title="Column options"
         >
@@ -123,14 +123,14 @@ export function Column({
         {hasMore && (
           <button
             onClick={() => setShowAll(true)}
-            className="text-[12px] font-medium text-[#579dff] hover:underline py-1.5 self-start px-1"
+            className="text-[12px] font-medium text-[var(--accent-bright)] hover:underline py-1.5 self-start px-1"
           >
             Show {issues.length - 8} more
           </button>
         )}
 
         {visibleIssues.length === 0 && (
-          <div className="flex items-center justify-center text-[#626f86] text-[12px] rounded-lg border border-dashed border-[#2c333a] min-h-[80px]">
+          <div className="flex items-center justify-center text-[var(--text-faint)] text-[12px] rounded-lg border border-dashed border-[var(--bg-raised)] min-h-[80px]">
             Drop issues here
           </div>
         )}
@@ -140,7 +140,7 @@ export function Column({
       <div className="px-1 pb-1 pt-1">
         <button
           onClick={onAddIssue}
-          className="w-full py-2 px-3 rounded-lg text-[13px] font-medium text-[#8c9bab] hover:text-[#e6edf3] hover:bg-[#22272b] border border-dashed border-[#2c333a] hover:border-[#3d474f] motion-interactive flex items-center justify-center gap-1.5"
+          className="w-full py-2 px-3 rounded-lg text-[13px] font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)] border border-dashed border-[var(--bg-raised)] hover:border-[var(--chrome)] motion-interactive flex items-center justify-center gap-1.5"
           aria-label={`Create issue in ${title}`}
         >
           <Plus size={14} aria-hidden="true" /> Create

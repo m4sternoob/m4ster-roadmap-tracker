@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, ListFilter, Search, User } from 'lucide-react';
 import type { Issue } from '@/types';
 import { Avatar } from '@/components/issues/Avatar';
+import { useProjectStore } from '@/store/projectStore';
 import {
   CURRENT_USER,
   UNASSIGNED,
@@ -37,7 +38,9 @@ export function BoardToolbar({
   issues: Issue[];
   epics: { id: string; name: string; color: string }[];
 }) {
-  const [filterOpen, setFilterOpen] = useState(false);
+  // Filter panel visibility lives in the store so the sidebar can open it.
+  const filterOpen = useProjectStore((s) => s.boardFilterPanelOpen);
+  const setFilterOpen = useProjectStore((s) => s.setBoardFilterPanelOpen);
   const [groupOpen, setGroupOpen] = useState(false);
 
   const assignees = Array.from(new Set(issues.map((i) => i.assignee ?? UNASSIGNED))).sort((a, b) =>
@@ -57,14 +60,14 @@ export function BoardToolbar({
       <div className="relative">
         <Search
           size={14}
-          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#626f86] pointer-events-none"
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)] pointer-events-none"
         />
         <input
           value={filters.query}
           onChange={(e) => setFilters({ ...filters, query: e.target.value })}
           placeholder="Search board"
           aria-label="Search board"
-          className="h-8 w-48 md:w-56 pl-8 pr-3 rounded-md bg-[#22272b] border border-[#2c333a] text-[13px] text-[#e6edf3] placeholder:text-[#626f86] hover:border-[#3d474f] focus:outline-none focus:border-[#0c66e4] focus:ring-1 focus:ring-[#0c66e4]/40 motion-interactive"
+          className="h-8 w-48 md:w-56 pl-8 pr-3 rounded-md bg-[var(--bg-surface)] border border-[var(--bg-raised)] text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-faint)] hover:border-[var(--chrome)] focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]/40 motion-interactive"
         />
       </div>
 
@@ -76,8 +79,8 @@ export function BoardToolbar({
           aria-pressed={filters.onlyMine}
           className={`relative z-10 mr-2 w-7 h-7 rounded-full flex items-center justify-center border motion-press ${
             filters.onlyMine
-              ? 'bg-[#0c66e4] border-[#0c66e4] text-white'
-              : 'bg-[#22272b] border-[#2c333a] text-[#8c9bab] hover:border-[#3d474f]'
+              ? 'bg-[var(--accent)] border-[var(--accent)] text-white'
+              : 'bg-[var(--bg-surface)] border-[var(--bg-raised)] text-[var(--text-muted)] hover:border-[var(--chrome)]'
           }`}
         >
           <User size={13} />
@@ -91,8 +94,8 @@ export function BoardToolbar({
               aria-pressed={filters.quickAssignee === a}
               className={`rounded-full motion-press ${
                 filters.quickAssignee === a
-                  ? 'ring-2 ring-[#579dff] ring-offset-2 ring-offset-[#1d2125]'
-                  : 'hover:ring-2 hover:ring-[#3d474f] hover:ring-offset-2 hover:ring-offset-[#1d2125]'
+                  ? 'ring-2 ring-[var(--accent-bright)] ring-offset-2 ring-offset-[var(--bg-app)]'
+                  : 'hover:ring-2 hover:ring-[var(--chrome)] hover:ring-offset-2 hover:ring-offset-[var(--bg-app)]'
               } ${filters.quickAssignee && filters.quickAssignee !== a ? 'opacity-40' : ''}`}
             >
               <Avatar name={a} size={28} />
@@ -102,7 +105,7 @@ export function BoardToolbar({
         {filters.quickAssignee && (
           <button
             onClick={() => setFilters({ ...filters, quickAssignee: null })}
-            className="ml-2 text-[12px] text-[#579dff] hover:underline"
+            className="ml-2 text-[12px] text-[var(--accent-bright)] hover:underline"
           >
             Clear
           </button>
@@ -112,18 +115,18 @@ export function BoardToolbar({
       {/* Filter button + panel */}
       <div className="relative">
         <button
-          onClick={() => setFilterOpen((v) => !v)}
+          onClick={() => setFilterOpen(!filterOpen)}
           aria-expanded={filterOpen}
           className={`h-8 px-3 rounded-md flex items-center gap-1.5 text-[13px] font-medium border motion-interactive whitespace-nowrap shrink-0 ${
             activeCount > 0 || filterOpen
-              ? 'bg-[#0c66e4]/15 border-[#0c66e4] text-[#579dff]'
-              : 'bg-[#22272b] border-[#2c333a] text-[#b6c2cf] hover:border-[#3d474f]'
+              ? 'bg-[var(--accent)]/15 border-[var(--accent)] text-[var(--accent-bright)]'
+              : 'bg-[var(--bg-surface)] border-[var(--bg-raised)] text-[var(--text-secondary)] hover:border-[var(--chrome)]'
           }`}
         >
           <ListFilter size={14} />
           Filter
           {activeCount > 0 && (
-            <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[#0c66e4] text-white text-[11px] font-semibold flex items-center justify-center">
+            <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--accent)] text-white text-[11px] font-semibold flex items-center justify-center">
               {activeCount}
             </span>
           )}
@@ -147,18 +150,18 @@ export function BoardToolbar({
           aria-expanded={groupOpen}
           className={`h-8 px-3 rounded-md flex items-center gap-1.5 text-[13px] font-medium border motion-interactive whitespace-nowrap shrink-0 ${
             groupOpen || groupBy !== 'status'
-              ? 'bg-[#0c66e4]/15 border-[#0c66e4] text-[#579dff]'
-              : 'bg-[#22272b] border-[#2c333a] text-[#b6c2cf] hover:border-[#3d474f]'
+              ? 'bg-[var(--accent)]/15 border-[var(--accent)] text-[var(--accent-bright)]'
+              : 'bg-[var(--bg-surface)] border-[var(--bg-raised)] text-[var(--text-secondary)] hover:border-[var(--chrome)]'
           }`}
         >
           Group
-          <span className="text-[#626f86] font-normal">: {groupLabel}</span>
+          <span className="text-[var(--text-faint)] font-normal">: {groupLabel}</span>
           <ChevronDown size={13} />
         </button>
         {groupOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setGroupOpen(false)} />
-            <div className="absolute top-full left-0 mt-2 w-44 rounded-lg border border-[#2c333a] bg-[#282e33] shadow-2xl shadow-black/50 py-1 z-50 animate-scale-in">
+            <div className="absolute top-full left-0 mt-2 w-44 rounded-lg border border-[var(--bg-raised)] bg-[var(--bg-sunken)] shadow-2xl shadow-black/50 py-1 z-50 animate-scale-in">
               {GROUP_OPTIONS.map((g) => (
                 <button
                   key={g.id}
@@ -168,8 +171,8 @@ export function BoardToolbar({
                   }}
                   className={`w-full text-left px-3 py-2 text-[13px] motion-interactive ${
                     groupBy === g.id
-                      ? 'text-[#579dff] font-medium bg-[#0c66e4]/10'
-                      : 'text-[#b6c2cf] hover:bg-[#22272b]'
+                      ? 'text-[var(--accent-bright)] font-medium bg-[var(--accent)]/10'
+                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]'
                   }`}
                 >
                   {g.label}
@@ -182,7 +185,7 @@ export function BoardToolbar({
 
       {/* Density toggle */}
       <div
-        className="flex items-center rounded-md border border-[#2c333a] bg-[#22272b] p-0.5"
+        className="flex items-center rounded-md border border-[var(--bg-raised)] bg-[var(--bg-surface)] p-0.5"
         role="group"
         aria-label="Board density"
       >
@@ -194,8 +197,8 @@ export function BoardToolbar({
             title={d === 'compact' ? 'Compact density' : 'Comfortable density'}
             className={`h-7 px-2.5 rounded text-[12px] font-medium capitalize motion-interactive ${
               density === d
-                ? 'bg-[#0c66e4]/20 text-[#579dff]'
-                : 'text-[#8c9bab] hover:text-[#b6c2cf]'
+                ? 'bg-[var(--accent)]/20 text-[var(--accent-bright)]'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
             }`}
           >
             {d}
@@ -203,7 +206,7 @@ export function BoardToolbar({
         ))}
       </div>
 
-      <span className="ml-auto text-[12px] text-[#626f86] select-none hidden md:inline">
+      <span className="ml-auto text-[12px] text-[var(--text-faint)] select-none hidden md:inline">
         {issues.length} issue{issues.length === 1 ? '' : 's'}
       </span>
     </div>

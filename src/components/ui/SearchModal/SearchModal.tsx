@@ -59,7 +59,7 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
       panel="w-full max-w-3xl animate-scale-in"
     >
       {/* Search Input */}
-      <div className="rounded-t-xl border border-white/10 bg-[#1c1f26] shadow-2xl shadow-black/50">
+      <div className="rounded-t-xl border border-white/10 bg-[var(--bg-deep)] shadow-2xl shadow-black/50">
         <div className="relative p-4">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
           <input
@@ -69,7 +69,7 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
             onKeyDown={handleKeyDown}
             autoFocus
             placeholder="Search issues... (title, key, labels, assignee)"
-            className="w-full rounded-lg border border-white/10 bg-[#0f1115] py-3 pl-10 pr-12 text-lg text-slate-100 placeholder:text-slate-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+            className="w-full rounded-lg border border-white/10 bg-[var(--bg-deep)] py-3 pl-10 pr-12 text-lg text-slate-100 placeholder:text-slate-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
             aria-label="Search issues"
           />
           <button
@@ -101,7 +101,7 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
       </div>
 
       {/* Results */}
-      <div className="max-h-[60vh] overflow-y-auto rounded-b-xl border border-t-0 border-white/10 bg-[#1c1f26] shadow-2xl shadow-black/50">
+      <div className="max-h-[60vh] overflow-y-auto rounded-b-xl border border-t-0 border-white/10 bg-[var(--bg-deep)] shadow-2xl shadow-black/50">
         {results.length === 0 ? (
           query.trim() ? (
             <div className="p-8 text-center text-slate-400">

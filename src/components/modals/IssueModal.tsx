@@ -21,8 +21,8 @@ const TYPE_LABELS: Record<IssueType, string> = {
 };
 
 const inputCls =
-  'w-full px-2.5 py-1.5 rounded-md bg-[#22272b] border border-transparent hover:border-[#2c333a] focus:border-[#0c66e4] focus:bg-[#1d2125] focus:outline-none text-[13.5px] text-[#e6edf3] placeholder:text-[#626f86] motion-interactive';
-const labelCls = 'block text-[12px] font-medium text-[#8c9bab] mb-1 select-none';
+  'w-full px-2.5 py-1.5 rounded-md bg-[var(--bg-surface)] border border-transparent hover:border-[var(--bg-raised)] focus:border-[var(--accent)] focus:bg-[var(--bg-app)] focus:outline-none text-[13.5px] text-[var(--text-primary)] placeholder:text-[var(--text-faint)] motion-interactive';
+const labelCls = 'block text-[12px] font-medium text-[var(--text-muted)] mb-1 select-none';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -78,22 +78,22 @@ function CreateForm({ project, onClose }: { project: Project; onClose: () => voi
   return (
     <div className="p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[16px] font-semibold text-[#e6edf3]">Create issue</h2>
+        <h2 className="text-[16px] font-semibold text-[var(--text-primary)]">Create issue</h2>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-md text-[#8c9bab] hover:bg-[#22272b] hover:text-[#e6edf3] motion-press"
+          className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] motion-press"
           aria-label="Close"
         >
           <X size={18} />
         </button>
       </div>
 
-      <div className="flex items-center gap-2 mb-4 text-[13px] text-[#8c9bab]">
-        <span className="text-[#626f86]">Project</span>
-        <span className="w-5 h-5 rounded bg-gradient-to-br from-[#388bff] to-[#0c66e4] text-white text-[9px] font-bold inline-flex items-center justify-center">
+      <div className="flex items-center gap-2 mb-4 text-[13px] text-[var(--text-muted)]">
+        <span className="text-[var(--text-faint)]">Project</span>
+        <span className="w-5 h-5 rounded bg-gradient-to-br from-[var(--accent-bright)] to-[var(--accent)] text-white text-[9px] font-bold inline-flex items-center justify-center">
           {project.key.slice(0, 2).toUpperCase()}
         </span>
-        <span className="text-[#b6c2cf] font-medium">{project.name}</span>
+        <span className="text-[var(--text-secondary)] font-medium">{project.name}</span>
       </div>
 
       <div className="space-y-4">
@@ -107,8 +107,8 @@ function CreateForm({ project, onClose }: { project: Project; onClose: () => voi
                 aria-pressed={type === t}
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[13px] border motion-interactive ${
                   type === t
-                    ? 'bg-[#0c66e4]/15 border-[#0c66e4] text-[#e6edf3] font-medium'
-                    : 'bg-[#22272b] border-[#2c333a] text-[#8c9bab] hover:border-[#3d474f] hover:text-[#b6c2cf]'
+                    ? 'bg-[var(--accent)]/15 border-[var(--accent)] text-[var(--text-primary)] font-medium'
+                    : 'bg-[var(--bg-surface)] border-[var(--bg-raised)] text-[var(--text-muted)] hover:border-[var(--chrome)] hover:text-[var(--text-secondary)]'
                 }`}
               >
                 <IssueTypeIcon type={t} size={15} />
@@ -120,7 +120,7 @@ function CreateForm({ project, onClose }: { project: Project; onClose: () => voi
 
         <div>
           <label className={labelCls} htmlFor="new-title">
-            Summary <span className="text-[#e5493a]">*</span>
+            Summary <span className="text-[var(--danger)]">*</span>
           </label>
           <input
             id="new-title"
@@ -129,10 +129,10 @@ function CreateForm({ project, onClose }: { project: Project; onClose: () => voi
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="What needs to be done?"
-            className={`${inputCls} ${triedSubmit && !title.trim() ? '!border-[#e5493a]' : ''}`}
+            className={`${inputCls} ${triedSubmit && !title.trim() ? '!border-[var(--danger)]' : ''}`}
           />
           {triedSubmit && !title.trim() && (
-            <p className="text-[#e5493a] text-[12px] mt-1">Summary is required.</p>
+            <p className="text-[var(--danger)] text-[12px] mt-1">Summary is required.</p>
           )}
         </div>
 
@@ -166,7 +166,7 @@ function CreateForm({ project, onClose }: { project: Project; onClose: () => voi
               </select>
               <ChevronDown
                 size={14}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#626f86] pointer-events-none"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)] pointer-events-none"
               />
             </div>
           </Field>
@@ -219,7 +219,7 @@ function CreateForm({ project, onClose }: { project: Project; onClose: () => voi
               </select>
               <ChevronDown
                 size={14}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#626f86] pointer-events-none"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)] pointer-events-none"
               />
             </div>
           </Field>
@@ -239,7 +239,7 @@ function CreateForm({ project, onClose }: { project: Project; onClose: () => voi
               </select>
               <ChevronDown
                 size={14}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#626f86] pointer-events-none"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)] pointer-events-none"
               />
             </div>
           </Field>
@@ -255,16 +255,16 @@ function CreateForm({ project, onClose }: { project: Project; onClose: () => voi
         </Field>
       </div>
 
-      <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-[#2c333a]">
+      <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-[var(--bg-raised)]">
         <button
           onClick={onClose}
-          className="px-3.5 py-1.5 rounded-md text-[13px] font-medium text-[#b6c2cf] hover:bg-[#22272b] motion-press"
+          className="px-3.5 py-1.5 rounded-md text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] motion-press"
         >
           Cancel
         </button>
         <button
           onClick={submit}
-          className="px-3.5 py-1.5 rounded-md text-[13px] font-medium bg-[#0c66e4] hover:bg-[#0055cc] text-white motion-press"
+          className="px-3.5 py-1.5 rounded-md text-[13px] font-medium bg-[var(--accent)] hover:bg-[var(--accent-deep)] text-white motion-press"
         >
           Create
         </button>
@@ -350,11 +350,11 @@ function DetailView({
   return (
     <div className="max-h-[88vh] overflow-y-auto">
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 pt-4 pb-3 sticky top-0 bg-[#282e33] z-10 border-b border-[#2c333a]">
+      <div className="flex items-center gap-2 px-5 pt-4 pb-3 sticky top-0 bg-[var(--bg-sunken)] z-10 border-b border-[var(--bg-raised)]">
         <IssueTypeIcon type={live.type} size={17} />
-        <span className="text-[13px] font-medium text-[#8c9bab]">{live.key}</span>
+        <span className="text-[13px] font-medium text-[var(--text-muted)]">{live.key}</span>
         <button
-          className="flex items-center gap-1 text-[12px] text-[#626f86] hover:text-[#b6c2cf] px-1.5 py-1 rounded hover:bg-[#22272b] motion-press"
+          className="flex items-center gap-1 text-[12px] text-[var(--text-faint)] hover:text-[var(--text-secondary)] px-1.5 py-1 rounded hover:bg-[var(--bg-surface)] motion-press"
           title="Copy link"
           onClick={() =>
             navigator.clipboard
@@ -367,7 +367,7 @@ function DetailView({
         <span className="flex-1" />
         <button
           onClick={confirmDelete}
-          className="p-1.5 rounded-md text-[#8c9bab] hover:bg-[#22272b] hover:text-[#e5493a] motion-press"
+          className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--danger)] motion-press"
           aria-label={`Delete ${live.key}`}
           title="Delete issue"
         >
@@ -375,7 +375,7 @@ function DetailView({
         </button>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-md text-[#8c9bab] hover:bg-[#22272b] hover:text-[#e6edf3] motion-press"
+          className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] motion-press"
           aria-label="Close"
         >
           <X size={18} />
@@ -391,34 +391,36 @@ function DetailView({
             onBlur={saveTitle}
             onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
             aria-label="Issue summary"
-            className="w-full text-[20px] font-semibold text-[#e6edf3] bg-transparent border border-transparent hover:border-[#2c333a] focus:border-[#0c66e4] rounded-md px-2 py-1 -ml-2 focus:outline-none motion-interactive"
+            className="w-full text-[20px] font-semibold text-[var(--text-primary)] bg-transparent border border-transparent hover:border-[var(--bg-raised)] focus:border-[var(--accent)] rounded-md px-2 py-1 -ml-2 focus:outline-none motion-interactive"
           />
 
           <div className="mt-4">
-            <div className="text-[13px] font-semibold text-[#e6edf3] mb-1.5">Description</div>
+            <div className="text-[13px] font-semibold text-[var(--text-primary)] mb-1.5">
+              Description
+            </div>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               onBlur={saveDescription}
               rows={4}
               placeholder="Add a description..."
-              className="w-full px-2.5 py-2 rounded-md bg-transparent border border-transparent hover:border-[#2c333a] focus:border-[#0c66e4] focus:bg-[#1d2125] focus:outline-none text-[13.5px] text-[#b6c2cf] placeholder:text-[#626f86] resize-y motion-interactive"
+              className="w-full px-2.5 py-2 rounded-md bg-transparent border border-transparent hover:border-[var(--bg-raised)] focus:border-[var(--accent)] focus:bg-[var(--bg-app)] focus:outline-none text-[13.5px] text-[var(--text-secondary)] placeholder:text-[var(--text-faint)] resize-y motion-interactive"
             />
           </div>
 
           {/* Subtasks */}
           <div className="mt-5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[13px] font-semibold text-[#e6edf3]">
+              <span className="text-[13px] font-semibold text-[var(--text-primary)]">
                 Sub-tasks{' '}
-                <span className="text-[#626f86] font-normal">
+                <span className="text-[var(--text-faint)] font-normal">
                   {subtasks.filter((s) => s.status === 'done').length}/{subtasks.length}
                 </span>
               </span>
               {!showSubtaskInput && (
                 <button
                   onClick={() => setShowSubtaskInput(true)}
-                  className="flex items-center gap-1 text-[12.5px] text-[#8c9bab] hover:text-[#e6edf3] px-2 py-1 rounded hover:bg-[#22272b] motion-press"
+                  className="flex items-center gap-1 text-[12.5px] text-[var(--text-muted)] hover:text-[var(--text-primary)] px-2 py-1 rounded hover:bg-[var(--bg-surface)] motion-press"
                 >
                   <Plus size={13} /> Add
                 </button>
@@ -436,7 +438,7 @@ function DetailView({
                 />
                 <button
                   onClick={addSubtask}
-                  className="px-3 rounded-md text-[13px] font-medium bg-[#0c66e4] hover:bg-[#0055cc] text-white motion-press shrink-0"
+                  className="px-3 rounded-md text-[13px] font-medium bg-[var(--accent)] hover:bg-[var(--accent-deep)] text-white motion-press shrink-0"
                 >
                   Add
                 </button>
@@ -447,12 +449,12 @@ function DetailView({
                 <button
                   key={s.id}
                   onClick={() => useProjectStore.getState().setSelectedIssue(s)}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-[#22272b] text-left motion-interactive group"
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-[var(--bg-surface)] text-left motion-interactive group"
                 >
                   <IssueTypeIcon type={s.type} size={14} />
-                  <span className="font-mono text-[11.5px] text-[#626f86]">{s.key}</span>
+                  <span className="font-mono text-[11.5px] text-[var(--text-faint)]">{s.key}</span>
                   <span
-                    className={`flex-1 text-[13px] truncate ${s.status === 'done' ? 'line-through text-[#626f86]' : 'text-[#b6c2cf]'}`}
+                    className={`flex-1 text-[13px] truncate ${s.status === 'done' ? 'line-through text-[var(--text-faint)]' : 'text-[var(--text-secondary)]'}`}
                   >
                     {s.title}
                   </span>
@@ -460,18 +462,18 @@ function DetailView({
                 </button>
               ))}
               {subtasks.length === 0 && !showSubtaskInput && (
-                <p className="text-[12.5px] text-[#626f86] px-1">No sub-tasks yet.</p>
+                <p className="text-[12.5px] text-[var(--text-faint)] px-1">No sub-tasks yet.</p>
               )}
             </div>
           </div>
 
           {/* Comments */}
           <div className="mt-6">
-            <div className="flex items-center gap-1.5 mb-3 text-[13px] font-semibold text-[#e6edf3]">
-              <MessageSquare size={14} className="text-[#8c9bab]" />
+            <div className="flex items-center gap-1.5 mb-3 text-[13px] font-semibold text-[var(--text-primary)]">
+              <MessageSquare size={14} className="text-[var(--text-muted)]" />
               Comments
               {live.comments.length > 0 && (
-                <span className="text-[#626f86] font-normal">{live.comments.length}</span>
+                <span className="text-[var(--text-faint)] font-normal">{live.comments.length}</span>
               )}
             </div>
             <div className="flex gap-2.5 mb-4">
@@ -488,13 +490,13 @@ function DetailView({
                   <div className="flex justify-end gap-2 mt-2">
                     <button
                       onClick={() => setCommentDraft('')}
-                      className="px-3 py-1.5 rounded-md text-[13px] font-medium text-[#b6c2cf] hover:bg-[#22272b] motion-press"
+                      className="px-3 py-1.5 rounded-md text-[13px] font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] motion-press"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={postComment}
-                      className="px-3 py-1.5 rounded-md text-[13px] font-medium bg-[#0c66e4] hover:bg-[#0055cc] text-white motion-press"
+                      className="px-3 py-1.5 rounded-md text-[13px] font-medium bg-[var(--accent)] hover:bg-[var(--accent-deep)] text-white motion-press"
                     >
                       Save
                     </button>
@@ -510,18 +512,20 @@ function DetailView({
                     <Avatar name={c.author} size={28} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-2">
-                        <span className="text-[13px] font-semibold text-[#e6edf3]">{c.author}</span>
-                        <span className="text-[11.5px] text-[#626f86]">
+                        <span className="text-[13px] font-semibold text-[var(--text-primary)]">
+                          {c.author}
+                        </span>
+                        <span className="text-[11.5px] text-[var(--text-faint)]">
                           {formatRelativeTime(c.createdAt)}
                         </span>
                         <button
                           onClick={() => deleteComment(live.id, c.id)}
-                          className="ml-auto text-[11.5px] text-[#626f86] hover:text-[#e5493a] opacity-0 group-hover:opacity-100 motion-press"
+                          className="ml-auto text-[11.5px] text-[var(--text-faint)] hover:text-[var(--danger)] opacity-0 group-hover:opacity-100 motion-press"
                         >
                           Delete
                         </button>
                       </div>
-                      <p className="text-[13.5px] text-[#b6c2cf] mt-0.5 whitespace-pre-wrap break-words">
+                      <p className="text-[13.5px] text-[var(--text-secondary)] mt-0.5 whitespace-pre-wrap break-words">
                         {c.text}
                       </p>
                     </div>
@@ -532,7 +536,7 @@ function DetailView({
         </div>
 
         {/* Right rail */}
-        <div className="w-full md:w-[240px] shrink-0 p-5 md:border-l border-t md:border-t-0 border-[#2c333a] space-y-4">
+        <div className="w-full md:w-[240px] shrink-0 p-5 md:border-l border-t md:border-t-0 border-[var(--bg-raised)] space-y-4">
           <Field label="Status">
             <div className="relative">
               <select
@@ -549,7 +553,7 @@ function DetailView({
               </select>
               <ChevronDown
                 size={14}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#626f86] pointer-events-none"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)] pointer-events-none"
               />
             </div>
             <div className="mt-1.5">
@@ -591,7 +595,7 @@ function DetailView({
               </span>
               <ChevronDown
                 size={14}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#626f86] pointer-events-none"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)] pointer-events-none"
               />
             </div>
           </Field>
@@ -638,7 +642,7 @@ function DetailView({
               </select>
               <ChevronDown
                 size={14}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#626f86] pointer-events-none"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)] pointer-events-none"
               />
             </div>
           </Field>
@@ -660,7 +664,7 @@ function DetailView({
               </select>
               <ChevronDown
                 size={14}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#626f86] pointer-events-none"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)] pointer-events-none"
               />
             </div>
           </Field>
@@ -682,7 +686,7 @@ function DetailView({
             />
           </Field>
 
-          <div className="pt-2 text-[12px] text-[#626f86] space-y-1">
+          <div className="pt-2 text-[12px] text-[var(--text-faint)] space-y-1">
             <div>Created {formatRelativeTime(live.createdAt)}</div>
             <div>Updated {formatRelativeTime(live.updatedAt)}</div>
             {sprint && <div>Sprint: {sprint.name}</div>}
@@ -710,7 +714,7 @@ export function IssueModal({
     <ModalShell
       onClose={onClose}
       label={isEditing ? `Issue ${issue.key}` : 'Create issue'}
-      panel={`w-full rounded-xl border border-white/10 bg-[#1c1f26] text-slate-100 shadow-2xl shadow-black/60 animate-scale-in max-h-[90vh] overflow-y-auto ${
+      panel={`w-full rounded-xl border border-white/10 bg-[var(--bg-deep)] text-slate-100 shadow-2xl shadow-black/60 animate-scale-in max-h-[90vh] overflow-y-auto ${
         isEditing ? 'max-w-4xl' : 'max-w-2xl'
       }`}
     >

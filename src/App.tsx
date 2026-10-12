@@ -17,6 +17,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SearchModal } from '@/components/ui/SearchModal/SearchModal';
 import { Toasts } from '@/components/ui/Toasts';
 import { AppSkeleton } from '@/components/ui/Skeletons';
+import { LiveBackground } from '@/components/ui/LiveBackground';
 import { useSearch, useKeyboardShortcuts } from '@/hooks/useSearch';
 import type { Issue } from '@/types';
 
@@ -57,6 +58,11 @@ function App() {
     initializeProject();
   }, [initializeProject]);
 
+  // Tell the boot guard in index.html the app mounted successfully.
+  useEffect(() => {
+    (window as unknown as { __APP_MOUNTED?: boolean }).__APP_MOUNTED = true;
+  }, []);
+
   if (!project) {
     return <AppSkeleton />;
   }
@@ -73,38 +79,43 @@ function App() {
 
   return (
     <ThemeProvider>
-      <div className="h-screen flex flex-col bg-[#1d2125] text-[#e6edf3] font-sans overflow-hidden">
-        {/* Skip link: first tab stop, visible only on keyboard focus. */}
-        <a href="#board-content" className="skip-link">
-          Skip to board content
-        </a>
-        <TopBar onToggleSidebar={() => setSidebarCollapsed((v) => !v)} />
+      <div className="relative h-screen flex flex-col bg-[var(--bg-app)] text-[var(--text-primary)] font-sans overflow-hidden">
+        <LiveBackground />
+        <div className="relative z-10 flex flex-col h-full min-h-0">
+          {/* Skip link: first tab stop, visible only on keyboard focus. */}
+          <a href="#board-content" className="skip-link">
+            Skip to board content
+          </a>
+          <TopBar onToggleSidebar={() => setSidebarCollapsed((v) => !v)} />
 
-        <div className="flex flex-1 min-h-0">
-          <SideNav project={project} collapsed={sidebarCollapsed} />
+          <div className="flex flex-1 min-h-0">
+            <SideNav project={project} collapsed={sidebarCollapsed} />
 
-          <div className="flex-1 flex flex-col min-w-0 min-h-0">
-            <ProjectHeader project={project} />
+            <div className="flex-1 flex flex-col min-w-0 min-h-0">
+              <ProjectHeader project={project} />
 
-            <main
-              id="board-content"
-              tabIndex={-1}
-              className="flex-1 min-h-0 overflow-y-auto px-5 py-4"
-            >
-              {activeView === 'board' && (
-                <BoardView project={project} onIssueClick={handleIssueClick} />
-              )}
-              {activeView === 'list' && (
-                <ListView project={project} onIssueClick={handleIssueClick} />
-              )}
-              {activeView === 'backlog' && (
-                <BacklogView project={project} onIssueClick={handleIssueClick} />
-              )}
-              {activeView === 'sprints' && (
-                <SprintsView project={project} onIssueClick={handleIssueClick} />
-              )}
-              {activeView === 'reports' && <ReportsView project={project} />}
-            </main>
+              <main
+                id="board-content"
+                tabIndex={-1}
+                className="flex-1 min-h-0 overflow-y-auto px-5 py-4 bg-transparent"
+              >
+                <div key={activeView} className="animate-view-enter h-full">
+                  {activeView === 'board' && (
+                    <BoardView project={project} onIssueClick={handleIssueClick} />
+                  )}
+                  {activeView === 'list' && (
+                    <ListView project={project} onIssueClick={handleIssueClick} />
+                  )}
+                  {activeView === 'backlog' && (
+                    <BacklogView project={project} onIssueClick={handleIssueClick} />
+                  )}
+                  {activeView === 'sprints' && (
+                    <SprintsView project={project} onIssueClick={handleIssueClick} />
+                  )}
+                  {activeView === 'reports' && <ReportsView project={project} />}
+                </div>
+              </main>
+            </div>
           </div>
         </div>
 

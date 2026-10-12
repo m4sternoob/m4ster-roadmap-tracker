@@ -1,10 +1,12 @@
 @import 'tailwindcss';
+@import './themes.css';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @config "../../tailwind.config.js";
 
 :root {
-  color-scheme: light;
-  --muted-foreground: #64748b;
+  /* Default before the theme provider hydrates (midnight values). */
+  color-scheme: dark;
+  --muted-foreground: #8c9bab;
 
   /* Motion tokens — single source of truth for durations/easings.
      Only transform and opacity (plus color/shadow) are ever animated. */
@@ -15,10 +17,7 @@
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html.dark {
-  color-scheme: dark;
-  --muted-foreground: #94a3b8;
-}
+/* (Theme colors now live in themes.css under html[data-theme].) */
 
 * {
   box-sizing: border-box;

@@ -75,31 +75,31 @@ export function ListView({
   };
 
   return (
-    <div className="rounded-xl border border-[#2c333a] bg-[#1d2125] overflow-hidden">
+    <div className="rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-app)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[900px]">
           <thead>
-            <tr className="border-b border-[#2c333a]">
+            <tr className="border-b border-[var(--bg-raised)]">
               {COLUMNS.map((col) => (
                 <th key={col.label} className={`px-3 py-2.5 ${col.className ?? ''}`}>
                   {col.key ? (
                     <button
                       onClick={() => toggleSort(col.key!)}
-                      className="flex items-center gap-1 text-[11.5px] font-semibold uppercase tracking-wider text-[#626f86] hover:text-[#b6c2cf] motion-press"
+                      className="flex items-center gap-1 text-[11.5px] font-semibold uppercase tracking-wider text-[var(--text-faint)] hover:text-[var(--text-secondary)] motion-press"
                     >
                       {col.label}
                       {sortKey === col.key ? (
                         sortDir === 1 ? (
-                          <ArrowUp size={11} className="text-[#579dff]" />
+                          <ArrowUp size={11} className="text-[var(--accent-bright)]" />
                         ) : (
-                          <ArrowDown size={11} className="text-[#579dff]" />
+                          <ArrowDown size={11} className="text-[var(--accent-bright)]" />
                         )
                       ) : (
                         <ChevronsUpDown size={11} className="opacity-0 hover:opacity-60" />
                       )}
                     </button>
                   ) : (
-                    <span className="text-[11.5px] font-semibold uppercase tracking-wider text-[#626f86]">
+                    <span className="text-[11.5px] font-semibold uppercase tracking-wider text-[var(--text-faint)]">
                       {col.label}
                     </span>
                   )}
@@ -112,7 +112,7 @@ export function ListView({
               <tr
                 key={issue.id}
                 onClick={() => onIssueClick(issue)}
-                className="border-b border-[#2c333a]/60 last:border-0 hover:bg-[#22272b] cursor-pointer motion-interactive"
+                className="border-b border-[var(--bg-raised)]/60 last:border-0 hover:bg-[var(--bg-surface)] cursor-pointer motion-interactive"
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') onIssueClick(issue);
@@ -121,10 +121,10 @@ export function ListView({
                 <td className="px-3 py-2">
                   <IssueTypeIcon type={issue.type} size={16} />
                 </td>
-                <td className="px-3 py-2 font-mono text-[12px] text-[#8c9bab] whitespace-nowrap">
+                <td className="px-3 py-2 font-mono text-[12px] text-[var(--text-muted)] whitespace-nowrap">
                   {issue.key}
                 </td>
-                <td className="px-3 py-2 text-[13.5px] text-[#e6edf3] max-w-[320px] truncate">
+                <td className="px-3 py-2 text-[13.5px] text-[var(--text-primary)] max-w-[320px] truncate">
                   {issue.title}
                 </td>
                 <td className="px-3 py-2">
@@ -132,37 +132,37 @@ export function ListView({
                 </td>
                 <td className="px-3 py-2">
                   {issue.assignee ? (
-                    <span className="flex items-center gap-1.5 text-[13px] text-[#b6c2cf]">
+                    <span className="flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)]">
                       <Avatar name={issue.assignee} size={20} />
                       <span className="truncate max-w-[100px]">{issue.assignee}</span>
                     </span>
                   ) : (
-                    <span className="text-[12.5px] text-[#626f86]">Unassigned</span>
+                    <span className="text-[12.5px] text-[var(--text-faint)]">Unassigned</span>
                   )}
                 </td>
                 <td className="px-3 py-2">
                   <span className="flex items-center gap-1.5">
                     <PriorityIcon priority={issue.priority} size={13} />
-                    <span className="text-[12.5px] text-[#8c9bab] capitalize">
+                    <span className="text-[12.5px] text-[var(--text-muted)] capitalize">
                       {issue.priority}
                     </span>
                   </span>
                 </td>
-                <td className="px-3 py-2 text-right text-[13px] text-[#b6c2cf]">
+                <td className="px-3 py-2 text-right text-[13px] text-[var(--text-secondary)]">
                   {issue.storyPoints > 0 ? (
                     issue.storyPoints
                   ) : (
-                    <span className="text-[#3d474f]">–</span>
+                    <span className="text-[var(--chrome)]">–</span>
                   )}
                 </td>
-                <td className="px-3 py-2 text-[12.5px] text-[#8c9bab] whitespace-nowrap">
+                <td className="px-3 py-2 text-[12.5px] text-[var(--text-muted)] whitespace-nowrap">
                   {issue.dueDate ? (
                     new Date(issue.dueDate).toLocaleDateString(undefined, {
                       month: 'short',
                       day: 'numeric',
                     })
                   ) : (
-                    <span className="text-[#3d474f]">–</span>
+                    <span className="text-[var(--chrome)]">–</span>
                   )}
                 </td>
               </tr>
@@ -180,7 +180,7 @@ export function ListView({
           onAction={openCreate}
         />
       ) : (
-        <div className="px-3 py-2 border-t border-[#2c333a] text-[12px] text-[#626f86]">
+        <div className="px-3 py-2 border-t border-[var(--bg-raised)] text-[12px] text-[var(--text-faint)]">
           {issues.length} issue{issues.length === 1 ? '' : 's'}
         </div>
       )}

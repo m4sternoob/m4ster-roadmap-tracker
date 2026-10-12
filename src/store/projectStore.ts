@@ -16,9 +16,19 @@ import { STATUSES } from '@/types';
 import { generateIssueKey, generateEpicKey } from '@/utils/helpers';
 import { createSampleProject } from '@/utils/demoData';
 
+import type { BoardFilters } from '@/components/board/boardFilters';
+
 export type AppView = 'board' | 'list' | 'backlog' | 'sprints' | 'reports';
 
 export type ToastKind = 'success' | 'error' | 'info';
+
+/** A one-shot board filter request from the sidebar (For you, Teams, Goals). */
+export interface BoardFilterSignal {
+  patch: Partial<BoardFilters>;
+  nonce: number;
+}
+
+export type SidebarSectionKey = 'shortcuts' | 'workspace' | 'spaces' | 'views' | 'manage';
 
 export interface Toast {
   id: string;
@@ -58,6 +68,21 @@ interface ProjectState {
   setNewIssuePreset: (preset: Partial<CreateIssueInput> | null) => void;
   showSearchModal: boolean;
   setShowSearchModal: (show: boolean) => void;
+
+  // Sidebar-driven board filtering
+  boardFilterSignal: BoardFilterSignal | null;
+  applyBoardFilterPatch: (patch: Partial<BoardFilters>) => void;
+  boardFilterPanelOpen: boolean;
+  setBoardFilterPanelOpen: (open: boolean) => void;
+
+  // Recent + starred issues (sidebar)
+  recentIds: string[];
+  starredIds: string[];
+  toggleStarred: (id: string) => void;
+
+  // Sidebar customization
+  sidebarSections: Record<SidebarSectionKey, boolean>;
+  toggleSidebarSection: (key: SidebarSectionKey) => void;
 
   // Toasts
   toasts: Toast[];
@@ -133,7 +158,14 @@ export const useProjectStore = create<ProjectState>()(
       activeView: 'board',
       setActiveView: (view) => set({ activeView: view }),
       selectedIssue: null,
-      setSelectedIssue: (issue) => set({ selectedIssue: issue }),
+      setSelectedIssue: (issue) =>
+        set((state) => ({
+          selectedIssue: issue,
+          // Track recently viewed issues for the sidebar.
+          recentIds: issue
+            ? [issue.id, ...state.recentIds.filter((id) => id !== issue.id)].slice(0, 10)
+            : state.recentIds,
+        })),
       showIssueModal: false,
       setShowIssueModal: (show) => set({ showIssueModal: show }),
       showEpicModal: false,
@@ -152,6 +184,41 @@ export const useProjectStore = create<ProjectState>()(
       setNewIssuePreset: (preset) => set({ newIssuePreset: preset }),
       showSearchModal: false,
       setShowSearchModal: (show) => set({ showSearchModal: show }),
+
+      // Sidebar-driven board filtering
+      boardFilterSignal: null,
+      applyBoardFilterPatch: (patch) =>
+        set((state) => ({
+          boardFilterSignal: {
+            patch,
+            nonce: (state.boardFilterSignal?.nonce ?? 0) + 1,
+          },
+        })),
+      boardFilterPanelOpen: false,
+      setBoardFilterPanelOpen: (open) => set({ boardFilterPanelOpen: open }),
+
+      // Recent + starred issues (sidebar)
+      recentIds: [],
+      starredIds: [],
+      toggleStarred: (id) =>
+        set((state) => ({
+          starredIds: state.starredIds.includes(id)
+            ? state.starredIds.filter((s) => s !== id)
+            : [...state.starredIds, id],
+        })),
+
+      // Sidebar customization
+      sidebarSections: {
+        shortcuts: true,
+        workspace: true,
+        spaces: true,
+        views: true,
+        manage: true,
+      },
+      toggleSidebarSection: (key) =>
+        set((state) => ({
+          sidebarSections: { ...state.sidebarSections, [key]: !state.sidebarSections[key] },
+        })),
 
       // Toasts
       toasts: [],
@@ -748,7 +815,12 @@ export const useProjectStore = create<ProjectState>()(
     {
       name: 'm4ster-tracker-store',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ project: state.project }),
+      partialize: (state) => ({
+        project: state.project,
+        recentIds: state.recentIds,
+        starredIds: state.starredIds,
+        sidebarSections: state.sidebarSections,
+      }),
     }
   )
 );

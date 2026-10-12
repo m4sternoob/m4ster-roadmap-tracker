@@ -11,15 +11,17 @@ function IssueRow({ issue, onClick }: { issue: Issue; onClick: (i: Issue) => voi
   return (
     <button
       onClick={() => onClick(issue)}
-      className="w-full flex items-center gap-2.5 px-3 py-[7px] hover:bg-[#22272b] text-left motion-interactive border-b border-[#2c333a]/40 last:border-0"
+      className="w-full flex items-center gap-2.5 px-3 py-[7px] hover:bg-[var(--bg-surface)] text-left motion-interactive border-b border-[var(--bg-raised)]/40 last:border-0"
     >
       <IssueTypeIcon type={issue.type} size={15} />
-      <span className="font-mono text-[11.5px] text-[#626f86] w-[68px] shrink-0">{issue.key}</span>
-      <span className="flex-1 text-[13px] text-[#e6edf3] truncate">{issue.title}</span>
+      <span className="font-mono text-[11.5px] text-[var(--text-faint)] w-[68px] shrink-0">
+        {issue.key}
+      </span>
+      <span className="flex-1 text-[13px] text-[var(--text-primary)] truncate">{issue.title}</span>
       <StatusPill status={issue.status} className="hidden sm:inline-flex" />
       {issue.storyPoints > 0 && (
         <span
-          className="min-w-[20px] h-5 px-1 rounded-full bg-[#3d474f]/70 text-[#b6c2cf] text-[11px] font-semibold hidden sm:inline-flex items-center justify-center"
+          className="min-w-[20px] h-5 px-1 rounded-full bg-[var(--chrome)]/70 text-[var(--text-secondary)] text-[11px] font-semibold hidden sm:inline-flex items-center justify-center"
           title="Story points"
         >
           {issue.storyPoints}
@@ -53,23 +55,25 @@ function SprintPanel({
     });
 
   return (
-    <section className="rounded-xl border border-[#2c333a] bg-[#1d2125] overflow-hidden mb-3">
-      <div className="flex items-center gap-2 px-3 py-2.5 bg-[#22272b]/60">
+    <section className="rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-app)] overflow-hidden mb-3">
+      <div className="flex items-center gap-2 px-3 py-2.5 bg-[var(--bg-surface)]/60">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="p-1 rounded text-[#8c9bab] hover:bg-[#2c333a] motion-press"
+          className="p-1 rounded text-[var(--text-muted)] hover:bg-[var(--bg-raised)] motion-press"
           aria-expanded={open}
           aria-label={open ? `Collapse ${sprint.name}` : `Expand ${sprint.name}`}
         >
           <ChevronDown size={15} className={`motion-interactive ${open ? '' : '-rotate-90'}`} />
         </button>
-        <span className="text-[13.5px] font-semibold text-[#e6edf3]">{sprint.name}</span>
-        <span className="text-[12px] text-[#626f86]">
+        <span className="text-[13.5px] font-semibold text-[var(--text-primary)]">
+          {sprint.name}
+        </span>
+        <span className="text-[12px] text-[var(--text-faint)]">
           {issues.length} issue{issues.length === 1 ? '' : 's'}
           {points > 0 && ` · ${points} pts`}
         </span>
         {sprint.status === 'active' && (
-          <span className="text-[10.5px] font-bold uppercase tracking-wide px-1.5 py-px rounded bg-[#36b37e]/15 text-[#36b37e]">
+          <span className="text-[10.5px] font-bold uppercase tracking-wide px-1.5 py-px rounded bg-[var(--success)]/15 text-[var(--success)]">
             Active
           </span>
         )}
@@ -77,7 +81,7 @@ function SprintPanel({
         {sprint.status === 'planning' && (
           <button
             onClick={() => startSprint(sprint.id)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-md text-[12.5px] font-medium bg-[#22272b] border border-[#2c333a] text-[#b6c2cf] hover:border-[#3d474f] hover:text-[#e6edf3] motion-press"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md text-[12.5px] font-medium bg-[var(--bg-surface)] border border-[var(--bg-raised)] text-[var(--text-secondary)] hover:border-[var(--chrome)] hover:text-[var(--text-primary)] motion-press"
           >
             <Play size={12} /> Start sprint
           </button>
@@ -85,7 +89,7 @@ function SprintPanel({
         {sprint.status === 'active' && (
           <button
             onClick={confirmComplete}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-md text-[12.5px] font-medium bg-[#0c66e4] hover:bg-[#0055cc] text-white motion-press"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md text-[12.5px] font-medium bg-[var(--accent)] hover:bg-[var(--accent-deep)] text-white motion-press"
           >
             <CheckCheck size={12} /> Complete sprint
           </button>
@@ -94,7 +98,7 @@ function SprintPanel({
       {open && (
         <div>
           {issues.length === 0 ? (
-            <p className="px-3 py-4 text-[12.5px] text-[#626f86]">
+            <p className="px-3 py-4 text-[12.5px] text-[var(--text-faint)]">
               No issues in this sprint yet. Open an issue and assign it to {sprint.name}.
             </p>
           ) : (
@@ -141,15 +145,15 @@ export function BacklogView({
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[15px] font-semibold text-[#e6edf3]">
+        <h2 className="text-[15px] font-semibold text-[var(--text-primary)]">
           Backlog{' '}
-          <span className="text-[#626f86] font-normal text-[13px]">
+          <span className="text-[var(--text-faint)] font-normal text-[13px]">
             {backlogIssues.length} unscheduled
           </span>
         </h2>
         <button
           onClick={() => setShowSprintModal(true)}
-          className="flex items-center gap-1.5 px-3 h-8 rounded-md text-[13px] font-medium bg-[#22272b] border border-[#2c333a] text-[#b6c2cf] hover:border-[#3d474f] hover:text-[#e6edf3] motion-press"
+          className="flex items-center gap-1.5 px-3 h-8 rounded-md text-[13px] font-medium bg-[var(--bg-surface)] border border-[var(--bg-raised)] text-[var(--text-secondary)] hover:border-[var(--chrome)] hover:text-[var(--text-primary)] motion-press"
         >
           <Plus size={14} /> Create sprint
         </button>
@@ -165,10 +169,12 @@ export function BacklogView({
         />
       ))}
 
-      <section className="rounded-xl border border-[#2c333a] bg-[#1d2125] overflow-hidden">
-        <div className="px-3 py-2.5 bg-[#22272b]/60 flex items-center gap-2">
-          <span className="text-[13.5px] font-semibold text-[#e6edf3]">Backlog</span>
-          <span className="text-[12px] text-[#626f86]">{backlogIssues.length} issues</span>
+      <section className="rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-app)] overflow-hidden">
+        <div className="px-3 py-2.5 bg-[var(--bg-surface)]/60 flex items-center gap-2">
+          <span className="text-[13.5px] font-semibold text-[var(--text-primary)]">Backlog</span>
+          <span className="text-[12px] text-[var(--text-faint)]">
+            {backlogIssues.length} issues
+          </span>
         </div>
         {backlogIssues.length === 0 ? (
           <EmptyState
