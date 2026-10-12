@@ -58,6 +58,11 @@ function App() {
     initializeProject();
   }, [initializeProject]);
 
+  // Tell the boot guard in index.html the app mounted successfully.
+  useEffect(() => {
+    (window as unknown as { __APP_MOUNTED?: boolean }).__APP_MOUNTED = true;
+  }, []);
+
   if (!project) {
     return <AppSkeleton />;
   }
