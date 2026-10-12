@@ -1,10 +1,12 @@
 /**
  * GET /api/auth/me — who is signed in, if anyone.
  * 200 { user } when the session cookie is valid, otherwise 401.
+ *
+ * Fully self-contained (no imports): Vercel's function bundler has
+ * repeatedly failed to resolve shared-module imports for these routes.
  */
-import { parseCookies, type SessionUser } from '../../src/sync/authShared';
 
-let kvModule: typeof import('@vercel/kv') | null = null;
+let kvModule: any = null;
 async function getKv() {
   const hasKv =
     (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
@@ -14,19 +16,16 @@ async function getKv() {
   return kvModule.kv;
 }
 
-async function getSessionUser(
-  req: any,
-  kv: NonNullable<Awaited<ReturnType<typeof getKv>>>
-): Promise<SessionUser | null> {
-  const token = parseCookies(req)['mt_session'];
-  if (!token || token.length > 128) return null;
-  const sess = (await kv.get<{ uid: string }>(`sess:${token}`)) ?? null;
-  if (!sess) return null;
-  const uname = (await kv.get<string>(`uid:${sess.uid}`)) ?? null;
-  if (!uname) return null;
-  const user = (await kv.get<{ id: string; username: string }>(`user:${uname}`)) ?? null;
-  if (!user) return null;
-  return { id: user.id, username: user.username };
+function parseCookies(req: any): Record<string, string> {
+  const header = req.headers?.cookie;
+  const out: Record<string, string> = {};
+  if (typeof header !== 'string') return out;
+  for (const part of header.split(';')) {
+    const idx = part.indexOf('=');
+    if (idx < 0) continue;
+    out[part.slice(0, idx).trim()] = decodeURIComponent(part.slice(idx + 1).trim());
+  }
+  return out;
 }
 
 export default async function handler(req: any, res: any) {
@@ -37,9 +36,15 @@ export default async function handler(req: any, res: any) {
   const kv = await getKv();
   if (!kv) return res.status(503).json({ error: 'auth not configured' });
   try {
-    const user = await getSessionUser(req, kv);
+    const token = parseCookies(req)['mt_session'];
+    if (!token || token.length > 128) return res.status(401).json({ error: 'not signed in' });
+    const sess = (await kv.get(`sess:${token}`)) as { uid: string } | null;
+    if (!sess) return res.status(401).json({ error: 'not signed in' });
+    const uname = (await kv.get(`uid:${sess.uid}`)) as string | null;
+    if (!uname) return res.status(401).json({ error: 'not signed in' });
+    const user = (await kv.get(`user:${uname}`)) as { id: string; username: string } | null;
     if (!user) return res.status(401).json({ error: 'not signed in' });
-    return res.status(200).json({ user });
+    return res.status(200).json({ user: { id: user.id, username: user.username } });
   } catch (e) {
     console.error('me error', e);
     return res.status(500).json({ error: 'failed' });
