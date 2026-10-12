@@ -1,78 +1,89 @@
 // Service Worker for m4ster-tracker PWA
-// This is a minimal service worker for offline-first caching
+//
+// Caching strategy (fixed 2026-10-12):
+// - Navigations (/, /index.html): NETWORK FIRST. The HTML shell references
+//   hashed asset URLs; serving a stale cached copy after a deploy points at
+//   deleted files and leaves a permanent white screen. Always try the network
+//   first, fall back to cache only when offline.
+// - /assets/*: cache first. Vite content-hashes these filenames, so a cached
+//   copy is always the right bytes for the HTML that referenced it.
+// - Everything else: network only (no caching).
+// Bumping CACHE_NAME purges the old broken cache on activate.
 
-const CACHE_NAME = 'm4ster-tracker-v1';
-const STATIC_ASSETS = ['/', '/index.html', '/manifest.json'];
+const CACHE_NAME = 'm4ster-tracker-v2';
+const STATIC_ASSETS = ['/manifest.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .catch(() => {
+        // Non-fatal: the worker still works without the precache.
+      })
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
-      );
-    })
+    caches
+      .keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
+        )
+      )
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests
+  // Skip non-GET and cross-origin requests
   if (request.method !== 'GET') return;
-
-  // Skip cross-origin requests
   if (url.origin !== location.origin) return;
 
-  event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Return cached response and update cache in background
-        event.waitUntil(
-          fetch(request)
-            .then((networkResponse) => {
-              if (networkResponse.ok) {
-                caches.open(CACHE_NAME).then((cache) => {
-                  cache.put(request, networkResponse.clone());
-                });
-              }
-            })
-            .catch(() => {
-              // Network failed, cached response already returned
-            })
-        );
-        return cachedResponse;
-      }
-
-      // Not in cache, fetch from network
-      return fetch(request)
+  // Navigations: network first, cache only as an offline fallback.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
         .then((networkResponse) => {
           if (networkResponse.ok) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
           }
           return networkResponse;
         })
-        .catch(() => {
-          // Network failed, return offline page if available
-          if (request.mode === 'navigate') {
-            return caches.match('/index.html');
-          }
-        });
-    })
-  );
+        .catch(() =>
+          caches.match(request).then((cached) => cached || caches.match('/index.html'))
+        )
+    );
+    return;
+  }
+
+  // Versioned build assets: cache first (immutable content hashes).
+  if (url.pathname.startsWith('/assets/')) {
+    event.respondWith(
+      caches.match(request).then(
+        (cached) =>
+          cached ||
+          fetch(request).then((networkResponse) => {
+            if (networkResponse.ok) {
+              const copy = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+            }
+            return networkResponse;
+          })
+      )
+    );
+    return;
+  }
+
+  // Everything else: straight from the network.
+  event.respondWith(fetch(request).catch(() => caches.match(request)));
 });
 
 // Handle background sync for pending mutations
