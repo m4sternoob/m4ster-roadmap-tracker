@@ -2,7 +2,32 @@
  * GET /api/auth/me — who is signed in, if anyone.
  * 200 { user } when the session cookie is valid, otherwise 401.
  */
-import { getKv, getSessionUser } from './_shared';
+import { parseCookies, type SessionUser } from '../../src/sync/authShared';
+
+let kvModule: typeof import('@vercel/kv') | null = null;
+async function getKv() {
+  const hasKv =
+    (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
+    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+  if (!hasKv) return null;
+  if (!kvModule) kvModule = await import('@vercel/kv');
+  return kvModule.kv;
+}
+
+async function getSessionUser(
+  req: any,
+  kv: NonNullable<Awaited<ReturnType<typeof getKv>>>
+): Promise<SessionUser | null> {
+  const token = parseCookies(req)['mt_session'];
+  if (!token || token.length > 128) return null;
+  const sess = (await kv.get<{ uid: string }>(`sess:${token}`)) ?? null;
+  if (!sess) return null;
+  const uname = (await kv.get<string>(`uid:${sess.uid}`)) ?? null;
+  if (!uname) return null;
+  const user = (await kv.get<{ id: string; username: string }>(`user:${uname}`)) ?? null;
+  if (!user) return null;
+  return { id: user.id, username: user.username };
+}
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') {

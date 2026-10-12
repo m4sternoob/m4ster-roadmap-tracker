@@ -3,7 +3,28 @@
  * Body: { username, password }. Sets the mt_session cookie on success.
  * Returns 503 when no KV/Upstash database is attached.
  */
-import { USERNAME_RE, getKv, hashPassword, createSession, sessionCookie } from './_shared';
+import {
+  USERNAME_RE,
+  SESSION_TTL_SECONDS,
+  hashPassword,
+  sessionCookie,
+} from '../../src/sync/authShared';
+
+let kvModule: typeof import('@vercel/kv') | null = null;
+async function getKv() {
+  const hasKv =
+    (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
+    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+  if (!hasKv) return null;
+  if (!kvModule) kvModule = await import('@vercel/kv');
+  return kvModule.kv;
+}
+
+async function createSession(kv: NonNullable<Awaited<ReturnType<typeof getKv>>>, uid: string) {
+  const token = crypto.randomUUID();
+  await kv.set(`sess:${token}`, { uid, createdAt: Date.now() }, { ex: SESSION_TTL_SECONDS });
+  return token;
+}
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
@@ -26,11 +47,10 @@ export default async function handler(req: any, res: any) {
     const id = crypto.randomUUID();
     const user = {
       id,
-      username, // preserve the casing they typed
+      username,
       pass: await hashPassword(password),
       createdAt: new Date().toISOString(),
     };
-    // Atomic create — NX fails if the username key already exists.
     const created = await kv.set(`user:${uname}`, user, { nx: true });
     if (!created) return res.status(409).json({ error: 'username is taken' });
     await kv.set(`uid:${id}`, uname);

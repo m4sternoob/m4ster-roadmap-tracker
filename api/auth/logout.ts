@@ -2,7 +2,17 @@
  * POST /api/auth/logout — destroy the current session.
  * Always succeeds (idempotent), even without a session cookie.
  */
-import { getKv, parseCookies, clearSessionCookie } from './_shared';
+import { parseCookies, clearSessionCookie } from '../../src/sync/authShared';
+
+let kvModule: typeof import('@vercel/kv') | null = null;
+async function getKv() {
+  const hasKv =
+    (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
+    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+  if (!hasKv) return null;
+  if (!kvModule) kvModule = await import('@vercel/kv');
+  return kvModule.kv;
+}
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {

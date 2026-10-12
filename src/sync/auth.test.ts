@@ -6,7 +6,7 @@ import {
   parseCookies,
   sessionCookie,
   clearSessionCookie,
-} from '../../api/auth/_shared';
+} from '@/sync/authShared';
 
 describe('auth helpers', () => {
   describe('USERNAME_RE', () => {
