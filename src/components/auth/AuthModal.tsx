@@ -55,6 +55,34 @@ export function AuthModal({ mode }: AuthModalProps) {
             ? 'One account, same boards on every device.'
             : 'Sign in to sync your boards across devices.'}
         </p>
+        <a
+          href="/api/auth/google"
+          className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition-opacity duration-150 hover:opacity-85"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="#4285F4"
+              d="M23.5 12.3c0-.9-.1-1.5-.3-2.3H12v4.5h6.5c-.1 1.1-.8 2.7-2.4 3.8l-.1.1 3.5 2.7.2.1c2.2-2 3.8-5 3.8-8.9z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.8-2.9c-1 .7-2.4 1.2-4.1 1.2-3.1 0-5.8-2.1-6.8-5l-.1.1-3.6 2.8-.1.1C3.4 21.4 7.4 24 12 24z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.2 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.7.4-2.4l-.1-.1-3.6-2.8-.1.1C.5 8.5 0 10.2 0 12s.5 3.5 1.4 5.1l3.8-2.7z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 4.7c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.4 0 3.4 2.6 1.4 6.9l3.8 2.8c1-2.9 3.7-5 6.8-5z"
+            />
+          </svg>
+          Continue with Google
+        </a>
+        <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
+          <span className="h-px flex-1 bg-white/10" /> or{' '}
+          <span className="h-px flex-1 bg-white/10" />
+        </div>
         <label className="flex flex-col gap-1 text-sm">
           <span className="font-medium text-slate-300">Username</span>
           <input

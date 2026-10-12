@@ -1,4 +1,5 @@
-import { Ellipsis, Maximize2, Share2, Users, Zap } from 'lucide-react';
+import { useRef } from 'react';
+import { Download, Ellipsis, Maximize2, Share2, Upload, Users, Zap } from 'lucide-react';
 import type { Project } from '@/types';
 import { useProjectStore, type AppView } from '@/store/projectStore';
 
@@ -12,6 +13,20 @@ const TABS: { id: AppView; label: string }[] = [
 
 export function ProjectHeader({ project }: { project: Project }) {
   const { activeView, setActiveView } = useProjectStore();
+  const exportProject = useProjectStore((s) => s.exportProject);
+  const importProject = useProjectStore((s) => s.importProject);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function onImportFile(file: File | undefined) {
+    if (!file) return;
+    try {
+      await importProject(file);
+    } catch {
+      // importProject already toasted the error.
+    } finally {
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
 
   return (
     <div className="shrink-0 px-5 pt-3 bg-[var(--bg-app)]">
@@ -44,6 +59,31 @@ export function ProjectHeader({ project }: { project: Project }) {
         <div className="flex-1" />
 
         <div className="hidden sm:flex items-center gap-0.5">
+          <button
+            onClick={exportProject}
+            className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
+            aria-label="Export board as JSON"
+            title="Export board as JSON"
+          >
+            <Download size={15} />
+          </button>
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
+            aria-label="Import board from JSON"
+            title="Import board from JSON"
+          >
+            <Upload size={15} />
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            aria-hidden="true"
+            tabIndex={-1}
+            onChange={(e) => onImportFile(e.target.files?.[0])}
+          />
           <button
             className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
             aria-label="Share"

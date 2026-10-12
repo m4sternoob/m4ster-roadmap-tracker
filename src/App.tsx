@@ -57,6 +57,25 @@ function App() {
 
   useEffect(() => {
     initializeProject();
+    // Surface Google OAuth outcomes (?auth=...) as a toast, then clean the URL.
+    const params = new URLSearchParams(window.location.search);
+    const authResult = params.get('auth');
+    if (authResult) {
+      const messages: Record<string, string> = {
+        cancelled: 'Google sign-in was cancelled.',
+        error: 'Google sign-in failed — please try again.',
+        'not-configured': 'Google sign-in is not set up on this deployment yet.',
+      };
+      useProjectStore
+        .getState()
+        .pushToast(
+          authResult === 'cancelled' ? 'info' : 'error',
+          messages[authResult] ?? 'Google sign-in failed — please try again.'
+        );
+      params.delete('auth');
+      const clean = `${window.location.pathname}${params.toString() ? `?${params}` : ''}`;
+      window.history.replaceState(null, '', clean);
+    }
   }, [initializeProject]);
 
   // Poll for changes from other devices every 30s.
