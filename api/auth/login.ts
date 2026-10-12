@@ -2,10 +2,14 @@
  * POST /api/auth/login — sign in.
  * Body: { username, password }. Sets the mt_session cookie on success.
  * Returns 503 when no KV/Upstash database is attached.
+ *
+ * Fully self-contained (no imports): Vercel's function bundler does not
+ * resolve shared-module imports for these routes (500s at runtime).
  */
-import { SESSION_TTL_SECONDS, verifyPassword, sessionCookie } from '../../src/sync/authShared';
 
-let kvModule: typeof import('@vercel/kv') | null = null;
+const SESSION_TTL_SECONDS = 30 * 24 * 3600;
+
+let kvModule: any = null;
 async function getKv() {
   const hasKv =
     (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
@@ -15,16 +19,32 @@ async function getKv() {
   return kvModule.kv;
 }
 
-async function createSession(kv: NonNullable<Awaited<ReturnType<typeof getKv>>>, uid: string) {
-  const token = crypto.randomUUID();
-  await kv.set(`sess:${token}`, { uid, createdAt: Date.now() }, { ex: SESSION_TTL_SECONDS });
-  return token;
-}
-
-interface StoredUser {
-  id: string;
-  username: string;
-  pass: string;
+async function verifyPassword(password: string, stored: string): Promise<boolean> {
+  const parts = stored.split('$');
+  if (parts.length !== 4 || parts[0] !== 'pbkdf2') return false;
+  const iterations = Number(parts[1]);
+  if (!Number.isFinite(iterations) || iterations <= 0) return false;
+  const unb64 = (s: string) => new Uint8Array(Buffer.from(s, 'base64'));
+  const salt = unb64(parts[2]);
+  const expected = unb64(parts[3]);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+  const bits = new Uint8Array(
+    await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', salt: salt as unknown as ArrayBuffer, iterations, hash: 'SHA-256' },
+      key,
+      expected.length * 8
+    )
+  );
+  if (bits.length !== expected.length) return false;
+  let diff = 0;
+  for (let i = 0; i < bits.length; i++) diff |= bits[i] ^ expected[i];
+  return diff === 0;
 }
 
 export default async function handler(req: any, res: any) {
@@ -41,13 +61,26 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const user = (await kv.get<StoredUser>(`user:${username.toLowerCase()}`)) ?? null;
+    const user = (await kv.get(`user:${username.toLowerCase()}`)) as {
+      id: string;
+      username: string;
+      pass: string;
+    } | null;
     const ok = user ? await verifyPassword(password, user.pass) : false;
     if (!user || !ok) {
       return res.status(401).json({ error: 'wrong username or password' });
     }
-    const token = await createSession(kv, user.id);
-    res.setHeader('Set-Cookie', sessionCookie(token));
+    const token = crypto.randomUUID();
+    await kv.set(
+      `sess:${token}`,
+      { uid: user.id, createdAt: Date.now() },
+      { ex: SESSION_TTL_SECONDS }
+    );
+    const secure = process.env.VERCEL_ENV === 'production' ? '; Secure' : '';
+    res.setHeader(
+      'Set-Cookie',
+      `mt_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL_SECONDS}; SameSite=Lax${secure}`
+    );
     return res.status(200).json({ user: { id: user.id, username: user.username } });
   } catch (e) {
     console.error('login error', e);

@@ -2,15 +2,15 @@
  * POST /api/auth/signup — create an account.
  * Body: { username, password }. Sets the mt_session cookie on success.
  * Returns 503 when no KV/Upstash database is attached.
+ *
+ * Fully self-contained (no imports): Vercel's function bundler does not
+ * resolve shared-module imports for these routes (500s at runtime).
  */
-import {
-  USERNAME_RE,
-  SESSION_TTL_SECONDS,
-  hashPassword,
-  sessionCookie,
-} from '../../src/sync/authShared';
 
-let kvModule: typeof import('@vercel/kv') | null = null;
+const USERNAME_RE = /^[a-zA-Z0-9_-]{3,20}$/;
+const SESSION_TTL_SECONDS = 30 * 24 * 3600;
+
+let kvModule: any = null;
 async function getKv() {
   const hasKv =
     (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
@@ -20,10 +20,22 @@ async function getKv() {
   return kvModule.kv;
 }
 
-async function createSession(kv: NonNullable<Awaited<ReturnType<typeof getKv>>>, uid: string) {
-  const token = crypto.randomUUID();
-  await kv.set(`sess:${token}`, { uid, createdAt: Date.now() }, { ex: SESSION_TTL_SECONDS });
-  return token;
+async function hashPassword(password: string): Promise<string> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: salt as unknown as ArrayBuffer, iterations: 100000, hash: 'SHA-256' },
+    key,
+    256
+  );
+  const b64 = (b: Uint8Array) => Buffer.from(b).toString('base64');
+  return `pbkdf2$100000$${b64(salt)}$${b64(new Uint8Array(bits))}`;
 }
 
 export default async function handler(req: any, res: any) {
@@ -55,8 +67,13 @@ export default async function handler(req: any, res: any) {
     if (!created) return res.status(409).json({ error: 'username is taken' });
     await kv.set(`uid:${id}`, uname);
 
-    const token = await createSession(kv, id);
-    res.setHeader('Set-Cookie', sessionCookie(token));
+    const token = crypto.randomUUID();
+    await kv.set(`sess:${token}`, { uid: id, createdAt: Date.now() }, { ex: SESSION_TTL_SECONDS });
+    const secure = process.env.VERCEL_ENV === 'production' ? '; Secure' : '';
+    res.setHeader(
+      'Set-Cookie',
+      `mt_session=${token}; HttpOnly; Path=/; Max-Age=${SESSION_TTL_SECONDS}; SameSite=Lax${secure}`
+    );
     return res.status(201).json({ user: { id, username } });
   } catch (e) {
     console.error('signup error', e);

@@ -6,13 +6,14 @@
  * (Vercel dashboard → Storage → Create KV).
  * Without KV env vars, returns 503 and the app stays local-only.
  * Without a session cookie, returns 401 — sign in to sync.
+ *
+ * Fully self-contained (no imports): Vercel's function bundler does not
+ * resolve shared-module imports for these routes (500s at runtime).
  */
-
-import { parseCookies, type SessionUser } from '../../src/sync/authShared';
 
 const SLUG_RE = /^[a-z0-9-_]{1,32}$/i;
 
-let kvModule: typeof import('@vercel/kv') | null = null;
+let kvModule: any = null;
 async function getKv() {
   const hasKv =
     (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
@@ -20,27 +21,6 @@ async function getKv() {
   if (!hasKv) return null;
   if (!kvModule) kvModule = await import('@vercel/kv');
   return kvModule.kv;
-}
-
-async function getSessionUser(
-  req: any,
-  kv: NonNullable<Awaited<ReturnType<typeof getKv>>>
-): Promise<SessionUser | null> {
-  const token = parseCookies(req)['mt_session'];
-  if (!token || token.length > 128) return null;
-  const sess = (await kv.get<{ uid: string }>(`sess:${token}`)) ?? null;
-  if (!sess) return null;
-  const uname = (await kv.get<string>(`uid:${sess.uid}`)) ?? null;
-  if (!uname) return null;
-  const user = (await kv.get<{ id: string; username: string }>(`user:${uname}`)) ?? null;
-  if (!user) return null;
-  return { id: user.id, username: user.username };
-}
-
-interface WorkspaceRecord {
-  data: unknown;
-  updatedAt: string;
-  deviceId: string;
 }
 
 export default async function handler(req: any, res: any) {
@@ -54,7 +34,30 @@ export default async function handler(req: any, res: any) {
     return res.status(503).json({ error: 'sync not configured' });
   }
 
-  const user = await getSessionUser(req, kv);
+  // Session lookup (inlined).
+  let user: { id: string; username: string } | null = null;
+  try {
+    const header = req.headers?.cookie;
+    let token: string | null = null;
+    if (typeof header === 'string') {
+      for (const part of header.split(';')) {
+        const idx = part.indexOf('=');
+        if (idx > 0 && part.slice(0, idx).trim() === 'mt_session') {
+          token = decodeURIComponent(part.slice(idx + 1).trim());
+        }
+      }
+    }
+    if (token && token.length <= 128) {
+      const sess = (await kv.get(`sess:${token}`)) as { uid: string } | null;
+      const uname = sess ? ((await kv.get(`uid:${sess.uid}`)) as string | null) : null;
+      const record = uname
+        ? ((await kv.get(`user:${uname}`)) as { id: string; username: string } | null)
+        : null;
+      if (record) user = { id: record.id, username: record.username };
+    }
+  } catch (e) {
+    console.error('session lookup error', e);
+  }
   if (!user) {
     return res.status(401).json({ error: 'sign in required' });
   }
@@ -64,7 +67,7 @@ export default async function handler(req: any, res: any) {
 
   try {
     if (req.method === 'GET') {
-      const record = (await kv.get<WorkspaceRecord>(key)) ?? null;
+      const record = await kv.get(key);
       if (!record) return res.status(404).json({ error: 'not found' });
       return res.status(200).json(record);
     }
@@ -76,11 +79,11 @@ export default async function handler(req: any, res: any) {
       }
       // Last-write-wins: reject stale writes so a lagging device
       // doesn't clobber newer changes.
-      const existing = (await kv.get<WorkspaceRecord>(key)) ?? null;
+      const existing = (await kv.get(key)) as { updatedAt: string } | null;
       if (existing && existing.updatedAt > updatedAt) {
         return res.status(409).json(existing);
       }
-      const record: WorkspaceRecord = {
+      const record = {
         data,
         updatedAt,
         deviceId: typeof deviceId === 'string' ? deviceId : 'unknown',

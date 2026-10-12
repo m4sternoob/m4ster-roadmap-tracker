@@ -1,10 +1,12 @@
 /**
  * POST /api/auth/logout — destroy the current session.
  * Always succeeds (idempotent), even without a session cookie.
+ *
+ * Fully self-contained (no imports): Vercel's function bundler does not
+ * resolve shared-module imports for these routes (500s at runtime).
  */
-import { parseCookies, clearSessionCookie } from '../../src/sync/authShared';
 
-let kvModule: typeof import('@vercel/kv') | null = null;
+let kvModule: any = null;
 async function getKv() {
   const hasKv =
     (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
@@ -19,11 +21,21 @@ export default async function handler(req: any, res: any) {
     res.setHeader('Allow', 'POST');
     return res.status(405).end();
   }
-  res.setHeader('Set-Cookie', clearSessionCookie());
+  const secure = process.env.VERCEL_ENV === 'production' ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `mt_session=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure}`);
   const kv = await getKv();
   if (!kv) return res.status(200).json({ ok: true });
   try {
-    const token = parseCookies(req)['mt_session'];
+    const header = req.headers?.cookie;
+    let token: string | null = null;
+    if (typeof header === 'string') {
+      for (const part of header.split(';')) {
+        const idx = part.indexOf('=');
+        if (idx > 0 && part.slice(0, idx).trim() === 'mt_session') {
+          token = decodeURIComponent(part.slice(idx + 1).trim());
+        }
+      }
+    }
     if (token) await kv.del(`sess:${token}`);
   } catch (e) {
     console.error('logout error', e);
