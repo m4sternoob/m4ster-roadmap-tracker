@@ -274,13 +274,13 @@ export function BoardView({
           }
         >
           <div
-            className="flex gap-2 overflow-x-auto pb-4 px-0.5 flex-1 items-start"
+            className="flex gap-3 overflow-x-auto pb-4 px-1 flex-1 items-start snap-x snap-mandatory md:snap-none"
             style={{ minHeight: 'calc(100vh - 300px)' }}
           >
             {sortedGroups.map((group, i) => (
               <div
                 key={group.id}
-                className="animate-column-enter"
+                className="animate-column-enter snap-start shrink-0"
                 style={{ animationDelay: `${Math.min(i, 6) * 55}ms` }}
               >
                 <Column

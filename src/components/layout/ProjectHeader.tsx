@@ -109,7 +109,7 @@ export function ProjectHeader({ project }: { project: Project }) {
       </div>
 
       {/* Tabs */}
-      <nav className="flex items-center gap-1 mt-2" role="tablist" aria-label="Project views">
+      <nav className="flex items-center gap-1 mt-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Project views">
         {TABS.map(({ id, label }) => {
           const active = activeView === id;
           return (

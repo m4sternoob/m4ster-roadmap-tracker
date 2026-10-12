@@ -220,7 +220,7 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
 
   return (
     <aside
-      className={`shrink-0 h-full bg-[var(--bg-app)] border-r border-[var(--bg-raised)] flex flex-col py-2 px-1.5 gap-0.5 overflow-y-auto overflow-x-hidden motion-layout ${
+      className={`shrink-0 h-full bg-[var(--bg-app)] border-r border-[var(--bg-raised)] hidden md:flex flex-col py-2 px-1.5 gap-0.5 overflow-y-auto overflow-x-hidden motion-layout ${
         collapsed ? 'w-[52px]' : 'w-60'
       }`}
       aria-label="Primary navigation"

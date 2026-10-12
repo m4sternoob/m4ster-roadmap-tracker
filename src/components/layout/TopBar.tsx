@@ -164,7 +164,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
     <header className="h-12 shrink-0 flex items-center gap-2 px-3 bg-[var(--bg-app)] border-b border-[var(--bg-raised)] relative z-40">
       <button
         onClick={onToggleSidebar}
-        className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
+        className="hidden md:block p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
         aria-label="Toggle sidebar"
         title="Toggle sidebar"
       >
@@ -208,7 +208,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         </button>
         <ThemePicker />
         <button
-          className="relative p-2 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
+          className="hidden sm:block relative p-2 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
           aria-label="Notifications"
           title="Notifications"
         >
@@ -224,7 +224,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         </button>
         <button
           onClick={() => useProjectStore.getState().setShowSettingsModal(true)}
-          className="p-2 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
+          className="hidden sm:block p-2 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
           aria-label="Settings"
           title="Settings"
         >
