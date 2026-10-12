@@ -135,6 +135,33 @@ body {
   transition: width var(--motion-normal) var(--ease-out);
 }
 
+/* ArtCraft-style micro-interactions: fast, restrained, premium.
+   Primary CTAs fade to 80% in 150ms (no color swap, no lift).
+   Ghost buttons melt their border into the background in 150ms.
+   Nav items snap to their pill instantly — hover == active. */
+.btn-artcraft {
+  transition:
+    opacity 150ms ease-out,
+    transform 150ms ease-out;
+}
+.btn-artcraft:hover {
+  opacity: 0.8;
+}
+.btn-artcraft:active {
+  transform: scale(0.97);
+}
+
+.btn-ghost-artcraft {
+  transition: border-color 150ms ease-out;
+}
+.btn-ghost-artcraft:hover {
+  border-color: transparent;
+}
+
+.nav-pill {
+  transition: none;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

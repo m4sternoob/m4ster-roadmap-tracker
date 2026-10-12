@@ -44,7 +44,7 @@ function Item({
     <button
       onClick={onClick}
       title={collapsed ? label : undefined}
-      className={`w-full flex items-center gap-2.5 px-2.5 h-8 rounded-md text-[13px] motion-interactive ${
+      className={`w-full flex items-center gap-2.5 px-2.5 h-8 rounded-md text-[13px] motion-interactive nav-pill ${
         active
           ? 'bg-[var(--accent)]/15 text-[var(--accent-bright)] font-medium'
           : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]'
@@ -128,7 +128,7 @@ function NavPopover({
         onClick={toggle}
         title={collapsed ? label : undefined}
         aria-expanded={open}
-        className={`w-full flex items-center gap-2.5 px-2.5 h-8 rounded-md text-[13px] motion-interactive ${
+        className={`w-full flex items-center gap-2.5 px-2.5 h-8 rounded-md text-[13px] motion-interactive nav-pill ${
           active || open
             ? 'bg-[var(--accent)]/15 text-[var(--accent-bright)] font-medium'
             : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]'
@@ -484,7 +484,7 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
             <button
               onClick={() => setCustomizeOpen((v) => !v)}
               aria-expanded={customizeOpen}
-              className={`w-full flex items-center gap-2.5 px-2.5 h-8 rounded-md text-[13px] motion-interactive ${
+              className={`w-full flex items-center gap-2.5 px-2.5 h-8 rounded-md text-[13px] motion-interactive nav-pill ${
                 customizeOpen
                   ? 'bg-[var(--accent)]/15 text-[var(--accent-bright)] font-medium'
                   : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]'

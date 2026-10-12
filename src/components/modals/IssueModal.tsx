@@ -264,7 +264,7 @@ function CreateForm({ project, onClose }: { project: Project; onClose: () => voi
         </button>
         <button
           onClick={submit}
-          className="px-3.5 py-1.5 rounded-md text-[13px] font-medium bg-[var(--accent)] hover:bg-[var(--accent-deep)] text-white motion-press"
+          className="px-3.5 py-1.5 rounded-md text-[13px] font-medium bg-[var(--accent)] text-white btn-artcraft"
         >
           Create
         </button>
@@ -438,7 +438,7 @@ function DetailView({
                 />
                 <button
                   onClick={addSubtask}
-                  className="px-3 rounded-md text-[13px] font-medium bg-[var(--accent)] hover:bg-[var(--accent-deep)] text-white motion-press shrink-0"
+                  className="px-3 rounded-md text-[13px] font-medium bg-[var(--accent)] text-white btn-artcraft shrink-0"
                 >
                   Add
                 </button>

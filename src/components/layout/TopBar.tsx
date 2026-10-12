@@ -52,7 +52,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
       <div className="flex items-center gap-1">
         <button
           onClick={openCreate}
-          className="h-8 px-3 rounded-md bg-[var(--accent)] hover:bg-[var(--accent-deep)] text-white text-[13px] font-medium flex items-center gap-1.5 motion-press shadow-sm"
+          className="h-8 px-3 rounded-md bg-[var(--accent)] text-white text-[13px] font-medium flex items-center gap-1.5 btn-artcraft shadow-sm"
         >
           <Plus size={15} /> <span className="hidden sm:inline">Create</span>
         </button>

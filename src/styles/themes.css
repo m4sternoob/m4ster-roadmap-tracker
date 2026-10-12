@@ -154,8 +154,8 @@ body {
 }
 
 /* ============================================================
-   Live background — slow aurora orbs drifting behind the app.
-   Transform + opacity only, so it stays on the GPU.
+   Live background — interactive canvas aurora behind the app.
+   Orbs drift, push away from cursor/touch, and ripple on tap.
    ============================================================ */
 .live-bg {
   position: absolute;
@@ -165,72 +165,10 @@ body {
   z-index: 0;
 }
 
-.live-orb {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(90px);
-  opacity: var(--orb-opacity);
-  will-change: transform;
-}
-
-.live-orb-1 {
-  width: 44vmax;
-  height: 44vmax;
-  left: -12vmax;
-  top: -14vmax;
-  background: radial-gradient(circle, var(--orb-1) 0%, transparent 65%);
-  animation: orb-drift-1 28s ease-in-out infinite alternate;
-}
-
-.live-orb-2 {
-  width: 38vmax;
-  height: 38vmax;
-  right: -10vmax;
-  top: 22%;
-  background: radial-gradient(circle, var(--orb-2) 0%, transparent 65%);
-  animation: orb-drift-2 34s ease-in-out infinite alternate;
-}
-
-.live-orb-3 {
-  width: 30vmax;
-  height: 30vmax;
-  left: 28%;
-  bottom: -16vmax;
-  background: radial-gradient(circle, var(--orb-3) 0%, transparent 65%);
-  animation: orb-drift-3 24s ease-in-out infinite alternate;
-}
-
 .live-vignette {
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse 90% 70% at 50% 40%, transparent 55%, var(--bg-app) 130%);
-}
-
-@keyframes orb-drift-1 {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-  to {
-    transform: translate(9vmax, 7vmax) scale(1.15);
-  }
-}
-
-@keyframes orb-drift-2 {
-  from {
-    transform: translate(0, 0) scale(1.1);
-  }
-  to {
-    transform: translate(-8vmax, -6vmax) scale(0.95);
-  }
-}
-
-@keyframes orb-drift-3 {
-  from {
-    transform: translate(0, 0) scale(0.95);
-  }
-  to {
-    transform: translate(6vmax, -8vmax) scale(1.12);
-  }
 }
 
 /* ============================================================
@@ -330,9 +268,7 @@ body {
 
 /* Reduced motion: the live background goes still. */
 @media (prefers-reduced-motion: reduce) {
-  .live-orb {
-    animation: none;
-  }
+  /* The canvas background renders one static frame (handled in JS). */
   .animate-view-enter,
   .animate-column-enter {
     animation: none;
