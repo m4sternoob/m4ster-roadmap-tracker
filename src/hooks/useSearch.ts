@@ -97,7 +97,7 @@ export function useSearch() {
 export const SHORTCUT_LIST: { keys: string; label: string }[] = [
   { keys: '⌘K / Ctrl K', label: 'Command palette' },
   { keys: '/', label: 'Search issues' },
-  { keys: '1 – 5', label: 'Board / List / Backlog / Sprints / Reports' },
+  { keys: '1 – 8', label: 'Board / List / Backlog / Calendar / Timeline / Workload / Sprints / Reports' },
   { keys: 'N', label: 'New issue' },
   { keys: 'E', label: 'New epic' },
   { keys: 'S', label: 'New sprint' },
@@ -204,9 +204,24 @@ export function useKeyboardShortcuts() {
         case '4':
           if (e.metaKey || e.ctrlKey) return;
           e.preventDefault();
-          setActiveView('sprints');
+          setActiveView('calendar');
           break;
         case '5':
+          if (e.metaKey || e.ctrlKey) return;
+          e.preventDefault();
+          setActiveView('timeline');
+          break;
+        case '6':
+          if (e.metaKey || e.ctrlKey) return;
+          e.preventDefault();
+          setActiveView('workload');
+          break;
+        case '7':
+          if (e.metaKey || e.ctrlKey) return;
+          e.preventDefault();
+          setActiveView('sprints');
+          break;
+        case '8':
           if (e.metaKey || e.ctrlKey) return;
           e.preventDefault();
           setActiveView('reports');

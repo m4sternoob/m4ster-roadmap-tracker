@@ -7,6 +7,9 @@ const TABS: { id: AppView; label: string }[] = [
   { id: 'board', label: 'Board' },
   { id: 'list', label: 'List' },
   { id: 'backlog', label: 'Backlog' },
+  { id: 'calendar', label: 'Calendar' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'workload', label: 'Workload' },
   { id: 'sprints', label: 'Sprints' },
   { id: 'reports', label: 'Reports' },
 ];

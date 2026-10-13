@@ -53,8 +53,11 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
       { id: 'go-board', label: 'Go to Board', hint: '1', run: () => s.setActiveView('board') },
       { id: 'go-list', label: 'Go to List', hint: '2', run: () => s.setActiveView('list') },
       { id: 'go-backlog', label: 'Go to Backlog', hint: '3', run: () => s.setActiveView('backlog') },
-      { id: 'go-sprints', label: 'Go to Sprints', hint: '4', run: () => s.setActiveView('sprints') },
-      { id: 'go-reports', label: 'Go to Reports', hint: '5', run: () => s.setActiveView('reports') },
+      { id: 'go-calendar', label: 'Go to Calendar', hint: '4', run: () => s.setActiveView('calendar') },
+      { id: 'go-timeline', label: 'Go to Timeline', hint: '5', run: () => s.setActiveView('timeline') },
+      { id: 'go-workload', label: 'Go to Workload', hint: '6', run: () => s.setActiveView('workload') },
+      { id: 'go-sprints', label: 'Go to Sprints', hint: '7', run: () => s.setActiveView('sprints') },
+      { id: 'go-reports', label: 'Go to Reports', hint: '8', run: () => s.setActiveView('reports') },
       {
         id: 'new-issue', label: 'New issue', hint: 'N',
         run: () => { s.setNewIssueDefaultStatus('backlog'); s.setSelectedIssue(null); s.setShowIssueModal(true); },

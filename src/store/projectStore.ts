@@ -21,7 +21,7 @@ import { cloudPull, cloudPush } from '@/sync/cloud';
 
 import type { BoardFilters } from '@/components/board/boardFilters';
 
-export type AppView = 'board' | 'list' | 'backlog' | 'sprints' | 'reports';
+export type AppView = 'board' | 'list' | 'backlog' | 'sprints' | 'reports' | 'calendar' | 'timeline' | 'workload';
 
 export type ToastKind = 'success' | 'error' | 'info';
 
@@ -71,6 +71,8 @@ interface ProjectState {
   setNewIssuePreset: (preset: Partial<CreateIssueInput> | null) => void;
   showSearchModal: boolean;
   setShowSearchModal: (show: boolean) => void;
+  showShortcutsModal: boolean;
+  setShowShortcutsModal: (show: boolean) => void;
 
   // Sidebar-driven board filtering
   boardFilterSignal: BoardFilterSignal | null;
@@ -237,6 +239,8 @@ export const useProjectStore = create<ProjectState>()(
       setNewIssuePreset: (preset) => set({ newIssuePreset: preset }),
       showSearchModal: false,
       setShowSearchModal: (show) => set({ showSearchModal: show }),
+      showShortcutsModal: false,
+      setShowShortcutsModal: (show) => set({ showShortcutsModal: show }),
 
       // Sidebar-driven board filtering
       boardFilterSignal: null,

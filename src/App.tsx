@@ -10,6 +10,9 @@ import { ListView } from '@/components/views/ListView';
 import { BacklogView } from '@/components/views/BacklogView';
 import { SprintsView } from '@/components/views/SprintsView';
 import { ReportsView } from '@/components/views/ReportsView';
+import { CalendarView } from '@/components/views/CalendarView';
+import { TimelineView } from '@/components/views/TimelineView';
+import { WorkloadView } from '@/components/views/WorkloadView';
 import { IssueModal } from '@/components/modals/IssueModal';
 import { EpicModal } from '@/components/modals/EpicModal';
 import { SprintModal } from '@/components/modals/SprintModal';
@@ -142,6 +145,15 @@ function App() {
                     )}
                     {activeView === 'backlog' && (
                       <BacklogView project={project} onIssueClick={handleIssueClick} />
+                    )}
+                    {activeView === 'calendar' && (
+                      <CalendarView project={project} onIssueClick={handleIssueClick} />
+                    )}
+                    {activeView === 'timeline' && (
+                      <TimelineView project={project} onIssueClick={handleIssueClick} />
+                    )}
+                    {activeView === 'workload' && (
+                      <WorkloadView project={project} onIssueClick={handleIssueClick} />
                     )}
                     {activeView === 'sprints' && (
                       <SprintsView project={project} onIssueClick={handleIssueClick} />
