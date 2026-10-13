@@ -21,7 +21,7 @@ import { cloudPull, cloudPush } from '@/sync/cloud';
 
 import type { BoardFilters } from '@/components/board/boardFilters';
 
-export type AppView = 'board' | 'list' | 'backlog' | 'sprints' | 'reports' | 'calendar' | 'timeline' | 'workload';
+export type AppView = 'board' | 'list' | 'backlog' | 'sprints' | 'reports' | 'calendar' | 'timeline' | 'workload' | 'archived';
 
 export type ToastKind = 'success' | 'error' | 'info';
 
@@ -113,6 +113,9 @@ interface ProjectState {
   createIssue: (input: CreateIssueInput) => Issue;
   updateIssue: (issueId: string, input: UpdateIssueInput) => void;
   deleteIssue: (issueId: string) => void;
+  archiveIssue: (issueId: string) => void;
+  unarchiveIssue: (issueId: string) => void;
+  exportCSV: () => void;
   moveIssue: (issueId: string, newStatus: Status) => void;
   bulkUpdateIssues: (issueIds: string[], input: UpdateIssueInput) => void;
   addComment: (issueId: string, author: string, text: string) => void;
@@ -165,6 +168,7 @@ function normalizeProject(project: Project): Project {
       comments: i.comments ?? [],
       blockedBy: i.blockedBy ?? [],
       timeEntries: i.timeEntries ?? [],
+      archived: i.archived ?? false,
     })),
     epics: project.epics ?? [],
     sprints: project.sprints ?? [],
@@ -495,6 +499,7 @@ export const useProjectStore = create<ProjectState>()(
           blockedBy: input.blockedBy || [],
           timeEstimate: input.timeEstimate,
           timeEntries: [],
+          archived: false,
         };
 
         set((state) => ({
@@ -716,6 +721,77 @@ export const useProjectStore = create<ProjectState>()(
         }));
         get().saveProject();
         if (doomed) get().pushToast('success', `Issue ${doomed.key} deleted`);
+      },
+
+      archiveIssue: (issueId: string) => {
+        const now = new Date().toISOString();
+        const target = get().project?.issues.find((i) => i.id === issueId);
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((i) =>
+                  i.id === issueId ? { ...i, archived: true, updatedAt: now } : i
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+        if (target) get().pushToast('success', `Issue ${target.key} archived`);
+      },
+
+      unarchiveIssue: (issueId: string) => {
+        const now = new Date().toISOString();
+        const target = get().project?.issues.find((i) => i.id === issueId);
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((i) =>
+                  i.id === issueId ? { ...i, archived: false, updatedAt: now } : i
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+        if (target) get().pushToast('success', `Issue ${target.key} restored`);
+      },
+
+      exportCSV: () => {
+        const { project } = get();
+        if (!project) return;
+        const esc = (v: string | number | undefined | null): string => {
+          const s = String(v ?? '');
+          return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        };
+        const header = ['Key', 'Title', 'Type', 'Status', 'Priority', 'Assignee', 'Story points', 'Estimate (h)', 'Logged (h)', 'Due date', 'Labels', 'Created'];
+        const rows = project.issues
+          .filter((i) => !i.archived)
+          .map((i) => [
+            i.key,
+            i.title,
+            i.type,
+            i.status,
+            i.priority,
+            i.assignee ?? '',
+            i.storyPoints,
+            i.timeEstimate ?? '',
+            (i.timeEntries ?? []).reduce((s, e) => s + e.hours, 0),
+            i.dueDate ? new Date(i.dueDate).toISOString().slice(0, 10) : '',
+            i.labels.join('; '),
+            new Date(i.createdAt).toISOString().slice(0, 10),
+          ]);
+        const csv = [header, ...rows].map((r) => r.map(esc).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${project.key}-issues-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        get().pushToast('success', 'Issues exported as CSV');
       },
 
       moveIssue: (issueId: string, newStatus: Status) => {

@@ -272,6 +272,7 @@ export function createSampleProject(): Project {
       completedAt: s.status === 'done' ? iso(3) : undefined,
       blockedBy: [],
       timeEntries: [],
+      archived: false,
     };
     if (epicId) epics.find((e) => e.id === epicId)!.issues.push(issue.id);
     if (s.sprint) sprint.issues.push(issue.id);

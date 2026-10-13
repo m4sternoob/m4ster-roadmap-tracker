@@ -53,6 +53,7 @@ export interface Issue {
   blockedBy: string[];
   timeEstimate?: number;
   timeEntries: TimeEntry[];
+  archived: boolean;
 }
 
 export interface Epic {
