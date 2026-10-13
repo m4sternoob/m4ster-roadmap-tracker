@@ -23,6 +23,7 @@ export function WorkloadView({ project, onIssueClick }: Props) {
     const map = new Map<string, Issue[]>();
     const unassigned: Issue[] = [];
     for (const issue of project.issues) {
+      if (issue.archived) continue;
       if (issue.assignee) {
         const arr = map.get(issue.assignee) ?? [];
         arr.push(issue);

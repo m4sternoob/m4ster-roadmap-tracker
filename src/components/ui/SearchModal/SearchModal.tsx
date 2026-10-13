@@ -67,6 +67,7 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
       { id: 'shortcuts', label: 'Keyboard shortcuts', hint: '?', run: () => s.setShowShortcutsModal(true) },
       { id: 'settings', label: 'Project settings', hint: '', run: () => s.setShowSettingsModal(true) },
       { id: 'export', label: 'Export workspace JSON', hint: '', run: () => s.exportProject() },
+      { id: 'export-csv', label: 'Export issues as CSV', hint: '', run: () => s.exportCSV() },
     ];
     const q = query.slice(1).trim().toLowerCase();
     if (!q) return all;

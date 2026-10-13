@@ -140,7 +140,7 @@ export function BacklogView({
     return map;
   }, [project.issues, project.sprints]);
 
-  const backlogIssues = useMemo(() => project.issues.filter((i) => !i.sprintId), [project.issues]);
+  const backlogIssues = useMemo(() => project.issues.filter((i) => !i.sprintId && !i.archived), [project.issues]);
 
   return (
     <div>

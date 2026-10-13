@@ -131,7 +131,7 @@ export function BoardView({
   const toggleCollapse = (groupId: string) =>
     setCollapsed((prev) => ({ ...prev, [groupId]: !prev[groupId] }));
 
-  const issues = useMemo(() => project?.issues ?? [], [project?.issues]);
+  const issues = useMemo(() => (project?.issues ?? []).filter((i) => !i.archived), [project?.issues]);
   const filtered = useMemo(() => applyBoardFilters(issues, filters), [issues, filters]);
   const groups = useMemo(() => buildGroups(filtered, groupBy), [filtered, groupBy]);
   const epicsById = useMemo(

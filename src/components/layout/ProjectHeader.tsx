@@ -12,6 +12,7 @@ const TABS: { id: AppView; label: string }[] = [
   { id: 'workload', label: 'Workload' },
   { id: 'sprints', label: 'Sprints' },
   { id: 'reports', label: 'Reports' },
+  { id: 'archived', label: 'Archived' },
 ];
 
 export function ProjectHeader({ project }: { project: Project }) {

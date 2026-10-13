@@ -33,6 +33,7 @@ export function CalendarView({ project, onIssueClick }: Props) {
   const byDay = useMemo(() => {
     const map = new Map<string, Issue[]>();
     for (const issue of project.issues) {
+      if (issue.archived) continue;
       const k = dueKey(issue.dueDate);
       if (!k) continue;
       const arr = map.get(k) ?? [];

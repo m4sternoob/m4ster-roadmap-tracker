@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { CreateIssueInput, Issue, IssueType, Priority, Project, Status } from '@/types';
 import { PRIORITIES, STATUSES } from '@/types';
-import { ChevronDown, Link2, MessageSquare, Plus, Trash2, X } from 'lucide-react';
+import { ChevronDown, Link2, MessageSquare, Plus, Trash2, X, Archive, ArchiveRestore } from 'lucide-react';
 import { useProjectStore } from '@/store/projectStore';
 import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { PriorityIcon } from '@/components/issues/PriorityIcon';
@@ -286,7 +286,7 @@ function DetailView({
   onClose: () => void;
 }) {
   const { updateIssue, deleteIssue, createIssue, addComment, deleteComment, setShowConfirmDialog,
-    addDependency, removeDependency, logTime, deleteTimeEntry } =
+    addDependency, removeDependency, logTime, deleteTimeEntry, archiveIssue, unarchiveIssue } =
     useProjectStore();
 
   // Live issue from the store so edits reflect immediately.
@@ -382,6 +382,21 @@ function DetailView({
           <Link2 size={13} />
         </button>
         <span className="flex-1" />
+        <button
+          onClick={() => {
+            if (live.archived) {
+              unarchiveIssue(live.id);
+            } else {
+              archiveIssue(live.id);
+              onClose();
+            }
+          }}
+          className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] motion-press"
+          aria-label={live.archived ? `Restore ${live.key}` : `Archive ${live.key}`}
+          title={live.archived ? 'Restore from archive' : 'Archive issue'}
+        >
+          {live.archived ? <ArchiveRestore size={16} /> : <Archive size={16} />}
+        </button>
         <button
           onClick={confirmDelete}
           className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--danger)] motion-press"

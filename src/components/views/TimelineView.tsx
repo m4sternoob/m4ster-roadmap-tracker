@@ -30,6 +30,7 @@ export function TimelineView({ project, onIssueClick }: Props) {
       lanes.push({ label: s.name, kind: 'sprint', start: a, end: Math.max(b, a + DAY) });
     }
     for (const issue of project.issues) {
+      if (issue.archived) continue;
       const due = parse(issue.dueDate);
       const created = parse(issue.createdAt) ?? Date.now();
       const start = due !== null ? Math.min(created, due - 3 * DAY) : created;

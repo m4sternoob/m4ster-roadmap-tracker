@@ -13,6 +13,7 @@ import { ReportsView } from '@/components/views/ReportsView';
 import { CalendarView } from '@/components/views/CalendarView';
 import { TimelineView } from '@/components/views/TimelineView';
 import { WorkloadView } from '@/components/views/WorkloadView';
+import { ArchivedView } from '@/components/views/ArchivedView';
 import { IssueModal } from '@/components/modals/IssueModal';
 import { EpicModal } from '@/components/modals/EpicModal';
 import { SprintModal } from '@/components/modals/SprintModal';
@@ -159,6 +160,9 @@ function App() {
                       <SprintsView project={project} onIssueClick={handleIssueClick} />
                     )}
                     {activeView === 'reports' && <ReportsView project={project} />}
+                    {activeView === 'archived' && (
+                      <ArchivedView project={project} onIssueClick={handleIssueClick} />
+                    )}
                   </div>
                 </main>
               </div>

@@ -54,7 +54,7 @@ export function ListView({
   const [sortDir, setSortDir] = useState<1 | -1>(1);
 
   const issues = useMemo(() => {
-    const sorted = [...project.issues].sort((a, b) => compare(a, b, sortKey));
+    const sorted = [...project.issues].filter((i) => !i.archived).sort((a, b) => compare(a, b, sortKey));
     return sortDir === 1 ? sorted : sorted.reverse();
   }, [project.issues, sortKey, sortDir]);
 
