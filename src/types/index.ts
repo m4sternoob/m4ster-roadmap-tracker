@@ -23,6 +23,21 @@ export interface AppNotification {
   read: boolean;
 }
 
+export type AutomationTrigger = 'issue_created' | 'status_changed' | 'priority_changed' | 'assigned';
+export type AutomationAction = 'set_status' | 'set_priority' | 'assign' | 'add_label' | 'notify';
+
+export interface AutomationRule {
+  id: string;
+  name: string;
+  enabled: boolean;
+  trigger: AutomationTrigger;
+  /** e.g. for status_changed: the new status that fires the rule */
+  triggerValue?: string;
+  action: AutomationAction;
+  actionValue: string;
+  createdAt: string;
+}
+
 export interface TimeEntry {
   id: string;
   hours: number;

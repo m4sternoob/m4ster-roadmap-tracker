@@ -11,7 +11,10 @@ import type {
   CreateSprintInput,
   SearchFilters,
   Status,
+  Priority,
   AppNotification,
+  AutomationRule,
+  AutomationTrigger,
 } from '@/types';
 import { STATUSES } from '@/types';
 import { generateIssueKey, generateEpicKey } from '@/utils/helpers';
@@ -73,6 +76,8 @@ interface ProjectState {
   setShowSearchModal: (show: boolean) => void;
   showShortcutsModal: boolean;
   setShowShortcutsModal: (show: boolean) => void;
+  showAutomationsModal: boolean;
+  setShowAutomationsModal: (show: boolean) => void;
 
   // Sidebar-driven board filtering
   boardFilterSignal: BoardFilterSignal | null;
@@ -111,7 +116,7 @@ interface ProjectState {
 
   // Issue actions
   createIssue: (input: CreateIssueInput) => Issue;
-  updateIssue: (issueId: string, input: UpdateIssueInput) => void;
+  updateIssue: (issueId: string, input: UpdateIssueInput, silent?: boolean) => void;
   deleteIssue: (issueId: string) => void;
   archiveIssue: (issueId: string) => void;
   unarchiveIssue: (issueId: string) => void;
@@ -131,6 +136,12 @@ interface ProjectState {
   markNotificationRead: (id: string) => void;
   markAllNotificationsRead: () => void;
   clearNotifications: () => void;
+
+  // Automations
+  automationRules: AutomationRule[];
+  addAutomationRule: (rule: Omit<AutomationRule, 'id' | 'createdAt'>) => void;
+  toggleAutomationRule: (id: string) => void;
+  deleteAutomationRule: (id: string) => void;
 
   // Epic actions
   createEpic: (input: CreateEpicInput) => Epic;
@@ -177,6 +188,49 @@ function normalizeProject(project: Project): Project {
 
 function createDefaultProject(): Project {
   return createSampleProject();
+}
+
+/** Automation engine: run enabled rules matching a trigger. Never re-triggers itself. */
+function runAutomations(
+  get: () => { automationRules: AutomationRule[]; project: Project | null },
+  apply: {
+    updateIssue: (id: string, input: UpdateIssueInput, silent?: boolean) => void;
+    addNotification: (n: Omit<AppNotification, 'id' | 'createdAt' | 'read'>) => void;
+  },
+  trigger: AutomationTrigger,
+  issue: Issue,
+  triggerValue?: string
+) {
+  const rules = get().automationRules.filter((r) => r.enabled && r.trigger === trigger);
+  for (const rule of rules) {
+    if (rule.triggerValue && rule.triggerValue !== triggerValue) continue;
+    const label = `${issue.key}`;
+    switch (rule.action) {
+      case 'set_status':
+        apply.updateIssue(issue.id, { status: rule.actionValue as Status }, true);
+        break;
+      case 'set_priority':
+        apply.updateIssue(issue.id, { priority: rule.actionValue as Priority }, true);
+        break;
+      case 'assign':
+        apply.updateIssue(issue.id, { assignee: rule.actionValue }, true);
+        break;
+      case 'add_label':
+        if (!issue.labels.includes(rule.actionValue)) {
+          apply.updateIssue(issue.id, { labels: [...issue.labels, rule.actionValue] }, true);
+        }
+        break;
+      case 'notify':
+        apply.addNotification({
+          type: 'comment',
+          title: `Automation: ${rule.name}`,
+          body: `${label} — ${rule.actionValue}`,
+          issueId: issue.id,
+          issueKey: issue.key,
+        });
+        break;
+    }
+  }
 }
 
 /** Extract @mentioned names from text. Matches @alphanumeric (+ . _ -). */
@@ -244,6 +298,26 @@ export const useProjectStore = create<ProjectState>()(
       markAllNotificationsRead: () =>
         set((state) => ({ notifications: state.notifications.map((x) => ({ ...x, read: true })) })),
       clearNotifications: () => set({ notifications: [] }),
+
+      // Automations
+      automationRules: [],
+      addAutomationRule: (rule) =>
+        set((state) => ({
+          automationRules: [
+            ...state.automationRules,
+            { ...rule, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
+          ],
+        })),
+      toggleAutomationRule: (id) =>
+        set((state) => ({
+          automationRules: state.automationRules.map((r) =>
+            r.id === id ? { ...r, enabled: !r.enabled } : r
+          ),
+        })),
+      deleteAutomationRule: (id) =>
+        set((state) => ({
+          automationRules: state.automationRules.filter((r) => r.id !== id),
+        })),
       dragOverColumn: null,
       setDragOverColumn: (status) => set({ dragOverColumn: status }),
       newIssueDefaultStatus: 'backlog',
@@ -254,6 +328,8 @@ export const useProjectStore = create<ProjectState>()(
       setShowSearchModal: (show) => set({ showSearchModal: show }),
       showShortcutsModal: false,
       setShowShortcutsModal: (show) => set({ showShortcutsModal: show }),
+      showAutomationsModal: false,
+      setShowAutomationsModal: (show) => set({ showAutomationsModal: show }),
 
       // Sidebar-driven board filtering
       boardFilterSignal: null,
@@ -515,10 +591,16 @@ export const useProjectStore = create<ProjectState>()(
 
         get().saveProject();
         get().pushToast('success', `Issue ${key} created`);
+        runAutomations(
+          get,
+          { updateIssue: get().updateIssue, addNotification: get().addNotification },
+          'issue_created',
+          newIssue
+        );
         return newIssue;
       },
 
-      updateIssue: (issueId: string, input: UpdateIssueInput) => {
+      updateIssue: (issueId: string, input: UpdateIssueInput, silent?: boolean) => {
         const now = new Date().toISOString();
         const prev = get().project?.issues.find((i) => i.id === issueId);
         set((state) => ({
@@ -543,6 +625,21 @@ export const useProjectStore = create<ProjectState>()(
           });
         }
         get().saveProject();
+        if (!silent && prev) {
+          const updated = get().project?.issues.find((i) => i.id === issueId);
+          if (updated) {
+            const api = { updateIssue: get().updateIssue, addNotification: get().addNotification };
+            if ('status' in input && input.status !== prev.status) {
+              runAutomations(get, api, 'status_changed', updated, input.status);
+            }
+            if ('priority' in input && input.priority !== prev.priority) {
+              runAutomations(get, api, 'priority_changed', updated, input.priority);
+            }
+            if ('assignee' in input && input.assignee !== prev.assignee) {
+              runAutomations(get, api, 'assigned', updated, input.assignee);
+            }
+          }
+        }
       },
 
       addComment: (issueId: string, author: string, text: string) => {

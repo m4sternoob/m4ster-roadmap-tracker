@@ -16,7 +16,7 @@ const TABS: { id: AppView; label: string }[] = [
 ];
 
 export function ProjectHeader({ project }: { project: Project }) {
-  const { activeView, setActiveView } = useProjectStore();
+  const { activeView, setActiveView, setShowAutomationsModal } = useProjectStore();
   const exportProject = useProjectStore((s) => s.exportProject);
   const importProject = useProjectStore((s) => s.importProject);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -99,6 +99,7 @@ export function ProjectHeader({ project }: { project: Project }) {
             className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
             aria-label="Automations"
             title="Automations"
+            onClick={() => setShowAutomationsModal(true)}
           >
             <Zap size={15} />
           </button>

@@ -19,6 +19,7 @@ import { EpicModal } from '@/components/modals/EpicModal';
 import { SprintModal } from '@/components/modals/SprintModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { ShortcutsModal } from '@/components/modals/ShortcutsModal';
+import { AutomationsModal } from '@/components/modals/AutomationsModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SearchModal } from '@/components/ui/SearchModal/SearchModal';
 import { Toasts } from '@/components/ui/Toasts';
@@ -44,6 +45,8 @@ function App() {
     setShowSettingsModal,
     showShortcutsModal,
     setShowShortcutsModal,
+    showAutomationsModal,
+    setShowAutomationsModal,
     showConfirmDialog,
     setShowConfirmDialog,
   } = useProjectStore();
@@ -192,6 +195,10 @@ function App() {
           )}
 
           {showShortcutsModal && <ShortcutsModal onClose={() => setShowShortcutsModal(false)} />}
+
+          {showAutomationsModal && (
+            <AutomationsModal onClose={() => setShowAutomationsModal(false)} />
+          )}
 
           {showConfirmDialog && (
             <ConfirmDialog
