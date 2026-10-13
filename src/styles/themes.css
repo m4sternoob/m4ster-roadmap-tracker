@@ -215,7 +215,7 @@ body {
 }
 
 .animate-view-enter {
-  animation: view-enter var(--motion-slow) var(--ease-out) both;
+  animation: view-enter var(--motion-normal) var(--ease-out) both;
 }
 
 /* Board columns stagger in. Delay set inline per column index. */
@@ -231,7 +231,7 @@ body {
 }
 
 .animate-column-enter {
-  animation: column-enter var(--motion-slow) var(--ease-out) both;
+  animation: column-enter var(--motion-normal) var(--ease-out) both;
 }
 
 /* Cards: accent glow on hover, on top of the existing lift. */
