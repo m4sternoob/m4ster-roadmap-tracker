@@ -234,6 +234,44 @@ body {
   animation: column-enter var(--motion-normal) var(--ease-out) both;
 }
 
+/* Drag pickup: springy pop on the floating card the moment a drag starts.
+   Plays once when the drag overlay mounts. Transform + opacity only. */
+@keyframes drag-pickup {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.96);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.015);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-drag-pickup {
+  animation: drag-pickup var(--motion-normal) var(--ease-out) both;
+}
+
+/* Drop target breathe: a slow, shallow scale pulse on the column under the
+   dragged card. Amplitude is tiny on purpose — it should feel alive, not loud.
+   Transform only. */
+@keyframes drop-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.008);
+  }
+}
+
+.animate-drop-breathe {
+  animation: drop-breathe 1400ms ease-in-out infinite;
+}
+
 /* Cards: accent glow on hover, on top of the existing lift. */
 .glow-hover {
   transition:
@@ -297,7 +335,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
   /* The canvas background renders one static frame (handled in JS). */
   .animate-view-enter,
-  .animate-column-enter {
+  .animate-column-enter,
+  .animate-drag-pickup,
+  .animate-drop-breathe {
     animation: none;
   }
   .shimmer::after {

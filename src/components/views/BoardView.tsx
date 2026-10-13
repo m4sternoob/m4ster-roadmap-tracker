@@ -299,10 +299,11 @@ export function BoardView({
             ))}
           </div>
 
-          {/* Floating drag preview: follows the cursor 1:1, no transition lag. */}
+          {/* Floating drag preview: springy pickup pop on mount, then follows
+              the cursor 1:1 with no transition lag. */}
           <DragOverlay dropAnimation={dropAnimation}>
             {activeIssue ? (
-              <div className="w-[270px]">
+              <div className="w-[270px] animate-drag-pickup">
                 <IssueCardView
                   issue={activeIssue}
                   epicColor={activeEpic?.color}

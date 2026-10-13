@@ -46,7 +46,7 @@ export function Column({
         aria-label={`Expand ${title} column (${issues.length} issues)`}
         title={`Expand ${title}`}
         className={`motion-collapse shrink-0 w-11 min-w-[44px] self-stretch rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-app)] hover:bg-[var(--bg-surface)] hover:border-[var(--chrome)] flex flex-col items-center py-2 gap-2 ${
-          isDragOver ? 'ring-2 ring-[var(--accent)]/50 bg-[var(--accent)]/10' : ''
+          isDragOver ? 'ring-2 ring-[var(--accent)]/50 bg-[var(--accent)]/10 animate-drop-breathe' : ''
         }`}
       >
         <ChevronsRight size={15} className="text-[var(--text-faint)] shrink-0" aria-hidden="true" />
@@ -65,7 +65,9 @@ export function Column({
     <div
       ref={setNodeRef}
       className={`motion-collapse flex flex-col w-[86vw] min-w-[86vw] md:w-[270px] md:min-w-[270px] max-h-full rounded-xl ${
-        isDragOver ? 'bg-[var(--accent)]/10 ring-2 ring-[var(--accent)]/50' : 'bg-[var(--bg-app)]'
+        isDragOver
+          ? 'bg-[var(--accent)]/10 ring-2 ring-[var(--accent)]/50 animate-drop-breathe'
+          : 'bg-[var(--bg-app)]'
       }`}
       role="list"
       aria-label={`${title} column`}
