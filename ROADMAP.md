@@ -47,7 +47,7 @@ one focused improvement per day, every day.
 
 ## Phase 4 — Animation days
 
-- [ ] **Drag physics** — springy card pickup, drop targets that breathe
+- [x] **Drag physics** — springy card pickup, drop targets that breathe
 - [ ] **Column transitions** — cards glide when status changes elsewhere
 - [ ] **Celebration** — confetti burst when a card hits Done
 - [ ] **Skeleton polish** — shimmer loading states everywhere, no layout jumps
