@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Issue, IssueType, Priority, Project, Status } from '@/types';
+import type { CreateIssueInput, Issue, IssueType, Priority, Project, Status } from '@/types';
 import { PRIORITIES, STATUSES } from '@/types';
 import { ChevronDown, Link2, MessageSquare, Plus, Trash2, X } from 'lucide-react';
 import { useProjectStore } from '@/store/projectStore';
@@ -285,7 +285,8 @@ function DetailView({
   issue: Issue;
   onClose: () => void;
 }) {
-  const { updateIssue, deleteIssue, createIssue, addComment, deleteComment, setShowConfirmDialog } =
+  const { updateIssue, deleteIssue, createIssue, addComment, deleteComment, setShowConfirmDialog,
+    addDependency, removeDependency, logTime, deleteTimeEntry } =
     useProjectStore();
 
   // Live issue from the store so edits reflect immediately.
@@ -703,6 +704,22 @@ function DetailView({
             />
           </Field>
 
+          <DependenciesField
+            live={live}
+            project={project}
+            addDependency={addDependency}
+            removeDependency={removeDependency}
+            inputCls={inputCls}
+          />
+
+          <TimeTrackingField
+            live={live}
+            updateIssue={updateIssue}
+            logTime={logTime}
+            deleteTimeEntry={deleteTimeEntry}
+            inputCls={inputCls}
+          />
+
           <div className="pt-2 text-[12px] text-[var(--text-faint)] space-y-1">
             <div>Created {formatRelativeTime(live.createdAt)}</div>
             <div>Updated {formatRelativeTime(live.updatedAt)}</div>
@@ -711,6 +728,240 @@ function DetailView({
         </div>
       </div>
     </div>
+  );
+}
+
+/* ------------------------------ dependencies ------------------------------ */
+
+function DependenciesField({
+  live,
+  project,
+  addDependency,
+  removeDependency,
+  inputCls,
+}: {
+  live: Issue;
+  project: Project;
+  addDependency: (a: string, b: string) => void;
+  removeDependency: (a: string, b: string) => void;
+  inputCls: string;
+}) {
+  const [pick, setPick] = useState('');
+  const blockedBy = (live.blockedBy ?? [])
+    .map((id) => project.issues.find((i) => i.id === id))
+    .filter((i): i is Issue => !!i);
+  const blocking = project.issues.filter((i) => (i.blockedBy ?? []).includes(live.id));
+  const candidates = project.issues.filter(
+    (i) => i.id !== live.id && !(live.blockedBy ?? []).includes(i.id)
+  );
+  const openIssue = (issue: Issue) => useProjectStore.getState().setSelectedIssue(issue);
+
+  return (
+    <Field label="Blocked by">
+      {blockedBy.length > 0 && (
+        <ul className="space-y-1.5 mb-2">
+          {blockedBy.map((dep) => (
+            <li
+              key={dep.id}
+              className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-[var(--bg-raised)]"
+            >
+              <button
+                onClick={() => openIssue(dep)}
+                className="flex-1 min-w-0 text-left flex items-center gap-2 hover:underline"
+                title={dep.title}
+              >
+                <span className="font-mono text-[11.5px] text-[var(--text-faint)] shrink-0">
+                  {dep.key}
+                </span>
+                <span className="truncate text-[12.5px] text-[var(--text-secondary)]">
+                  {dep.title}
+                </span>
+              </button>
+              <button
+                onClick={() => removeDependency(live.id, dep.id)}
+                className="text-[var(--text-faint)] hover:text-[var(--danger)] motion-press"
+                aria-label={`Remove dependency on ${dep.key}`}
+              >
+                <X size={14} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {blocking.length > 0 && (
+        <p className="text-[12px] text-[var(--text-muted)] mb-2">
+          Blocking: {blocking.map((b) => b.key).join(', ')}
+        </p>
+      )}
+      <div className="flex gap-1.5">
+        <select
+          value={pick}
+          onChange={(e) => setPick(e.target.value)}
+          className={`${inputCls} flex-1 min-w-0 cursor-pointer`}
+          aria-label="Add blocking issue"
+        >
+          <option value="">Add blocker…</option>
+          {candidates.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.key} — {c.title.slice(0, 40)}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={() => {
+            if (pick) {
+              addDependency(live.id, pick);
+              setPick('');
+            }
+          }}
+          disabled={!pick}
+          className="px-2.5 rounded-md bg-[var(--bg-raised)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-40 motion-press"
+          aria-label="Add dependency"
+        >
+          <Plus size={15} />
+        </button>
+      </div>
+    </Field>
+  );
+}
+
+/* ------------------------------ time tracking ----------------------------- */
+
+function TimeTrackingField({
+  live,
+  updateIssue,
+  logTime,
+  deleteTimeEntry,
+  inputCls,
+}: {
+  live: Issue;
+  updateIssue: (id: string, input: Partial<CreateIssueInput>) => void;
+  logTime: (id: string, hours: number, note: string, author: string) => void;
+  deleteTimeEntry: (id: string, entryId: string) => void;
+  inputCls: string;
+}) {
+  const [hours, setHours] = useState('');
+  const [note, setNote] = useState('');
+  const [showLog, setShowLog] = useState(false);
+  const entries = live.timeEntries ?? [];
+  const total = entries.reduce((s, e) => s + e.hours, 0);
+
+  const submit = () => {
+    const h = parseFloat(hours);
+    if (!(h > 0)) return;
+    logTime(live.id, Math.round(h * 100) / 100, note, CURRENT_USER);
+    setHours('');
+    setNote('');
+    setShowLog(false);
+  };
+
+  return (
+    <Field label="Time tracking">
+      <div className="flex items-center gap-2 mb-2">
+        <input
+          type="number"
+          min={0}
+          step={0.5}
+          value={live.timeEstimate ?? ''}
+          onChange={(e) =>
+            updateIssue(live.id, {
+              timeEstimate: e.target.value === '' ? undefined : Math.max(0, Number(e.target.value) || 0),
+            })
+          }
+          placeholder="Est."
+          className={`${inputCls} w-20`}
+          aria-label="Time estimate (hours)"
+        />
+        <span className="text-[12px] text-[var(--text-faint)]">h est.</span>
+        <span className="ml-auto text-[12.5px] text-[var(--text-secondary)] font-medium">
+          {total.toFixed(total % 1 ? 1 : 0)}h logged
+        </span>
+      </div>
+      {live.timeEstimate != null && live.timeEstimate > 0 && (
+        <div className="h-1.5 rounded-full bg-[var(--bg-raised)] mb-2 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${
+              total > live.timeEstimate ? 'bg-[var(--danger)]' : 'bg-[var(--accent)]'
+            }`}
+            style={{ width: `${Math.min(100, (total / live.timeEstimate) * 100)}%` }}
+          />
+        </div>
+      )}
+      {entries.length > 0 && (
+        <ul className="space-y-1 mb-2 max-h-32 overflow-y-auto">
+          {[...entries]
+            .sort((a, b) => +new Date(b.date) - +new Date(a.date))
+            .map((e) => (
+              <li
+                key={e.id}
+                className="group flex items-center gap-2 text-[12px] text-[var(--text-muted)]"
+              >
+                <span className="font-medium text-[var(--text-secondary)]">{e.hours}h</span>
+                <span className="flex-1 truncate" title={e.note}>
+                  {e.note || <span className="italic">no note</span>}
+                </span>
+                <span className="text-[var(--text-faint)]">{formatRelativeTime(e.date)}</span>
+                <button
+                  onClick={() => deleteTimeEntry(live.id, e.id)}
+                  className="opacity-0 group-hover:opacity-100 text-[var(--text-faint)] hover:text-[var(--danger)] motion-press"
+                  aria-label="Delete time entry"
+                >
+                  <X size={13} />
+                </button>
+              </li>
+            ))}
+        </ul>
+      )}
+      {showLog ? (
+        <div className="space-y-1.5">
+          <div className="flex gap-1.5">
+            <input
+              type="number"
+              min={0}
+              step={0.25}
+              value={hours}
+              onChange={(e) => setHours(e.target.value)}
+              placeholder="Hours"
+              className={`${inputCls} w-24`}
+              aria-label="Hours worked"
+              autoFocus
+            />
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="What did you do?"
+              className={`${inputCls} flex-1 min-w-0`}
+              aria-label="Work note"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') submit();
+              }}
+            />
+          </div>
+          <div className="flex justify-end gap-1.5">
+            <button
+              onClick={() => setShowLog(false)}
+              className="px-2.5 py-1 rounded-md text-[12.5px] text-[var(--text-muted)] hover:text-[var(--text-primary)] motion-press"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={submit}
+              disabled={!(parseFloat(hours) > 0)}
+              className="px-2.5 py-1 rounded-md text-[12.5px] font-medium bg-[var(--accent)] text-white disabled:opacity-40 motion-press"
+            >
+              Log time
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setShowLog(true)}
+          className="text-[12.5px] text-[var(--accent-bright)] hover:underline motion-press"
+        >
+          + Log work
+        </button>
+      )}
+    </Field>
   );
 }
 

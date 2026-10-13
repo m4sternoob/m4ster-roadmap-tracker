@@ -23,6 +23,14 @@ export interface AppNotification {
   read: boolean;
 }
 
+export interface TimeEntry {
+  id: string;
+  hours: number;
+  note: string;
+  date: string;
+  author: string;
+}
+
 export interface Issue {
   id: string;
   key: string;
@@ -42,6 +50,9 @@ export interface Issue {
   updatedAt: string;
   dueDate?: string;
   completedAt?: string;
+  blockedBy: string[];
+  timeEstimate?: number;
+  timeEntries: TimeEntry[];
 }
 
 export interface Epic {
@@ -123,6 +134,8 @@ export interface CreateIssueInput {
   parentId?: string;
   sprintId?: string;
   dueDate?: string;
+  blockedBy?: string[];
+  timeEstimate?: number;
 }
 
 export interface UpdateIssueInput extends Partial<CreateIssueInput> {

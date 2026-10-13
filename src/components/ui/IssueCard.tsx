@@ -1,6 +1,6 @@
 import type { Issue, Status } from '@/types';
 import { STATUSES } from '@/types';
-import { Calendar, Check, MessageSquare, Pencil, ArrowRightLeft, Star } from 'lucide-react';
+import { Calendar, Check, MessageSquare, Pencil, ArrowRightLeft, Star, OctagonAlert } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useEffect, useRef, useState } from 'react';
@@ -209,6 +209,14 @@ export function IssueCardView({
       <div className="flex items-center gap-1.5 mb-2">
         <IssueTypeIcon type={issue.type} size={15} />
         <span className="font-mono text-[11.5px] text-[var(--text-muted)]">{issue.key}</span>
+        {(issue.blockedBy ?? []).length > 0 && issue.status !== 'done' && (
+          <span
+            className="inline-flex items-center gap-1 px-1.5 py-px rounded text-[10px] font-semibold bg-[var(--danger)]/15 text-[var(--danger)]"
+            title={`Blocked by ${issue.blockedBy.length} issue${issue.blockedBy.length === 1 ? '' : 's'}`}
+          >
+            <OctagonAlert size={11} /> Blocked
+          </span>
+        )}
         {issue.status === 'done' && (
           <Check size={13} className="text-[var(--success)] ml-auto" aria-label="Done" />
         )}

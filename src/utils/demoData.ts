@@ -270,6 +270,8 @@ export function createSampleProject(): Project {
       dueDate:
         s.dueInDays !== undefined ? new Date(now + s.dueInDays * day).toISOString() : undefined,
       completedAt: s.status === 'done' ? iso(3) : undefined,
+      blockedBy: [],
+      timeEntries: [],
     };
     if (epicId) epics.find((e) => e.id === epicId)!.issues.push(issue.id);
     if (s.sprint) sprint.issues.push(issue.id);

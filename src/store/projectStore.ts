@@ -117,6 +117,10 @@ interface ProjectState {
   bulkUpdateIssues: (issueIds: string[], input: UpdateIssueInput) => void;
   addComment: (issueId: string, author: string, text: string) => void;
   deleteComment: (issueId: string, commentId: string) => void;
+  addDependency: (issueId: string, blockedById: string) => void;
+  removeDependency: (issueId: string, blockedById: string) => void;
+  logTime: (issueId: string, hours: number, note: string, author: string) => void;
+  deleteTimeEntry: (issueId: string, entryId: string) => void;
 
   // Notifications
   notifications: AppNotification[];
@@ -156,7 +160,12 @@ interface ProjectState {
 function normalizeProject(project: Project): Project {
   return {
     ...project,
-    issues: project.issues.map((i) => ({ ...i, comments: i.comments ?? [] })),
+    issues: project.issues.map((i) => ({
+      ...i,
+      comments: i.comments ?? [],
+      blockedBy: i.blockedBy ?? [],
+      timeEntries: i.timeEntries ?? [],
+    })),
     epics: project.epics ?? [],
     sprints: project.sprints ?? [],
   };
@@ -483,6 +492,9 @@ export const useProjectStore = create<ProjectState>()(
           createdAt: now,
           updatedAt: now,
           dueDate: input.dueDate,
+          blockedBy: input.blockedBy || [],
+          timeEstimate: input.timeEstimate,
+          timeEntries: [],
         };
 
         set((state) => ({
@@ -582,6 +594,95 @@ export const useProjectStore = create<ProjectState>()(
                     ? {
                         ...issue,
                         comments: (issue.comments ?? []).filter((c) => c.id !== commentId),
+                        updatedAt: now,
+                      }
+                    : issue
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+      },
+
+      addDependency: (issueId: string, blockedById: string) => {
+        if (issueId === blockedById) return;
+        const now = new Date().toISOString();
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((issue) =>
+                  issue.id === issueId && !(issue.blockedBy ?? []).includes(blockedById)
+                    ? { ...issue, blockedBy: [...(issue.blockedBy ?? []), blockedById], updatedAt: now }
+                    : issue
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+      },
+
+      removeDependency: (issueId: string, blockedById: string) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((issue) =>
+                  issue.id === issueId
+                    ? {
+                        ...issue,
+                        blockedBy: (issue.blockedBy ?? []).filter((id) => id !== blockedById),
+                        updatedAt: now,
+                      }
+                    : issue
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+      },
+
+      logTime: (issueId: string, hours: number, note: string, author: string) => {
+        if (!(hours > 0)) return;
+        const now = new Date().toISOString();
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((issue) =>
+                  issue.id === issueId
+                    ? {
+                        ...issue,
+                        timeEntries: [
+                          ...(issue.timeEntries ?? []),
+                          { id: crypto.randomUUID(), hours, note: note.trim(), date: now, author },
+                        ],
+                        updatedAt: now,
+                      }
+                    : issue
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+      },
+
+      deleteTimeEntry: (issueId: string, entryId: string) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((issue) =>
+                  issue.id === issueId
+                    ? {
+                        ...issue,
+                        timeEntries: (issue.timeEntries ?? []).filter((e) => e.id !== entryId),
                         updatedAt: now,
                       }
                     : issue
