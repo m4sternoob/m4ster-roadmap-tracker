@@ -94,6 +94,17 @@ export function useSearch() {
   };
 }
 
+export const SHORTCUT_LIST: { keys: string; label: string }[] = [
+  { keys: '⌘K / Ctrl K', label: 'Command palette' },
+  { keys: '/', label: 'Search issues' },
+  { keys: '1 – 5', label: 'Board / List / Backlog / Sprints / Reports' },
+  { keys: 'N', label: 'New issue' },
+  { keys: 'E', label: 'New epic' },
+  { keys: 'S', label: 'New sprint' },
+  { keys: '?', label: 'This shortcut list' },
+  { keys: 'Esc', label: 'Close dialog' },
+];
+
 export function useKeyboardShortcuts() {
   const {
     setShowIssueModal,
@@ -102,6 +113,8 @@ export function useKeyboardShortcuts() {
     setSelectedIssue,
     setActiveView,
     activeView,
+    setShowSearchModal,
+    setShowShortcutsModal,
   } = useProjectStore();
 
   useEffect(() => {
@@ -113,11 +126,45 @@ export function useKeyboardShortcuts() {
 
       if (e.key === '?') {
         e.preventDefault();
-        // Show help modal - could be implemented later
+        setShowShortcutsModal(true);
+        return;
+      }
+
+      if (e.key === '/') {
+        e.preventDefault();
+        setShowSearchModal(true);
+        return;
+      }
+
+      // Escape closes the topmost modal
+      if (e.key === 'Escape') {
+        const st = useProjectStore.getState();
+        if (st.showShortcutsModal) return st.setShowShortcutsModal(false);
+        if (st.showSettingsModal) return st.setShowSettingsModal(false);
+        if (st.showSprintModal) return st.setShowSprintModal(false);
+        if (st.showEpicModal) return st.setShowEpicModal(false);
+        if (st.showIssueModal) {
+          st.setShowIssueModal(false);
+          st.setSelectedIssue(null);
+          return;
+        }
+        if (st.showSearchModal) return st.setShowSearchModal(false);
         return;
       }
 
       // Only trigger shortcuts when not in a modal
+      const st = useProjectStore.getState();
+      if (
+        st.showIssueModal ||
+        st.showEpicModal ||
+        st.showSprintModal ||
+        st.showSettingsModal ||
+        st.showSearchModal ||
+        st.showShortcutsModal ||
+        st.showConfirmDialog
+      ) {
+        return;
+      }
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }

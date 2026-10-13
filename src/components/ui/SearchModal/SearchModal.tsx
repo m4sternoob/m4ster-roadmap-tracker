@@ -1,9 +1,11 @@
-import { Search, X, User, Tag, Zap } from 'lucide-react';
+import { Search, X, User, Tag, Zap, ChevronRight } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import type { Issue, Priority, Status } from '@/types';
 import { STATUSES } from '@/types';
 import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { useSearch } from '@/hooks/useSearch';
 import { ModalShell } from '@/components/ui/ModalShell';
+import { useProjectStore } from '@/store/projectStore';
 
 interface SearchModalProps {
   onSelectIssue: (issue: Issue) => void;
@@ -42,6 +44,56 @@ function highlightMatch(text: string, query: string): React.ReactNode {
 
 export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
   const { query, setQuery, isOpen, results, selectedIndex, handleKeyDown, close } = useSearch();
+  const [actionIndex, setActionIndex] = useState(0);
+  const isActionMode = query.startsWith('>');
+
+  const paletteActions = useMemo(() => {
+    const s = useProjectStore.getState();
+    const all = [
+      { id: 'go-board', label: 'Go to Board', hint: '1', run: () => s.setActiveView('board') },
+      { id: 'go-list', label: 'Go to List', hint: '2', run: () => s.setActiveView('list') },
+      { id: 'go-backlog', label: 'Go to Backlog', hint: '3', run: () => s.setActiveView('backlog') },
+      { id: 'go-sprints', label: 'Go to Sprints', hint: '4', run: () => s.setActiveView('sprints') },
+      { id: 'go-reports', label: 'Go to Reports', hint: '5', run: () => s.setActiveView('reports') },
+      {
+        id: 'new-issue', label: 'New issue', hint: 'N',
+        run: () => { s.setNewIssueDefaultStatus('backlog'); s.setSelectedIssue(null); s.setShowIssueModal(true); },
+      },
+      { id: 'new-epic', label: 'New epic', hint: 'E', run: () => s.setShowEpicModal(true) },
+      { id: 'new-sprint', label: 'New sprint', hint: 'S', run: () => s.setShowSprintModal(true) },
+      { id: 'shortcuts', label: 'Keyboard shortcuts', hint: '?', run: () => s.setShowShortcutsModal(true) },
+      { id: 'settings', label: 'Project settings', hint: '', run: () => s.setShowSettingsModal(true) },
+      { id: 'export', label: 'Export workspace JSON', hint: '', run: () => s.exportProject() },
+    ];
+    const q = query.slice(1).trim().toLowerCase();
+    if (!q) return all;
+    return all.filter((a) => a.label.toLowerCase().includes(q));
+  }, [query]);
+
+  const runAction = (i: number) => {
+    const a = paletteActions[i];
+    if (!a) return;
+    close();
+    onClose();
+    // Run after the modal closes so focus/blur settles.
+    setTimeout(() => a.run(), 0);
+  };
+
+  const onPaletteKeyDown = (e: React.KeyboardEvent) => {
+    if (!isActionMode) return handleKeyDown(e);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActionIndex((p) => Math.min(p + 1, paletteActions.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActionIndex((p) => Math.max(p - 1, 0));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      runAction(actionIndex);
+    } else {
+      handleKeyDown(e);
+    }
+  };
 
   const handleSelectIssue = (issue: (typeof results)[0]['issue']) => {
     onSelectIssue(issue);
@@ -65,10 +117,10 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
           <input
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onChange={(e) => { setQuery(e.target.value); setActionIndex(0); }}
+            onKeyDown={onPaletteKeyDown}
             autoFocus
-            placeholder="Search issues... (title, key, labels, assignee)"
+            placeholder="Search issues... (title, key, labels, assignee) — type > for actions"
             className="w-full rounded-lg border border-white/10 bg-[var(--bg-deep)] py-3 pl-10 pr-12 text-lg text-slate-100 placeholder:text-slate-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
             aria-label="Search issues"
           />
@@ -102,7 +154,37 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
 
       {/* Results */}
       <div className="max-h-[60vh] overflow-y-auto rounded-b-xl border border-t-0 border-white/10 bg-[var(--bg-deep)] shadow-2xl shadow-black/50">
-        {results.length === 0 ? (
+        {isActionMode ? (
+          paletteActions.length === 0 ? (
+            <div className="p-8 text-center text-slate-400">
+              <p className="text-lg text-slate-200">No actions match "{query.slice(1).trim()}"</p>
+            </div>
+          ) : (
+            <ul role="listbox" aria-label="Actions">
+              {paletteActions.map((a, i) => (
+                <li
+                  key={a.id}
+                  role="option"
+                  aria-selected={i === actionIndex}
+                  onClick={() => runAction(i)}
+                  className={`flex cursor-pointer items-center justify-between border-t border-white/5 px-4 py-3 motion-press ${
+                    i === actionIndex ? 'bg-primary-500/10' : 'hover:bg-white/5'
+                  }`}
+                >
+                  <span className="flex items-center gap-3 text-[15px] text-slate-100">
+                    <ChevronRight size={15} className="text-slate-500" />
+                    {a.label}
+                  </span>
+                  {a.hint && (
+                    <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-slate-300">
+                      {a.hint}
+                    </kbd>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )
+        ) : results.length === 0 ? (
           query.trim() ? (
             <div className="p-8 text-center text-slate-400">
               <Search className="mx-auto mb-3 text-slate-600" size={32} />

@@ -70,6 +70,8 @@ interface ProjectState {
   setNewIssuePreset: (preset: Partial<CreateIssueInput> | null) => void;
   showSearchModal: boolean;
   setShowSearchModal: (show: boolean) => void;
+  showShortcutsModal: boolean;
+  setShowShortcutsModal: (show: boolean) => void;
 
   // Sidebar-driven board filtering
   boardFilterSignal: BoardFilterSignal | null;
@@ -193,6 +195,8 @@ export const useProjectStore = create<ProjectState>()(
       setNewIssuePreset: (preset) => set({ newIssuePreset: preset }),
       showSearchModal: false,
       setShowSearchModal: (show) => set({ showSearchModal: show }),
+      showShortcutsModal: false,
+      setShowShortcutsModal: (show) => set({ showShortcutsModal: show }),
 
       // Sidebar-driven board filtering
       boardFilterSignal: null,

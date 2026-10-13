@@ -14,6 +14,7 @@ import { IssueModal } from '@/components/modals/IssueModal';
 import { EpicModal } from '@/components/modals/EpicModal';
 import { SprintModal } from '@/components/modals/SprintModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
+import { ShortcutsModal } from '@/components/modals/ShortcutsModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SearchModal } from '@/components/ui/SearchModal/SearchModal';
 import { Toasts } from '@/components/ui/Toasts';
@@ -37,6 +38,8 @@ function App() {
     setShowSprintModal,
     showSettingsModal,
     setShowSettingsModal,
+    showShortcutsModal,
+    setShowShortcutsModal,
     showConfirmDialog,
     setShowConfirmDialog,
   } = useProjectStore();
@@ -171,6 +174,8 @@ function App() {
           {showSettingsModal && (
             <SettingsModal project={project} onClose={() => setShowSettingsModal(false)} />
           )}
+
+          {showShortcutsModal && <ShortcutsModal onClose={() => setShowShortcutsModal(false)} />}
 
           {showConfirmDialog && (
             <ConfirmDialog
