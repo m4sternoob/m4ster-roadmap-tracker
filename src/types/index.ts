@@ -10,6 +10,19 @@ export interface IssueComment {
   createdAt: string;
 }
 
+export type NotificationType = 'mention' | 'assignment' | 'comment' | 'due';
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  issueId?: string;
+  issueKey?: string;
+  createdAt: string;
+  read: boolean;
+}
+
 export interface Issue {
   id: string;
   key: string;

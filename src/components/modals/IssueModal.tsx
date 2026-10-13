@@ -8,6 +8,7 @@ import { PriorityIcon } from '@/components/issues/PriorityIcon';
 import { Avatar } from '@/components/issues/Avatar';
 import { StatusPill } from '@/components/issues/StatusPill';
 import { ModalShell } from '@/components/ui/ModalShell';
+import { MentionTextarea } from '@/components/ui/MentionTextarea';
 import { CURRENT_USER } from '@/components/board/boardFilters';
 import { formatRelativeTime } from '@/utils/helpers';
 
@@ -322,6 +323,21 @@ function DetailView({
     setCommentDraft('');
   };
 
+  /** Render @mentions in comment text as highlighted pills. */
+  const renderMentions = (text: string): React.ReactNode[] =>
+    text.split(/(@[A-Za-z0-9._-]{2,32})/g).map((part, i) =>
+      /^@[A-Za-z0-9._-]{2,32}$/.test(part) ? (
+        <span
+          key={i}
+          className="px-1 rounded bg-[var(--accent)]/15 text-[var(--accent-bright)] font-medium"
+        >
+          {part}
+        </span>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    );
+
   const addSubtask = () => {
     const t = subtaskDraft.trim();
     if (!t) return;
@@ -479,12 +495,13 @@ function DetailView({
             <div className="flex gap-2.5 mb-4">
               <Avatar name={CURRENT_USER} size={28} />
               <div className="flex-1">
-                <textarea
+                <MentionTextarea
                   value={commentDraft}
-                  onChange={(e) => setCommentDraft(e.target.value)}
+                  onChange={setCommentDraft}
                   rows={2}
-                  placeholder="Add a comment..."
+                  placeholder="Add a comment... (@ to mention)"
                   className={`${inputCls} resize-y`}
+                  onSubmit={postComment}
                 />
                 {commentDraft.trim() && (
                   <div className="flex justify-end gap-2 mt-2">
@@ -526,7 +543,7 @@ function DetailView({
                         </button>
                       </div>
                       <p className="text-[13.5px] text-[var(--text-secondary)] mt-0.5 whitespace-pre-wrap break-words">
-                        {c.text}
+                        {renderMentions(c.text)}
                       </p>
                     </div>
                   </div>

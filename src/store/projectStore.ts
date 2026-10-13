@@ -11,6 +11,7 @@ import type {
   CreateSprintInput,
   SearchFilters,
   Status,
+  AppNotification,
 } from '@/types';
 import { STATUSES } from '@/types';
 import { generateIssueKey, generateEpicKey } from '@/utils/helpers';
@@ -70,8 +71,6 @@ interface ProjectState {
   setNewIssuePreset: (preset: Partial<CreateIssueInput> | null) => void;
   showSearchModal: boolean;
   setShowSearchModal: (show: boolean) => void;
-  showShortcutsModal: boolean;
-  setShowShortcutsModal: (show: boolean) => void;
 
   // Sidebar-driven board filtering
   boardFilterSignal: BoardFilterSignal | null;
@@ -117,6 +116,13 @@ interface ProjectState {
   addComment: (issueId: string, author: string, text: string) => void;
   deleteComment: (issueId: string, commentId: string) => void;
 
+  // Notifications
+  notifications: AppNotification[];
+  addNotification: (n: Omit<AppNotification, 'id' | 'createdAt' | 'read'>) => void;
+  markNotificationRead: (id: string) => void;
+  markAllNotificationsRead: () => void;
+  clearNotifications: () => void;
+
   // Epic actions
   createEpic: (input: CreateEpicInput) => Epic;
   updateEpic: (epicId: string, input: Partial<CreateEpicInput>) => void;
@@ -158,6 +164,26 @@ function createDefaultProject(): Project {
   return createSampleProject();
 }
 
+/** Extract @mentioned names from text. Matches @alphanumeric (+ . _ -). */
+export function parseMentions(text: string): string[] {
+  const found = new Set<string>();
+  const re = /(?:^|\s)@([A-Za-z0-9._-]{2,32})/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) found.add(m[1]);
+  return [...found];
+}
+
+/** Everyone who has ever been assigned or authored — the @mention directory. */
+export function knownUsers(project: Project | null): string[] {
+  if (!project) return [];
+  const set = new Set<string>();
+  for (const i of project.issues) {
+    if (i.assignee) set.add(i.assignee);
+    for (const c of i.comments ?? []) if (c.author) set.add(c.author);
+  }
+  return [...set].sort((a, b) => a.localeCompare(b));
+}
+
 export const useProjectStore = create<ProjectState>()(
   persist(
     (set, get) => ({
@@ -187,6 +213,22 @@ export const useProjectStore = create<ProjectState>()(
       setShowSettingsModal: (show) => set({ showSettingsModal: show }),
       showConfirmDialog: null,
       setShowConfirmDialog: (dialog) => set({ showConfirmDialog: dialog }),
+      // Notifications
+      notifications: [],
+      addNotification: (n) =>
+        set((state) => ({
+          notifications: [
+            { ...n, id: crypto.randomUUID(), createdAt: new Date().toISOString(), read: false },
+            ...state.notifications,
+          ].slice(0, 100),
+        })),
+      markNotificationRead: (id) =>
+        set((state) => ({
+          notifications: state.notifications.map((x) => (x.id === id ? { ...x, read: true } : x)),
+        })),
+      markAllNotificationsRead: () =>
+        set((state) => ({ notifications: state.notifications.map((x) => ({ ...x, read: true })) })),
+      clearNotifications: () => set({ notifications: [] }),
       dragOverColumn: null,
       setDragOverColumn: (status) => set({ dragOverColumn: status }),
       newIssueDefaultStatus: 'backlog',
@@ -195,8 +237,6 @@ export const useProjectStore = create<ProjectState>()(
       setNewIssuePreset: (preset) => set({ newIssuePreset: preset }),
       showSearchModal: false,
       setShowSearchModal: (show) => set({ showSearchModal: show }),
-      showShortcutsModal: false,
-      setShowShortcutsModal: (show) => set({ showShortcutsModal: show }),
 
       // Sidebar-driven board filtering
       boardFilterSignal: null,
@@ -459,6 +499,7 @@ export const useProjectStore = create<ProjectState>()(
 
       updateIssue: (issueId: string, input: UpdateIssueInput) => {
         const now = new Date().toISOString();
+        const prev = get().project?.issues.find((i) => i.id === issueId);
         set((state) => ({
           project: state.project
             ? {
@@ -470,6 +511,16 @@ export const useProjectStore = create<ProjectState>()(
               }
             : null,
         }));
+        // Assignment change → notification
+        if (prev && 'assignee' in input && input.assignee !== prev.assignee && input.assignee) {
+          get().addNotification({
+            type: 'assignment',
+            title: `Assigned: ${prev.key}`,
+            body: `${input.assignee} was assigned "${prev.title}"`,
+            issueId: prev.id,
+            issueKey: prev.key,
+          });
+        }
         get().saveProject();
       },
 
@@ -477,6 +528,7 @@ export const useProjectStore = create<ProjectState>()(
         const now = new Date().toISOString();
         const trimmed = text.trim();
         if (!trimmed) return;
+        const issue = get().project?.issues.find((i) => i.id === issueId);
         set((state) => ({
           project: state.project
             ? {
@@ -497,6 +549,21 @@ export const useProjectStore = create<ProjectState>()(
               }
             : null,
         }));
+        // @mentions → notifications
+        if (issue) {
+          const users = knownUsers(get().project);
+          for (const name of parseMentions(trimmed)) {
+            if (name.toLowerCase() === author.toLowerCase()) continue;
+            const matched = users.find((u) => u.toLowerCase() === name.toLowerCase());
+            get().addNotification({
+              type: 'mention',
+              title: `${author} mentioned ${matched ?? name}`,
+              body: `on ${issue.key}: "${trimmed.slice(0, 80)}${trimmed.length > 80 ? '…' : ''}"`,
+              issueId: issue.id,
+              issueKey: issue.key,
+            });
+          }
+        }
         get().saveProject();
       },
 

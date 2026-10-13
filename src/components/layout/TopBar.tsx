@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Bell,
   CircleHelp,
   Cloud,
   CloudOff,
@@ -15,6 +14,7 @@ import {
 import { useProjectStore } from '@/store/projectStore';
 import { Avatar } from '@/components/issues/Avatar';
 import { ThemePicker } from '@/components/ui/ThemePicker';
+import { NotificationsBell } from '@/components/layout/NotificationsBell';
 import { DEFAULT_SLUG } from '@/sync/workspace';
 import { useAuth } from '@/sync/auth';
 
@@ -207,14 +207,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
           <Plus size={15} /> <span className="hidden sm:inline">Create</span>
         </button>
         <ThemePicker />
-        <button
-          className="hidden sm:block relative p-2 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
-          aria-label="Notifications"
-          title="Notifications"
-        >
-          <Bell size={17} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--danger)] ring-2 ring-[var(--bg-app)]" />
-        </button>
+        <NotificationsBell />
         <button
           className="hidden sm:block p-2 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
           aria-label="Help"
