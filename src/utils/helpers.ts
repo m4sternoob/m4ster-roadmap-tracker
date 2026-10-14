@@ -8,10 +8,6 @@ export function generateEpicKey(project: Project): string {
   return `${project.key}-E${project.epics.length + 1}`;
 }
 
-export function generateSprintName(project: Project): string {
-  return `Sprint ${project.sprints.length + 1}`;
-}
-
 export function formatDate(date: string | Date): string {
   const d = new Date(date);
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
@@ -52,30 +48,6 @@ export function initials(name: string): string {
     .toUpperCase();
 }
 
-export function getColorForPriority(priority: string): string {
-  const colors: Record<string, string> = {
-    low: '#64748b',
-    medium: '#0ea5e9',
-    high: '#f59e0b',
-    critical: '#ef4444',
-  };
-  return colors[priority] || '#64748b';
-}
-
-export function getColorForStatus(status: string): string {
-  const colors: Record<string, string> = {
-    backlog: '#64748b',
-    todo: '#0ea5e9',
-    'in-progress': '#f59e0b',
-    review: '#8b5cf6',
-    done: '#22c55e',
-    planning: '#64748b',
-    active: '#22c55e',
-    completed: '#0ea5e9',
-  };
-  return colors[status] || '#64748b';
-}
-
 export function debounce<T extends (...args: unknown[]) => unknown>(
   fn: T,
   delay: number
@@ -85,10 +57,6 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
     if (timeoutId) clearTimeout(timeoutId);
     timeoutId = setTimeout(() => fn(...args), delay);
   };
-}
-
-export function generateId(): string {
-  return crypto.randomUUID();
 }
 
 export function classNames(...classes: (string | boolean | undefined | null)[]): string {

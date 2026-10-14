@@ -10,7 +10,7 @@
 
 **Please do NOT open a public issue for security vulnerabilities.**
 
-Instead, email **xyaz@gmail.com** with:
+Instead, use [GitHub's private vulnerability reporting](https://github.com/m4sternoob/m4ster-roadmap-tracker/security/advisories/new) with:
 
 1. Description of the vulnerability
 2. Steps to reproduce

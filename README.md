@@ -16,7 +16,7 @@
 
 **m4ster-tracker** is a production-ready, offline-first roadmap tracker built for product teams and solo developers. It combines a clean Kanban board with sprint planning, burndown analytics, and epic management — all in a fast, accessible, dark-mode-friendly SPA.
 
-No backend required. Data persists in localStorage. Deploy anywhere as static files.
+Offline-first with optional cloud sync (Vercel serverless API + Upstash Redis). Deploy anywhere as static files or with the included serverless backend.
 
 ## ✨ Features
 
@@ -207,8 +207,8 @@ See [ROADMAP.md](ROADMAP.md) for detailed phases.
 | Phase    | Focus                                                | Status     |
 | -------- | ---------------------------------------------------- | ---------- |
 | **v1.0** | Core Kanban, sprints, burndown, themes, persistence  | ✅ Done    |
-| **v1.1** | Search/filter, keyboard shortcuts, PWA, a11y audit   | 🔄 Next    |
-| **v1.2** | Backend API, auth, realtime, comments, teams         | ⏳ Planned |
+| **v1.1** | Search/filter, keyboard shortcuts, PWA               | ✅ Done    |
+| **v1.2** | Backend API, auth, comments                          | 🔄 In progress |
 | **v1.3** | GitHub/GitLab sync, webhooks, Slack/Discord, imports | ⏳ Planned |
 | **v2.0** | Time tracking, AI assist, custom fields, automation  | ⏳ Planned |
 
@@ -237,14 +237,13 @@ MIT License — see [LICENSE](LICENSE) for details.
 - [Zustand](https://zustand-demo.pmnd.rs/) — Simple state management
 - [Tailwind CSS](https://tailwindcss.com/) — Utility-first styling
 - [Lucide](https://lucide.dev/) — Beautiful icons
-- [date-fns](https://date-fns.org/) — Date utilities
 - [Vite](https://vite.dev/) — Lightning-fast build tool
 
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/m4sternoob/m4ster-roadmap-tracker/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/m4sternoob/m4ster-roadmap-tracker/discussions)
-- **Security**: Email xyaz@gmail.com (see SECURITY.md)
+- **Security**: See [SECURITY.md](SECURITY.md)
 
 ---
 
