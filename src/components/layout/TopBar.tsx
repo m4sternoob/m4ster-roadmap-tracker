@@ -209,9 +209,10 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         <ThemePicker />
         <NotificationsBell />
         <button
+          onClick={() => useProjectStore.getState().setShowShortcutsModal(true)}
           className="hidden sm:block p-2 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
-          aria-label="Help"
-          title="Help"
+          aria-label="Help and keyboard shortcuts"
+          title="Help and keyboard shortcuts"
         >
           <CircleHelp size={17} />
         </button>
