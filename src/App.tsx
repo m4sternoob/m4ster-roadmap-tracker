@@ -20,6 +20,7 @@ import { SprintModal } from '@/components/modals/SprintModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { ShortcutsModal } from '@/components/modals/ShortcutsModal';
 import { AutomationsModal } from '@/components/modals/AutomationsModal';
+import { WelcomeModal } from '@/components/modals/WelcomeModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SearchModal } from '@/components/ui/SearchModal/SearchModal';
 import { Toasts } from '@/components/ui/Toasts';
@@ -53,6 +54,28 @@ function App() {
 
   const { close: closeSearch, isOpen: showSearchModal } = useSearch();
   useKeyboardShortcuts();
+  const demoSeeded = useProjectStore((s) => s.demoSeeded);
+
+  // First-run greeting: show once when a fresh visitor lands on demo data.
+  const [showWelcome, setShowWelcome] = useState(false);
+  useEffect(() => {
+    if (!project || !demoSeeded) return;
+    try {
+      if (localStorage.getItem('mt_welcomed_v1')) return;
+    } catch {
+      return;
+    }
+    setShowWelcome(true);
+  }, [project, demoSeeded]);
+
+  const dismissWelcome = () => {
+    try {
+      localStorage.setItem('mt_welcomed_v1', '1');
+    } catch {
+      // Non-fatal.
+    }
+    setShowWelcome(false);
+  };
   // Start collapsed on small screens so the board gets the room.
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () => typeof window !== 'undefined' && window.innerWidth < 1024
@@ -215,6 +238,8 @@ function App() {
           {showSearchModal && (
             <SearchModal onSelectIssue={handleSearchSelectIssue} onClose={() => closeSearch()} />
           )}
+
+          {showWelcome && <WelcomeModal onClose={dismissWelcome} />}
 
           <Toasts />
         </div>

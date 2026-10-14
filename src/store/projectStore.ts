@@ -24,7 +24,16 @@ import { cloudPull, cloudPush } from '@/sync/cloud';
 
 import type { BoardFilters } from '@/components/board/boardFilters';
 
-export type AppView = 'board' | 'list' | 'backlog' | 'sprints' | 'reports' | 'calendar' | 'timeline' | 'workload' | 'archived';
+export type AppView =
+  | 'board'
+  | 'list'
+  | 'backlog'
+  | 'sprints'
+  | 'reports'
+  | 'calendar'
+  | 'timeline'
+  | 'workload'
+  | 'archived';
 
 export type ToastKind = 'success' | 'error' | 'info';
 
@@ -110,6 +119,8 @@ interface ProjectState {
   syncStatus: 'idle' | 'loading' | 'saving' | 'synced' | 'local' | 'error';
   /** True when cloud sync is available but the user isn't signed in. */
   syncNeedsLogin: boolean;
+  /** True when the current project was freshly seeded from demo data (first run). */
+  demoSeeded: boolean;
   syncPush: () => Promise<void>;
   syncPushDebounced: () => void;
   syncPull: () => Promise<void>;
@@ -397,6 +408,7 @@ export const useProjectStore = create<ProjectState>()(
 
           let project: Project;
           let status: ProjectState['syncStatus'] = 'idle';
+          let seededDemo = false;
 
           if (cloud.ok) {
             status = 'synced';
@@ -413,14 +425,19 @@ export const useProjectStore = create<ProjectState>()(
             } else {
               project = normalizeProject(local);
               // Local is newer — push it up to converge.
-              set({ project, isLoading: false, syncStatus: status });
+              set({ project, isLoading: false, syncStatus: status, demoSeeded: seededDemo });
               get().syncPushDebounced();
               return;
             }
           } else if (cloud.reason === 'not-configured' || cloud.reason === 'unauthorized') {
             status = 'local';
             set({ syncNeedsLogin: cloud.reason === 'unauthorized' });
-            project = local ? normalizeProject(local) : createDefaultProject();
+            if (local) {
+              project = normalizeProject(local);
+            } else {
+              project = createDefaultProject();
+              seededDemo = true;
+            }
             if (!local) {
               try {
                 localStorage.setItem(storageKey, JSON.stringify(project));
@@ -434,25 +451,27 @@ export const useProjectStore = create<ProjectState>()(
               project = normalizeProject(local);
             } else if (cloud.reason === 'not-found') {
               project = createDefaultProject();
+              seededDemo = true;
               try {
                 localStorage.setItem(storageKey, JSON.stringify(project));
               } catch {
                 // Non-fatal.
               }
-              set({ project, isLoading: false, syncStatus: status });
+              set({ project, isLoading: false, syncStatus: status, demoSeeded: seededDemo });
               // First save for this workspace — push it to the cloud.
               get().syncPushDebounced();
               return;
             } else {
               project = createDefaultProject();
+              seededDemo = true;
             }
           }
 
-          set({ project, isLoading: false, syncStatus: status });
+          set({ project, isLoading: false, syncStatus: status, demoSeeded: seededDemo });
         } catch (e) {
           set({ error: 'Failed to load project', isLoading: false, syncStatus: 'error' });
           const project = createDefaultProject();
-          set({ project });
+          set({ project, demoSeeded: true });
         }
       },
 
@@ -478,6 +497,7 @@ export const useProjectStore = create<ProjectState>()(
       workspaceSlug: DEFAULT_SLUG,
       syncStatus: 'idle',
       syncNeedsLogin: false,
+      demoSeeded: false,
 
       syncPush: async () => {
         const { project, workspaceSlug, syncStatus } = get();
@@ -716,7 +736,11 @@ export const useProjectStore = create<ProjectState>()(
                 ...state.project,
                 issues: state.project.issues.map((issue) =>
                   issue.id === issueId && !(issue.blockedBy ?? []).includes(blockedById)
-                    ? { ...issue, blockedBy: [...(issue.blockedBy ?? []), blockedById], updatedAt: now }
+                    ? {
+                        ...issue,
+                        blockedBy: [...(issue.blockedBy ?? []), blockedById],
+                        updatedAt: now,
+                      }
                     : issue
                 ),
                 updatedAt: now,
@@ -863,7 +887,20 @@ export const useProjectStore = create<ProjectState>()(
           const s = String(v ?? '');
           return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
         };
-        const header = ['Key', 'Title', 'Type', 'Status', 'Priority', 'Assignee', 'Story points', 'Estimate (h)', 'Logged (h)', 'Due date', 'Labels', 'Created'];
+        const header = [
+          'Key',
+          'Title',
+          'Type',
+          'Status',
+          'Priority',
+          'Assignee',
+          'Story points',
+          'Estimate (h)',
+          'Logged (h)',
+          'Due date',
+          'Labels',
+          'Created',
+        ];
         const rows = project.issues
           .filter((i) => !i.archived)
           .map((i) => [
