@@ -22,22 +22,14 @@ No backend required. Data persists in localStorage. Deploy anywhere as static fi
 
 | Category             | Features                                                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| **Kanban Board**     | Drag-and-drop (@dnd-kit), 5 columns (Backlog → To Do → In Progress → Review → Done), priority sorting, virtualized columns           |
+| **Kanban Board**     | Drag-and-drop (@dnd-kit), 5 columns (Backlog → To Do → In Progress → Review → Done), priority sorting, paginated columns           |
 | **Issue Management** | Create/edit/delete, types (Epic/Story/Task/Subtask/Bug), priorities, story points, assignees, labels, due dates, epic/sprint linking |
 | **Epics**            | Color-coded, issue grouping, progress tracking                                                                                       |
 | **Sprints**          | Planning → Active → Complete lifecycle, sprint goals, burndown charts, issue assignment                                              |
-| **Reports**          | SVG burndown charts (ideal vs actual), velocity tracking, sprint health indicators                                                   |
+| **Reports**          | SVG burndown charts (ideal vs actual), sprint health indicators                                                   |
 | **UX**               | Dark/light theme (system + manual), keyboard navigation, ARIA labels, focus management, responsive grid                              |
 | **Data**             | localStorage persistence, export/import JSON backups, zero-config                                                                    |
-| **DevEx**            | TypeScript strict, ESLint + Oxlint, Prettier, Vitest, CI/CD, Docker                                                                  |
-
-## 📸 Screenshots
-
-| Board View                           | Backlog                                  | Sprint Burndown                            |
-| ------------------------------------ | ---------------------------------------- | ------------------------------------------ |
-| ![board](docs/screenshots/board.png) | ![backlog](docs/screenshots/backlog.png) | ![burndown](docs/screenshots/burndown.png) |
-
-_Add screenshots to `docs/screenshots/` after first deploy_
+| **DevEx**            | TypeScript strict, Oxlint, Prettier, Vitest, CI/CD, Docker                                                                  |
 
 ## 🚀 Quick Start
 
@@ -69,7 +61,7 @@ npm run preview      # Preview production build locally
 npm run test         # Run unit tests (Vitest)
 npm run test:watch   # Watch mode
 npm run test:coverage # Coverage report
-npm run lint         # Oxlint + ESLint
+npm run lint         # Oxlint
 npm run lint:fix     # Auto-fix lint issues
 npm run format       # Prettier format
 npm run format:check # Check formatting
@@ -85,26 +77,8 @@ docker build -t m4ster-tracker .
 # Run container (port 80)
 docker run -d -p 80:80 --name m4ster-tracker m4ster-tracker
 
-# Or with docker-compose
-docker-compose up -d
 ```
 
-**docker-compose.yml** (for production):
-
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - '80:80'
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost/']
-      interval: 30s
-      timeout: 3s
-      retries: 3
-```
 
 ## ☁️ Deployment
 
@@ -249,7 +223,7 @@ See [ROADMAP.md](ROADMAP.md) for detailed phases.
 ### Code Style
 
 - TypeScript strict mode
-- ESLint + Oxlint (run `npm run lint:fix`)
+- Oxlint (run `npm run lint:fix`)
 - Prettier (run `npm run format`)
 - Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`)
 
