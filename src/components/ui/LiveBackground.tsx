@@ -60,8 +60,8 @@ interface Ripple {
   a: number;
 }
 
-const ORB_COUNT = 46;
-const FIELD_RADIUS = 210;
+const ORB_COUNT = 12;
+const FIELD_RADIUS = 360;
 
 export function LiveBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -106,11 +106,11 @@ export function LiveBackground() {
     const orbs: Orb[] = Array.from({ length: ORB_COUNT }, () => ({
       x: rnd(0, w),
       y: rnd(0, h),
-      vx: rnd(-0.22, 0.22),
-      vy: rnd(-0.18, 0.18),
-      r: rnd(70, 190),
+      vx: rnd(-0.6, 0.6),
+      vy: rnd(-0.5, 0.5),
+      r: rnd(160, 340),
       c: colors[Math.floor(Math.random() * colors.length)],
-      a: rnd(0.1, 0.22),
+      a: rnd(0.3, 0.52),
       phase: rnd(0, Math.PI * 2),
     }));
     const ripples: Ripple[] = [];
@@ -154,37 +154,42 @@ export function LiveBackground() {
       ctx.globalCompositeOperation = dark ? 'lighter' : 'source-over';
 
       // Ease the follow-glow toward the pointer.
-      glow.x += (pointer.x - glow.x) * 0.06;
-      glow.y += (pointer.y - glow.y) * 0.06;
+      glow.x += (pointer.x - glow.x) * 0.09;
+      glow.y += (pointer.y - glow.y) * 0.09;
       if (pointer.active) {
-        drawOrb(glow.x, glow.y, 150, colors[0], dark ? 0.1 : 0.06);
+        drawOrb(glow.x, glow.y, 260, colors[0], dark ? 0.24 : 0.14);
       }
 
       for (const o of orbs) {
-        // Slow drift.
+        // Drift (faster than before) + gentle parallax opposite the pointer.
         o.x += o.vx;
         o.y += o.vy;
-        o.phase += 0.008;
+        o.phase += 0.014;
+        // Parallax: orbs shift slightly against pointer position.
+        const parX = pointer.active ? (0.5 - pointer.x / w) * 26 : 0;
+        const parY = pointer.active ? (0.5 - pointer.y / h) * 26 : 0;
         if (o.x < -o.r) o.x = w + o.r;
         if (o.x > w + o.r) o.x = -o.r;
         if (o.y < -o.r) o.y = h + o.r;
         if (o.y > h + o.r) o.y = -o.r;
 
-        // Gentle push away from the pointer.
+        // Strong push away from the pointer.
+        let px = o.x;
+        let py = o.y;
         if (pointer.active) {
           const dx = o.x - pointer.x;
           const dy = o.y - pointer.y;
           const d = Math.hypot(dx, dy);
           if (d < FIELD_RADIUS && d > 1) {
-            const f = ((FIELD_RADIUS - d) / FIELD_RADIUS) * 1.6;
-            o.x += (dx / d) * f;
-            o.y += (dy / d) * f;
+            const f = ((FIELD_RADIUS - d) / FIELD_RADIUS) * 3.4;
+            px += (dx / d) * f;
+            py += (dy / d) * f;
           }
         }
 
-        // Subtle breathing.
-        const breathe = 1 + Math.sin(o.phase) * 0.08;
-        drawOrb(o.x, o.y, o.r * breathe, o.c, o.a);
+        // Breathing.
+        const breathe = 1 + Math.sin(o.phase) * 0.15;
+        drawOrb(px + parX, py + parY, o.r * breathe, o.c, o.a);
       }
 
       // Tap ripples.
