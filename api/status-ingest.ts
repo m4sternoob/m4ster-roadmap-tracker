@@ -96,12 +96,6 @@ export default async function handler(req: any, res: any) {
   }
 
   const { title, description, dueDate, stats } = body;
-  if (!title || typeof title !== 'string' || !description || typeof description !== 'string') {
-    return res.status(400).json({ error: 'title and description required' });
-  }
-  if (dueDate && !/^\d{4}-\d{2}-\d{2}/.test(dueDate)) {
-    return res.status(400).json({ error: 'dueDate must be YYYY-MM-DD' });
-  }
 
   const kv = kvEnv();
   if (!kv) {
@@ -109,7 +103,7 @@ export default async function handler(req: any, res: any) {
   }
 
   // Secret-gated discovery: list tracker usernames to configure ingest.
-  // POST { secret, discover: true }
+  // POST { secret, discover: true } — runs before title/description validation.
   if (body.discover === true) {
     try {
       const keys = await kvScan(kv, 'user:*');
@@ -117,6 +111,13 @@ export default async function handler(req: any, res: any) {
     } catch (e) {
       return res.status(500).json({ error: 'discover failed' });
     }
+  }
+
+  if (!title || typeof title !== 'string' || !description || typeof description !== 'string') {
+    return res.status(400).json({ error: 'title and description required' });
+  }
+  if (dueDate && !/^\d{4}-\d{2}-\d{2}/.test(dueDate)) {
+    return res.status(400).json({ error: 'dueDate must be YYYY-MM-DD' });
   }
 
   try {
