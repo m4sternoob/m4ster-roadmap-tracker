@@ -12,6 +12,7 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useProjectStore } from '@/store/projectStore';
 import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { PriorityIcon } from '@/components/issues/PriorityIcon';
@@ -57,19 +58,25 @@ export function IssueCardView({
 
   useEffect(() => {
     if (!moveOpen) return;
+    const close = () => setMoveOpen(false);
     const onDown = (e: MouseEvent) => {
       if (menuRef.current?.contains(e.target as Node)) return;
       if (moveBtnRef.current?.contains(e.target as Node)) return;
-      setMoveOpen(false);
+      close();
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMoveOpen(false);
+      if (e.key === 'Escape') close();
     };
+    // The menu is fixed-positioned: any scroll (column or page) would
+    // detach it from its button, so close it instead of letting it float.
+    const onScroll = () => close();
     document.addEventListener('mousedown', onDown);
     document.addEventListener('keydown', onKey);
+    document.addEventListener('scroll', onScroll, true);
     return () => {
       document.removeEventListener('mousedown', onDown);
       document.removeEventListener('keydown', onKey);
+      document.removeEventListener('scroll', onScroll, true);
     };
   }, [moveOpen]);
 
@@ -158,37 +165,47 @@ export function IssueCardView({
         </div>
       )}
 
-      {!overlay && moveOpen && menuPos && (
-        <div
-          ref={menuRef}
-          role="menu"
-          aria-label={`Move ${issue.key} to column`}
-          className="fixed z-50 w-44 rounded-lg border border-[var(--bg-raised)] bg-[var(--bg-sunken)] shadow-2xl shadow-black/50 py-1 animate-scale-in"
-          style={{ top: menuPos.top, left: menuPos.left }}
-          onClick={stop}
-          onPointerDown={stop}
-        >
-          {STATUSES.map((s) => {
-            const current = s.value === issue.status;
-            return (
-              <button
-                key={s.value}
-                type="button"
-                role="menuitem"
-                onClick={pickStatus(s.value)}
-                className={`w-full flex items-center justify-between px-3 py-1.5 text-[13px] text-left motion-interactive ${
-                  current
-                    ? 'text-[var(--accent-bright)] font-medium'
-                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]'
-                }`}
-              >
-                {s.label}
-                {current && <Check size={13} aria-hidden="true" />}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      {/* Move-to-status menu. Portaled to document.body: the column's enter
+          animation leaves a permanent transform on it, which would otherwise
+          trap this fixed menu in the column's stacking context (menu rendered
+          underneath the neighboring column, positioned off from the button).
+          Coordinates already come from getBoundingClientRect (viewport space),
+          so the portal keeps them exact. */}
+      {!overlay &&
+        moveOpen &&
+        menuPos &&
+        createPortal(
+          <div
+            ref={menuRef}
+            role="menu"
+            aria-label={`Move ${issue.key} to column`}
+            className="fixed z-50 w-44 rounded-lg border border-[var(--bg-raised)] bg-[var(--bg-sunken)] shadow-2xl shadow-black/50 py-1 animate-scale-in"
+            style={{ top: menuPos.top, left: menuPos.left }}
+            onClick={stop}
+            onPointerDown={stop}
+          >
+            {STATUSES.map((s) => {
+              const current = s.value === issue.status;
+              return (
+                <button
+                  key={s.value}
+                  type="button"
+                  role="menuitem"
+                  onClick={pickStatus(s.value)}
+                  className={`w-full flex items-center justify-between px-3 py-1.5 text-[13px] text-left motion-interactive ${
+                    current
+                      ? 'text-[var(--accent-bright)] font-medium'
+                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]'
+                  }`}
+                >
+                  {s.label}
+                  {current && <Check size={13} aria-hidden="true" />}
+                </button>
+              );
+            })}
+          </div>,
+          document.body
+        )}
 
       {/* Issue key — Jira pattern: small uppercase micro-label above the title */}
       <div className="mb-1 flex items-center gap-1.5">
@@ -326,7 +343,14 @@ export function IssueCard({
       className="group cursor-grab active:cursor-grabbing rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--info)]"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        // Compose with dnd-kit's keyboard sensor instead of replacing it:
+        // Space lifts / moves / drops the card for keyboard users. Our own
+        // handler previously overrode the sensor's, which broke keyboard
+        // dragging entirely (Space opened the modal instead of lifting).
+        (listeners?.onKeyDown as ((ev: React.KeyboardEvent) => void) | undefined)?.(e);
+        // Enter opens the card — unless a keyboard drag is in progress
+        // (Enter drops the card there) or the sensor handled the key.
+        if (e.key === 'Enter' && !e.defaultPrevented && !isDragging) {
           e.preventDefault();
           onClick(issue);
         }
