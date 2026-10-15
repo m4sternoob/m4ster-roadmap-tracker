@@ -96,6 +96,8 @@ export function useSearch() {
 
 export const SHORTCUT_LIST: { keys: string; label: string }[] = [
   { keys: '⌘K / Ctrl K', label: 'Command palette' },
+  { keys: '⌘Z / Ctrl Z', label: 'Undo card change' },
+  { keys: '⌘⇧Z / Ctrl ⇧Z', label: 'Redo card change' },
   { keys: '/', label: 'Search issues' },
   { keys: '1 – 8', label: 'Board / List / Backlog / Calendar / Timeline / Workload / Sprints / Reports' },
   { keys: 'N', label: 'New issue' },
@@ -121,6 +123,30 @@ export function useKeyboardShortcuts() {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't trigger if typing in input/textarea
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Undo / redo card changes. Never hijack native text undo: contentEditable
+      // hosts and any open modal keep the keyboard.
+      if ((e.metaKey || e.ctrlKey) && (e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'y')) {
+        const t = e.target;
+        if (t instanceof HTMLElement && t.isContentEditable) return;
+        const st = useProjectStore.getState();
+        if (
+          st.showIssueModal ||
+          st.showEpicModal ||
+          st.showSprintModal ||
+          st.showSettingsModal ||
+          st.showSearchModal ||
+          st.showShortcutsModal ||
+          st.showConfirmDialog ||
+          st.showAutomationsModal
+        ) {
+          return;
+        }
+        e.preventDefault();
+        if (e.key.toLowerCase() === 'y' || e.shiftKey) st.redo();
+        else st.undo();
         return;
       }
 

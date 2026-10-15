@@ -67,7 +67,7 @@ export function Column({
   return (
     <div
       ref={setNodeRef}
-      className={`motion-collapse flex flex-col w-[86vw] min-w-[86vw] md:w-[270px] md:min-w-[270px] max-h-full rounded-lg border border-transparent ${
+      className={`motion-collapse flex flex-col min-h-0 w-[86vw] min-w-[86vw] md:w-[270px] md:min-w-[270px] max-h-full rounded-lg border border-transparent ${
         isDragOver
           ? 'bg-[var(--accent)]/10 ring-2 ring-[var(--accent)]/50 animate-drop-breathe'
           : 'bg-[var(--bg-sunken)]/60'
@@ -102,7 +102,7 @@ export function Column({
 
       {/* Cards */}
       <div
-        className="flex-1 flex flex-col gap-2 min-h-[120px] px-1 pb-1 overflow-y-auto"
+        className="flex-1 min-h-0 flex flex-col gap-2 px-1 pb-1 overflow-y-auto"
         role="list"
         aria-label={`${title} issues`}
       >

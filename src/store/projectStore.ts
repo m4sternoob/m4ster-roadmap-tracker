@@ -125,6 +125,15 @@ interface ProjectState {
   syncPushDebounced: () => void;
   syncPull: () => Promise<void>;
 
+  // Undo / redo for card operations (Ctrl+Z). Snapshot-based: every mutating
+  // issue action pushes the pre-change project; undo restores it. Stacks are
+  // session-only (excluded from persist via partialize).
+  undoStack: UndoEntry[];
+  redoStack: UndoEntry[];
+  pushUndo: (label: string) => void;
+  undo: () => void;
+  redo: () => void;
+
   // Issue actions
   createIssue: (input: CreateIssueInput) => Issue;
   updateIssue: (issueId: string, input: UpdateIssueInput, silent?: boolean) => void;
@@ -264,6 +273,29 @@ export function knownUsers(project: Project | null): string[] {
   return [...set].sort((a, b) => a.localeCompare(b));
 }
 
+/** One undoable step: the label shown in toasts + the project before the change. */
+export interface UndoEntry {
+  label: string;
+  before: Project;
+}
+
+const MAX_UNDO = 50;
+
+/**
+ * Re-entrancy guard: nested store mutations (automation rules firing inside a
+ * top-level action) must not push their own undo entries — the outer action's
+ * snapshot already covers them.
+ */
+let undoSuspendDepth = 0;
+function withUndoSuspended<T>(fn: () => T): T {
+  undoSuspendDepth++;
+  try {
+    return fn();
+  } finally {
+    undoSuspendDepth--;
+  }
+}
+
 export const useProjectStore = create<ProjectState>()(
   persist(
     (set, get) => ({
@@ -331,6 +363,57 @@ export const useProjectStore = create<ProjectState>()(
         })),
       dragOverColumn: null,
       setDragOverColumn: (status) => set({ dragOverColumn: status }),
+
+      // Undo / redo. All issue mutations are immutable (map/filter/spread), so
+      // the pre-change project reference is already an effective snapshot.
+      undoStack: [],
+      redoStack: [],
+      pushUndo: (label: string) => {
+        if (undoSuspendDepth > 0) return;
+        const { project, undoStack } = get();
+        if (!project) return;
+        set({
+          undoStack: [...undoStack.slice(-(MAX_UNDO - 1)), { label, before: project }],
+          redoStack: [],
+        });
+      },
+      undo: () => {
+        const { undoStack, redoStack, project, selectedIssue } = get();
+        const entry = undoStack[undoStack.length - 1];
+        if (!entry || !project) {
+          get().pushToast('info', 'Nothing to undo');
+          return;
+        }
+        set({
+          undoStack: undoStack.slice(0, -1),
+          redoStack: [...redoStack.slice(-(MAX_UNDO - 1)), { label: entry.label, before: project }],
+          project: entry.before,
+          // Keep the open issue modal pointing at the restored issue object.
+          selectedIssue: selectedIssue
+            ? (entry.before.issues.find((i) => i.id === selectedIssue.id) ?? null)
+            : null,
+        });
+        get().saveProject();
+        get().pushToast('info', `Undid: ${entry.label}`);
+      },
+      redo: () => {
+        const { undoStack, redoStack, project, selectedIssue } = get();
+        const entry = redoStack[redoStack.length - 1];
+        if (!entry || !project) {
+          get().pushToast('info', 'Nothing to redo');
+          return;
+        }
+        set({
+          redoStack: redoStack.slice(0, -1),
+          undoStack: [...undoStack.slice(-(MAX_UNDO - 1)), { label: entry.label, before: project }],
+          project: entry.before,
+          selectedIssue: selectedIssue
+            ? (entry.before.issues.find((i) => i.id === selectedIssue.id) ?? null)
+            : null,
+        });
+        get().saveProject();
+        get().pushToast('info', `Redid: ${entry.label}`);
+      },
       newIssueDefaultStatus: 'backlog',
       setNewIssueDefaultStatus: (status) => set({ newIssueDefaultStatus: status }),
       newIssuePreset: null,
@@ -527,6 +610,8 @@ export const useProjectStore = create<ProjectState>()(
             // Non-fatal.
           }
           set({ project, syncStatus: 'synced' });
+          // Cloud won — local undo snapshots belong to the old lineage.
+          set({ undoStack: [], redoStack: [] });
           get().pushToast('info', 'Updated from another device');
         } else {
           set({ syncStatus: 'error' });
@@ -564,6 +649,8 @@ export const useProjectStore = create<ProjectState>()(
             // Non-fatal.
           }
           set({ project: next, syncStatus: 'synced' });
+          // Cloud won — local undo snapshots belong to the old lineage.
+          set({ undoStack: [], redoStack: [] });
           get().pushToast('info', 'Board updated from another device');
         }
       },
@@ -598,6 +685,7 @@ export const useProjectStore = create<ProjectState>()(
           archived: false,
         };
 
+        get().pushUndo(`Create ${key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -611,11 +699,13 @@ export const useProjectStore = create<ProjectState>()(
 
         get().saveProject();
         get().pushToast('success', `Issue ${key} created`);
-        runAutomations(
-          get,
-          { updateIssue: get().updateIssue, addNotification: get().addNotification },
-          'issue_created',
-          newIssue
+        withUndoSuspended(() =>
+          runAutomations(
+            get,
+            { updateIssue: get().updateIssue, addNotification: get().addNotification },
+            'issue_created',
+            newIssue
+          )
         );
         return newIssue;
       },
@@ -623,6 +713,7 @@ export const useProjectStore = create<ProjectState>()(
       updateIssue: (issueId: string, input: UpdateIssueInput, silent?: boolean) => {
         const now = new Date().toISOString();
         const prev = get().project?.issues.find((i) => i.id === issueId);
+        if (prev) get().pushUndo(`Update ${prev.key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -649,15 +740,17 @@ export const useProjectStore = create<ProjectState>()(
           const updated = get().project?.issues.find((i) => i.id === issueId);
           if (updated) {
             const api = { updateIssue: get().updateIssue, addNotification: get().addNotification };
-            if ('status' in input && input.status !== prev.status) {
-              runAutomations(get, api, 'status_changed', updated, input.status);
-            }
-            if ('priority' in input && input.priority !== prev.priority) {
-              runAutomations(get, api, 'priority_changed', updated, input.priority);
-            }
-            if ('assignee' in input && input.assignee !== prev.assignee) {
-              runAutomations(get, api, 'assigned', updated, input.assignee);
-            }
+            withUndoSuspended(() => {
+              if ('status' in input && input.status !== prev.status) {
+                runAutomations(get, api, 'status_changed', updated, input.status);
+              }
+              if ('priority' in input && input.priority !== prev.priority) {
+                runAutomations(get, api, 'priority_changed', updated, input.priority);
+              }
+              if ('assignee' in input && input.assignee !== prev.assignee) {
+                runAutomations(get, api, 'assigned', updated, input.assignee);
+              }
+            });
           }
         }
       },
@@ -667,6 +760,7 @@ export const useProjectStore = create<ProjectState>()(
         const trimmed = text.trim();
         if (!trimmed) return;
         const issue = get().project?.issues.find((i) => i.id === issueId);
+        if (issue) get().pushUndo(`Comment on ${issue.key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -707,6 +801,8 @@ export const useProjectStore = create<ProjectState>()(
 
       deleteComment: (issueId: string, commentId: string) => {
         const now = new Date().toISOString();
+        const target = get().project?.issues.find((i) => i.id === issueId);
+        if (target) get().pushUndo(`Delete comment on ${target.key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -730,6 +826,8 @@ export const useProjectStore = create<ProjectState>()(
       addDependency: (issueId: string, blockedById: string) => {
         if (issueId === blockedById) return;
         const now = new Date().toISOString();
+        const target = get().project?.issues.find((i) => i.id === issueId);
+        if (target) get().pushUndo(`Link dependency on ${target.key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -752,6 +850,8 @@ export const useProjectStore = create<ProjectState>()(
 
       removeDependency: (issueId: string, blockedById: string) => {
         const now = new Date().toISOString();
+        const target = get().project?.issues.find((i) => i.id === issueId);
+        if (target) get().pushUndo(`Unlink dependency on ${target.key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -775,6 +875,8 @@ export const useProjectStore = create<ProjectState>()(
       logTime: (issueId: string, hours: number, note: string, author: string) => {
         if (!(hours > 0)) return;
         const now = new Date().toISOString();
+        const target = get().project?.issues.find((i) => i.id === issueId);
+        if (target) get().pushUndo(`Log time on ${target.key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -800,6 +902,8 @@ export const useProjectStore = create<ProjectState>()(
 
       deleteTimeEntry: (issueId: string, entryId: string) => {
         const now = new Date().toISOString();
+        const target = get().project?.issues.find((i) => i.id === issueId);
+        if (target) get().pushUndo(`Delete time entry on ${target.key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -823,6 +927,7 @@ export const useProjectStore = create<ProjectState>()(
       deleteIssue: (issueId: string) => {
         const now = new Date().toISOString();
         const doomed = get().project?.issues.find((i) => i.id === issueId);
+        if (doomed) get().pushUndo(`Delete ${doomed.key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -847,6 +952,7 @@ export const useProjectStore = create<ProjectState>()(
       archiveIssue: (issueId: string) => {
         const now = new Date().toISOString();
         const target = get().project?.issues.find((i) => i.id === issueId);
+        if (target) get().pushUndo(`Archive ${target.key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -865,6 +971,7 @@ export const useProjectStore = create<ProjectState>()(
       unarchiveIssue: (issueId: string) => {
         const now = new Date().toISOString();
         const target = get().project?.issues.find((i) => i.id === issueId);
+        if (target) get().pushUndo(`Restore ${target.key}`);
         set((state) => ({
           project: state.project
             ? {
@@ -940,6 +1047,8 @@ export const useProjectStore = create<ProjectState>()(
           completedAt: newStatus === 'done' ? now : undefined,
         };
 
+        const label = STATUSES.find((s) => s.value === newStatus)?.label ?? newStatus;
+        get().pushUndo(`Move ${issue.key} to ${label}`);
         set((state) => ({
           project: state.project
             ? {
@@ -952,12 +1061,12 @@ export const useProjectStore = create<ProjectState>()(
             : null,
         }));
         get().saveProject();
-        const label = STATUSES.find((s) => s.value === newStatus)?.label ?? newStatus;
         get().pushToast('success', `${issue.key} moved to ${label}`);
       },
 
       bulkUpdateIssues: (issueIds: string[], input: UpdateIssueInput) => {
         const now = new Date().toISOString();
+        get().pushUndo(`Bulk update ${issueIds.length} issue${issueIds.length === 1 ? '' : 's'}`);
         set((state) => ({
           project: state.project
             ? {
@@ -1306,6 +1415,7 @@ export const useProjectStore = create<ProjectState>()(
           if (!project.id || !project.key || !project.name) {
             throw new Error('Invalid project structure');
           }
+          get().pushUndo('Import project');
           set({ project: normalizeProject(project) });
           get().saveProject();
           get().pushToast('success', 'Project imported');
@@ -1317,6 +1427,7 @@ export const useProjectStore = create<ProjectState>()(
 
       loadSampleData: () => {
         const project = createSampleProject();
+        get().pushUndo('Load sample data');
         set({ project });
         get().saveProject();
         get().pushToast('success', 'Sample dataset loaded');
@@ -1336,6 +1447,7 @@ export const useProjectStore = create<ProjectState>()(
           createdAt: now,
           updatedAt: now,
         };
+        get().pushUndo('Clear workspace');
         set({ project });
         get().saveProject();
         get().pushToast('success', 'Workspace cleared');

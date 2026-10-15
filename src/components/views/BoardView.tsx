@@ -273,10 +273,7 @@ export function BoardView({
             setDragOverGroup(e.over ? (resolveGroup(e.over.id as string)?.id ?? null) : null)
           }
         >
-          <div
-            className="flex gap-3 overflow-x-auto pb-4 px-1 flex-1 items-start snap-x snap-mandatory md:snap-none"
-            style={{ minHeight: 'calc(100vh - 300px)' }}
-          >
+          <div className="flex gap-3 overflow-x-auto overflow-y-hidden pb-4 px-1 flex-1 min-h-0 items-start snap-x snap-mandatory md:snap-none">
             {sortedGroups.map((group, i) => (
               <div
                 key={group.id}
