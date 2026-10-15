@@ -95,9 +95,21 @@ export default async function handler(req: any, res: any) {
 
   try {
     // Resolve the owner account (no session on this route).
-    const username = process.env.STATUS_INGEST_USERNAME || 'm4sternoob';
-    const userRecord = await kvGet(kv, `user:${username}`);
-    if (!userRecord || !userRecord.id) {
+    // STATUS_INGEST_USERNAME can be a comma-separated list of candidates;
+    // first hit wins (covers Google-OAuth vs manual signup usernames).
+    const candidates = (process.env.STATUS_INGEST_USERNAME || 'm4sternoob')
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+    let userRecord: any = null;
+    for (const username of candidates) {
+      const rec = await kvGet(kv, `user:${username}`);
+      if (rec && rec.id) {
+        userRecord = rec;
+        break;
+      }
+    }
+    if (!userRecord) {
       return res.status(404).json({ error: 'ingest user not found' });
     }
 
