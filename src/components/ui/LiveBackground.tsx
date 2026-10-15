@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { loadAuraSettings, onAuraSettingsChange, type AuraSettings } from './auraSettings';
 
 /**
  * LiveBackground — the app's "living" backdrop, now touch-interactive.
@@ -75,6 +76,12 @@ export function LiveBackground() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let { colors, dark } = readTheme();
 
+    // User aura customization — applied live, no reload.
+    let aura: AuraSettings = loadAuraSettings();
+    const stopAura = onAuraSettingsChange((s) => {
+      aura = s;
+    });
+
     // Re-read palette whenever the theme flips.
     const themeObserver = new MutationObserver(() => {
       ({ colors, dark } = readTheme());
@@ -131,6 +138,7 @@ export function LiveBackground() {
       pointer.y = -9999;
     };
     const onDown = (e: PointerEvent) => {
+      if (!aura.ripples) return;
       ripples.push({ x: e.clientX, y: e.clientY, r: 8, a: 0.35 });
       if (ripples.length > 8) ripples.shift();
     };
@@ -151,19 +159,26 @@ export function LiveBackground() {
     const frame = () => {
       raf = requestAnimationFrame(frame);
       ctx.clearRect(0, 0, w, h);
+      if (!aura.enabled) return;
       ctx.globalCompositeOperation = dark ? 'lighter' : 'source-over';
 
       // Ease the follow-glow toward the pointer.
       glow.x += (pointer.x - glow.x) * 0.09;
       glow.y += (pointer.y - glow.y) * 0.09;
-      if (pointer.active) {
-        drawOrb(glow.x, glow.y, 260, colors[0], dark ? 0.24 : 0.14);
+      if (pointer.active && aura.glow) {
+        drawOrb(
+          glow.x,
+          glow.y,
+          260,
+          colors[0],
+          (dark ? 0.24 : 0.14) * (0.4 + 0.6 * aura.intensity)
+        );
       }
 
       for (const o of orbs) {
         // Drift (faster than before) + gentle parallax opposite the pointer.
-        o.x += o.vx;
-        o.y += o.vy;
+        o.x += o.vx * aura.speed;
+        o.y += o.vy * aura.speed;
         o.phase += 0.014;
         // Parallax: orbs shift slightly against pointer position.
         const parX = pointer.active ? (0.5 - pointer.x / w) * 26 : 0;
@@ -189,7 +204,9 @@ export function LiveBackground() {
 
         // Breathing.
         const breathe = 1 + Math.sin(o.phase) * 0.15;
-        drawOrb(px + parX, py + parY, o.r * breathe, o.c, o.a);
+        const sizeBoost = 0.75 + 0.25 * aura.intensity;
+        const alphaBoost = 0.35 + 0.65 * aura.intensity;
+        drawOrb(px + parX, py + parY, o.r * breathe * sizeBoost, o.c, o.a * alphaBoost);
       }
 
       // Tap ripples.
@@ -227,6 +244,7 @@ export function LiveBackground() {
 
     return () => {
       cancelAnimationFrame(raf);
+      stopAura();
       if (onVis) document.removeEventListener('visibilitychange', onVis);
       themeObserver.disconnect();
       window.removeEventListener('resize', resize);
