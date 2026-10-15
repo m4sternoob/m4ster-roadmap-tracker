@@ -1,6 +1,14 @@
 import type { Issue, Status } from '@/types';
 import { STATUSES } from '@/types';
-import { Calendar, Check, MessageSquare, Pencil, ArrowRightLeft, Star, OctagonAlert } from 'lucide-react';
+import {
+  Calendar,
+  Check,
+  MessageSquare,
+  Pencil,
+  ArrowRightLeft,
+  Star,
+  OctagonAlert,
+} from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useEffect, useRef, useState } from 'react';
@@ -8,6 +16,7 @@ import { useProjectStore } from '@/store/projectStore';
 import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { PriorityIcon } from '@/components/issues/PriorityIcon';
 import { Avatar } from '@/components/issues/Avatar';
+import { Pill } from '@/components/ui/Pill';
 import type { BoardDensity } from '@/components/board/boardFilters';
 
 function isOverdue(dueDate?: string) {
@@ -85,12 +94,12 @@ export function IssueCardView({
 
   return (
     <div
-      className={`relative bg-[var(--bg-surface)] rounded-lg border border-[var(--bg-raised)] motion-interactive glow-hover ${
+      className={`relative bg-[var(--bg-surface)] rounded-lg border border-[var(--bg-raised)] motion-interactive ${
         compact ? 'px-2 py-1.5' : 'px-3 py-2.5'
       } ${
         overlay
           ? 'border-[var(--chrome)] shadow-2xl shadow-black/60 rotate-[1.5deg] scale-[1.02] cursor-grabbing'
-          : 'hover:border-[var(--chrome)] hover:bg-[var(--bg-sunken)] hover:shadow-lg hover:shadow-black/30'
+          : 'hover:border-[var(--chrome)] hover:bg-[var(--bg-sunken)]'
       }`}
     >
       {/* Hover quick actions */}
@@ -181,71 +190,59 @@ export function IssueCardView({
         </div>
       )}
 
-      {/* Epic lozenge */}
-      {epicName && (
-        <div className="mb-1.5">
-          <span
-            className="inline-flex items-center px-1.5 py-px rounded text-[10.5px] font-semibold"
-            style={{
-              backgroundColor: `${epicColor ?? '#8b5cf6'}26`,
-              color: epicColor ?? '#8b5cf6',
-            }}
-          >
-            {epicName}
-          </span>
-        </div>
-      )}
-
-      {/* Title */}
-      <h4
-        className={`leading-snug text-[var(--text-primary)] line-clamp-2 mb-1.5 pr-6 ${
-          compact ? 'text-[12.5px]' : 'text-[13.5px]'
-        }`}
-      >
-        {issue.title}
-      </h4>
-
-      {/* Type + key row */}
-      <div className="flex items-center gap-1.5 mb-2">
-        <IssueTypeIcon type={issue.type} size={15} />
-        <span className="font-mono text-[11.5px] text-[var(--text-muted)]">{issue.key}</span>
+      {/* Issue key — Jira pattern: small uppercase micro-label above the title */}
+      <div className="mb-1 flex items-center gap-1.5">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-faint)]">
+          {issue.key}
+        </span>
         {(issue.blockedBy ?? []).length > 0 && issue.status !== 'done' && (
-          <span
-            className="inline-flex items-center gap-1 px-1.5 py-px rounded text-[10px] font-semibold bg-[var(--danger)]/15 text-[var(--danger)]"
+          <Pill
+            tone="danger"
             title={`Blocked by ${issue.blockedBy.length} issue${issue.blockedBy.length === 1 ? '' : 's'}`}
           >
-            <OctagonAlert size={11} /> Blocked
-          </span>
+            <OctagonAlert size={11} aria-hidden="true" /> Blocked
+          </Pill>
         )}
         {issue.status === 'done' && (
           <Check size={13} className="text-[var(--success)] ml-auto" aria-label="Done" />
         )}
       </div>
 
-      {/* Labels — hidden in compact mode to keep rows tight */}
+      {/* Epic tag */}
+      {epicName && (
+        <div className="mb-1.5">
+          <Pill color={epicColor ?? '#8b5cf6'}>{epicName}</Pill>
+        </div>
+      )}
+
+      {/* Title */}
+      <h4
+        className={`leading-snug text-[var(--text-primary)] line-clamp-2 mb-1.5 ${
+          compact ? 'text-[12.5px]' : 'text-[13px]'
+        }`}
+      >
+        {issue.title}
+      </h4>
+
+      {/* Labels */}
       {!compact && issue.labels.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-1">
           {issue.labels.slice(0, 3).map((label) => (
-            <span
-              key={label}
-              className="px-1.5 py-px text-[10.5px] font-medium rounded bg-[var(--chrome)]/60 text-[var(--text-secondary)]"
-            >
+            <Pill key={label} tone="neutral">
               {label}
-            </span>
+            </Pill>
           ))}
         </div>
       )}
 
       {/* Meta row */}
-      <div className="flex items-center gap-2">
-        <PriorityIcon priority={issue.priority} size={14} />
+      <div className="flex items-center gap-1.5">
+        <IssueTypeIcon type={issue.type} size={14} />
+        <PriorityIcon priority={issue.priority} size={13} />
         {!compact && issue.storyPoints > 0 && (
-          <span
-            className="min-w-[20px] h-5 px-1 rounded-full bg-[var(--chrome)]/70 text-[var(--text-secondary)] text-[11px] font-semibold inline-flex items-center justify-center"
-            title="Story points"
-          >
+          <Pill tone="neutral" title="Story points">
             {issue.storyPoints}
-          </span>
+          </Pill>
         )}
         {!compact && issue.dueDate && (
           <span
@@ -269,10 +266,10 @@ export function IssueCardView({
         )}
         <span className="flex-1" />
         {issue.assignee ? (
-          <Avatar name={issue.assignee} size={22} />
+          <Avatar name={issue.assignee} size={24} />
         ) : (
           <span
-            className="w-[22px] h-[22px] rounded-full border border-dashed border-[var(--chrome)] flex items-center justify-center text-[var(--text-faint)]"
+            className="w-6 h-6 rounded-full border border-dashed border-[var(--chrome)] flex items-center justify-center text-[var(--text-faint)]"
             title="Unassigned"
           >
             <svg

@@ -107,7 +107,7 @@ function AccountButton() {
     return (
       <button
         onClick={() => openAuth('login')}
-        className="ml-1 h-8 px-3 rounded-md border border-[var(--bg-raised)] text-[13px] font-medium text-[var(--text-secondary)] hover:border-[var(--chrome)] hover:text-[var(--text-primary)] btn-artcraft"
+        className="ml-1 h-8 px-3.5 rounded-full border border-[var(--bg-raised)] text-[13px] font-medium text-[var(--text-secondary)] hover:border-[var(--chrome)] hover:text-[var(--text-primary)] btn-artcraft"
       >
         Sign in
       </button>
@@ -161,7 +161,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   };
 
   return (
-    <header className="h-12 shrink-0 flex items-center gap-2 px-3 bg-[var(--bg-app)] border-b border-[var(--bg-raised)] relative z-40">
+    <header className="h-12 shrink-0 flex items-center gap-1.5 px-3 bg-[var(--bg-app)] border-b border-[var(--bg-raised)] relative z-40">
       <button
         onClick={onToggleSidebar}
         className="hidden md:block p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
@@ -179,7 +179,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
             <path d="M13 13h4v7h-4z" fill="#fff" opacity="0.6" />
           </svg>
         </span>
-        <span className="text-[15px] font-semibold text-[var(--text-primary)] tracking-tight hidden sm:inline">
+        <span className="text-[14px] font-semibold text-[var(--text-primary)] tracking-tight hidden sm:inline">
           M4ster
         </span>
       </div>
@@ -202,7 +202,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         <SyncStatus />
         <button
           onClick={openCreate}
-          className="h-8 px-3 rounded-md bg-[var(--accent)] text-white text-[13px] font-medium flex items-center gap-1.5 btn-artcraft shadow-sm"
+          className="h-8 px-3.5 rounded-full bg-[var(--accent)] text-white text-[13px] font-medium flex items-center gap-1.5 btn-artcraft shadow-sm"
         >
           <Plus size={15} /> <span className="hidden sm:inline">Create</span>
         </button>

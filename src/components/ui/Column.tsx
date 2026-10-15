@@ -2,6 +2,7 @@ import { ChevronsLeft, ChevronsRight, Ellipsis, Plus } from 'lucide-react';
 import type { Issue } from '@/types';
 import type { BoardDensity } from '@/components/board/boardFilters';
 import { IssueCard } from '@/components/ui/IssueCard';
+import { Pill } from '@/components/ui/Pill';
 import { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -46,17 +47,19 @@ export function Column({
         aria-label={`Expand ${title} column (${issues.length} issues)`}
         title={`Expand ${title}`}
         className={`motion-collapse shrink-0 w-11 min-w-[44px] self-stretch rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-app)] hover:bg-[var(--bg-surface)] hover:border-[var(--chrome)] flex flex-col items-center py-2 gap-2 ${
-          isDragOver ? 'ring-2 ring-[var(--accent)]/50 bg-[var(--accent)]/10 animate-drop-breathe' : ''
+          isDragOver
+            ? 'ring-2 ring-[var(--accent)]/50 bg-[var(--accent)]/10 animate-drop-breathe'
+            : ''
         }`}
       >
         <ChevronsRight size={15} className="text-[var(--text-faint)] shrink-0" aria-hidden="true" />
         <span
-          className="text-[12px] font-semibold uppercase tracking-wide text-[var(--text-muted)] truncate"
+          className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)] truncate"
           style={{ writingMode: 'vertical-rl' }}
         >
           {title}
         </span>
-        <span className="text-[11px] font-semibold text-[var(--text-faint)]">{issues.length}</span>
+        <Pill tone="neutral">{issues.length}</Pill>
       </button>
     );
   }
@@ -64,16 +67,16 @@ export function Column({
   return (
     <div
       ref={setNodeRef}
-      className={`motion-collapse flex flex-col w-[86vw] min-w-[86vw] md:w-[270px] md:min-w-[270px] max-h-full rounded-xl ${
+      className={`motion-collapse flex flex-col w-[86vw] min-w-[86vw] md:w-[270px] md:min-w-[270px] max-h-full rounded-lg border border-transparent ${
         isDragOver
           ? 'bg-[var(--accent)]/10 ring-2 ring-[var(--accent)]/50 animate-drop-breathe'
-          : 'bg-[var(--bg-app)]'
+          : 'bg-[var(--bg-sunken)]/60'
       }`}
       role="list"
       aria-label={`${title} column`}
     >
-      {/* Header: plain label + count */}
-      <div className="flex items-center gap-2 px-2 pt-2 pb-2">
+      {/* Header: micro-label + count pill (Linear/Jira style) */}
+      <div className="group flex items-center gap-1.5 px-2.5 pt-2.5 pb-2">
         <button
           onClick={onToggleCollapse}
           aria-expanded={true}
@@ -81,19 +84,19 @@ export function Column({
           title={`Collapse ${title}`}
           className="p-1 rounded text-[var(--text-faint)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
         >
-          <ChevronsLeft size={14} aria-hidden="true" />
+          <ChevronsLeft size={13} aria-hidden="true" />
         </button>
-        <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--text-muted)] truncate">
+        <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)] truncate">
           {title}
         </h3>
-        <span className="text-[12px] text-[var(--text-faint)] font-medium">{issues.length}</span>
+        <Pill tone="neutral">{issues.length}</Pill>
         <span className="flex-1" />
         <button
-          className="p-1 rounded text-[var(--text-faint)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] opacity-0 hover:opacity-100 focus:opacity-100 motion-press"
+          className="p-1 rounded text-[var(--text-faint)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] opacity-0 group-hover:opacity-100 focus-visible:opacity-100 motion-press"
           aria-label={`Column options for ${title}`}
           title="Column options"
         >
-          <Ellipsis size={14} />
+          <Ellipsis size={13} />
         </button>
       </div>
 
@@ -132,8 +135,8 @@ export function Column({
         )}
 
         {visibleIssues.length === 0 && (
-          <div className="flex items-center justify-center text-[var(--text-faint)] text-[12px] rounded-lg border border-dashed border-[var(--bg-raised)] min-h-[80px]">
-            Drop issues here
+          <div className="flex items-center justify-center min-h-[88px] rounded-lg border border-dashed border-[var(--chrome)]/70 px-3">
+            <span className="text-[12px] text-[var(--text-faint)]">Drop issues here</span>
           </div>
         )}
       </div>
