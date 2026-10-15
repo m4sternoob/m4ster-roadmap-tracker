@@ -126,19 +126,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  deploy-preview:
-    name: Deploy Preview
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Deploy to Vercel Preview
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod=false'
+    # NOTE: Vercel preview/production deployments are handled by Vercel's native
+  # GitHub integration (see the "Vercel" check on PRs). The previous
+  # amondnet/vercel-action jobs were removed: they duplicated the native
+  # integration and their VERCEL_TOKEN secret expired, failing every run.
 
   deploy-production:
     name: Deploy Production
@@ -147,14 +138,6 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
     environment: production
     steps:
-      - name: Deploy to Vercel Production
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod=true'
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
