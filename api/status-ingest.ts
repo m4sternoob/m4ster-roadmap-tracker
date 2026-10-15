@@ -9,7 +9,8 @@
  * the STATUS_INGEST_SECRET env var. No session cookie needed.
  *
  * Target user/workspace resolve from env (no session):
- *   STATUS_INGEST_USERNAME — tracker username (default "m4sternoob")
+ *   STATUS_INGEST_USERNAME — comma-separated tracker username candidates
+ *                            (default "m4sternoob"); first Redis hit wins
  *   STATUS_INGEST_SLUG     — workspace slug (default "default")
  *
  * Body — create: { secret, title, description, dueDate, stats? }
