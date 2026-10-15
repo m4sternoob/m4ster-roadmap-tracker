@@ -10,6 +10,17 @@ export interface IssueComment {
   createdAt: string;
 }
 
+export interface IssueAttachment {
+  id: string;
+  name: string;
+  /** bytes */
+  size: number;
+  mime: string;
+  /** public blob URL */
+  url: string;
+  uploadedAt: string;
+}
+
 export type NotificationType = 'mention' | 'assignment' | 'comment' | 'due';
 
 export interface AppNotification {
@@ -61,6 +72,7 @@ export interface Issue {
   parentId?: string;
   sprintId?: string;
   comments: IssueComment[];
+  attachments: IssueAttachment[];
   createdAt: string;
   updatedAt: string;
   dueDate?: string;

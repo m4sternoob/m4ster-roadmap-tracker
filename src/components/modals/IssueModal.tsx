@@ -9,6 +9,7 @@ import { Avatar } from '@/components/issues/Avatar';
 import { StatusPill } from '@/components/issues/StatusPill';
 import { ModalShell } from '@/components/ui/ModalShell';
 import { MentionTextarea } from '@/components/ui/MentionTextarea';
+import { AttachmentsField } from '@/components/modals/AttachmentsField';
 import { CURRENT_USER } from '@/components/board/boardFilters';
 import { formatRelativeTime } from '@/utils/helpers';
 
@@ -566,6 +567,8 @@ function DetailView({
                 ))}
             </div>
           </div>
+          {/* Attachments */}
+          <AttachmentsField live={live} />
         </div>
 
         {/* Right rail */}
