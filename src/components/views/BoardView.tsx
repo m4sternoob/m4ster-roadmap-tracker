@@ -3,6 +3,7 @@ import {
   DndContext,
   DragOverlay,
   closestCenter,
+  KeyboardCode,
   KeyboardSensor,
   PointerSensor,
   defaultDropAnimation,
@@ -93,7 +94,17 @@ export function BoardView({
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    // Only Space lifts a card for keyboard dragging. dnd-kit's default also
+    // lifts on Enter, which would steal the card's "open details" key —
+    // IssueCard's onKeyDown opens the issue on Enter when no drag runs.
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+      keyboardCodes: {
+        start: [KeyboardCode.Space],
+        cancel: [KeyboardCode.Esc],
+        end: [KeyboardCode.Space, KeyboardCode.Enter, KeyboardCode.Tab],
+      },
+    })
   );
 
   const [filters, setFilters] = useState<BoardFilters>(EMPTY_FILTERS);
