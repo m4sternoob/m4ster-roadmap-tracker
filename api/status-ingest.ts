@@ -107,7 +107,13 @@ export default async function handler(req: any, res: any) {
   if (body.discover === true) {
     try {
       const keys = await kvScan(kv, 'user:*');
-      return res.status(200).json({ users: keys });
+      const sample = keys.length > 0 ? await kvGet(kv, keys[0]) : null;
+      // Scrub secrets before returning.
+      if (sample && typeof sample === 'object') {
+        delete sample.passwordHash;
+        delete sample.hash;
+      }
+      return res.status(200).json({ users: keys, sampleKeys: sample ? Object.keys(sample) : null });
     } catch (e) {
       return res.status(500).json({ error: 'discover failed' });
     }
