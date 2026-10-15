@@ -34,7 +34,6 @@ function StatusReportsSection({ issues }: { issues: Issue[] }) {
   const [latest, ...older] = reports;
   const stats = parseStatusStats(latest);
   const maxVal = Math.max(1, ...stats.flatMap((s) => [s.openPRs, s.merged]));
-  const barW = 560;
   const barH = 26;
   const gap = 14;
   const labelW = 190;
