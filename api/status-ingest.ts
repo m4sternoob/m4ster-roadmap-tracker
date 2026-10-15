@@ -12,10 +12,12 @@
  *   STATUS_INGEST_USERNAME — tracker username (default "m4sternoob")
  *   STATUS_INGEST_SLUG     — workspace slug (default "default")
  *
- * Body: { secret, title, description, dueDate, stats? }
+ * Body — create: { secret, title, description, dueDate, stats? }
  *   stats: { repos: [{ name, openPRs, merged }] } — rendered as a bar
  *   chart in the Reports tab; stored as JSON after a marker in the
  *   issue description.
+ * Body — archive: { secret, action: 'archive', key: 'MT-14' }
+ *   Marks the issue archived so it leaves the board/Calendar/Reports views.
  *
  * Fully self-contained (no imports): Vercel's function bundler does not
  * resolve shared-module imports for these routes (500s at runtime).
@@ -65,19 +67,45 @@ function newId() {
   });
 }
 
-async function kvScan(env: { url: string; token: string }, match: string) {
-  const res = await fetch(env.url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(['SCAN', '0', 'MATCH', match, 'COUNT', '100']),
-  });
-  if (!res.ok) return [];
-  const data = await res.json();
-  const result = data && data.result;
-  return Array.isArray(result) && Array.isArray(result[1]) ? result[1] : [];
+async function resolveWorkspace(
+  env: { url: string; token: string }
+): Promise<{ wsKey: string; workspace: any; project: any } | null> {
+  // Resolve the owner account (no session on this route).
+  // STATUS_INGEST_USERNAME can be a comma-separated list of candidates;
+  // first hit wins (covers Google-OAuth vs manual signup usernames).
+  const envNames = (process.env.STATUS_INGEST_USERNAME || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  const candidates = [...new Set([...envNames, 'm4sternoob'])];
+  let userRecord: any = null;
+  for (const username of candidates) {
+    const rec = await kvGet(env, `user:${username}`);
+    if (rec && rec.id) {
+      userRecord = rec;
+      break;
+    }
+  }
+  if (!userRecord) return null;
+
+  const slug = (process.env.STATUS_INGEST_SLUG || 'default').toLowerCase();
+  const wsKey = `u:${userRecord.id}:ws:${slug}`;
+  const workspace = await kvGet(env, wsKey);
+  if (!workspace || !workspace.data || !Array.isArray(workspace.data.issues)) {
+    return null;
+  }
+  return { wsKey, workspace, project: workspace.data };
+}
+
+async function saveWorkspace(
+  env: { url: string; token: string },
+  wsKey: string,
+  workspace: any
+) {
+  const now = new Date().toISOString();
+  workspace.data.updatedAt = now;
+  workspace.updatedAt = now;
+  await kvSet(env, wsKey, workspace);
 }
 
 export default async function handler(req: any, res: any) {
@@ -95,29 +123,29 @@ export default async function handler(req: any, res: any) {
     return res.status(401).json({ error: 'bad secret' });
   }
 
-  const { title, description, dueDate, stats } = body;
-
   const kv = kvEnv();
   if (!kv) {
     return res.status(503).json({ error: 'sync not configured' });
   }
 
-  // Secret-gated discovery: list tracker usernames to configure ingest.
-  // POST { secret, discover: true } — runs before title/description validation.
-  if (body.discover === true) {
+  // Secret-gated archive: { secret, action: 'archive', key: 'MT-14' }
+  if (body.action === 'archive' && typeof body.key === 'string') {
     try {
-      const keys = await kvScan(kv, 'user:*');
-      const sample = keys.length > 0 ? await kvGet(kv, keys[0]) : null;
-      // Scrub secrets before returning.
-      if (sample && typeof sample === 'object') {
-        delete sample.passwordHash;
-        delete sample.hash;
-      }
-      return res.status(200).json({ users: keys, sampleKeys: sample ? Object.keys(sample) : null });
+      const ctx = await resolveWorkspace(kv);
+      if (!ctx) return res.status(404).json({ error: 'workspace not found' });
+      const issue = ctx.project.issues.find((i: any) => i.key === body.key);
+      if (!issue) return res.status(404).json({ error: 'issue not found' });
+      issue.archived = true;
+      issue.updatedAt = new Date().toISOString();
+      await saveWorkspace(kv, ctx.wsKey, ctx.workspace);
+      return res.status(200).json({ ok: true, key: issue.key, archived: true });
     } catch (e) {
-      return res.status(500).json({ error: 'discover failed' });
+      console.error('status-ingest archive error', e);
+      return res.status(500).json({ error: 'archive failed' });
     }
   }
+
+  const { title, description, dueDate, stats } = body;
 
   if (!title || typeof title !== 'string' || !description || typeof description !== 'string') {
     return res.status(400).json({ error: 'title and description required' });
@@ -127,32 +155,12 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    // Resolve the owner account (no session on this route).
-    // STATUS_INGEST_USERNAME can be a comma-separated list of candidates;
-    // first hit wins (covers Google-OAuth vs manual signup usernames).
-    // Hardcoded fallback covers env-var propagation delays.
-    const envNames = (process.env.STATUS_INGEST_USERNAME || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
-    const candidates = [...new Set([...envNames, 'harnoorgill102030', 'm4sternoob', 'xyaz'])];
-    let userRecord: any = null;
-    for (const username of candidates) {
-      const rec = await kvGet(kv, `user:${username}`);
-      if (rec && rec.id) {
-        userRecord = rec;
-        break;
-      }
-    }
-    if (!userRecord) {
-      return res.status(404).json({ error: 'ingest user not found' });
+    const ctx = await resolveWorkspace(kv);
+    if (!ctx) {
+      return res.status(404).json({ error: 'ingest user or workspace not found' });
     }
 
-    const slug = (process.env.STATUS_INGEST_SLUG || 'default').toLowerCase();
-    const wsKey = `u:${userRecord.id}:ws:${slug}`;
-    const workspace = await kvGet(kv, wsKey);
-    if (!workspace || !workspace.data || !Array.isArray(workspace.data.issues)) {
-      return res.status(404).json({ error: 'workspace not found' });
-    }
-
-    const project = workspace.data;
+    const project = ctx.project;
     const n = typeof project.nextIssueNumber === 'number' ? project.nextIssueNumber : project.issues.length + 1;
     const now = new Date().toISOString();
 
@@ -181,9 +189,7 @@ export default async function handler(req: any, res: any) {
 
     project.issues.push(issue);
     project.nextIssueNumber = n + 1;
-    project.updatedAt = now;
-    workspace.updatedAt = now;
-    await kvSet(kv, wsKey, workspace);
+    await saveWorkspace(kv, ctx.wsKey, ctx.workspace);
 
     return res.status(200).json({ ok: true, key: issue.key });
   } catch (e) {
