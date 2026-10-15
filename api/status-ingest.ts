@@ -130,10 +130,9 @@ export default async function handler(req: any, res: any) {
     // Resolve the owner account (no session on this route).
     // STATUS_INGEST_USERNAME can be a comma-separated list of candidates;
     // first hit wins (covers Google-OAuth vs manual signup usernames).
-    const candidates = (process.env.STATUS_INGEST_USERNAME || 'm4sternoob')
-      .split(',')
-      .map((s) => s.trim().toLowerCase())
-      .filter(Boolean);
+    // Hardcoded fallback covers env-var propagation delays.
+    const envNames = (process.env.STATUS_INGEST_USERNAME || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+    const candidates = [...new Set([...envNames, 'harnoorgill102030', 'm4sternoob', 'xyaz'])];
     let userRecord: any = null;
     for (const username of candidates) {
       const rec = await kvGet(kv, `user:${username}`);
