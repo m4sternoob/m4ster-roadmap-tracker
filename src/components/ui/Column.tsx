@@ -64,7 +64,7 @@ export function Column({
   return (
     <div
       ref={setNodeRef}
-      className={`motion-collapse flex flex-col w-[86vw] min-w-[86vw] md:w-[270px] md:min-w-[270px] max-h-full rounded-xl ${
+      className={`motion-collapse flex flex-col w-[86vw] min-w-[86vw] md:w-full md:min-w-0 max-h-full rounded-xl ${
         isDragOver
           ? 'bg-[var(--accent)]/10 ring-2 ring-[var(--accent)]/50 animate-drop-breathe'
           : 'bg-[var(--bg-app)]'

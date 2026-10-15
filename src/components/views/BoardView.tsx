@@ -280,7 +280,7 @@ export function BoardView({
             {sortedGroups.map((group, i) => (
               <div
                 key={group.id}
-                className="animate-column-enter snap-start shrink-0"
+                className="animate-column-enter snap-start shrink-0 md:flex-1 md:min-w-[272px] md:max-w-[400px]"
                 style={{ animationDelay: `${Math.min(i, 6) * 55}ms` }}
               >
                 <Column
@@ -303,7 +303,7 @@ export function BoardView({
               the cursor 1:1 with no transition lag. */}
           <DragOverlay dropAnimation={dropAnimation}>
             {activeIssue ? (
-              <div className="w-[270px] animate-drag-pickup">
+              <div className="w-full animate-drag-pickup">
                 <IssueCardView
                   issue={activeIssue}
                   epicColor={activeEpic?.color}
