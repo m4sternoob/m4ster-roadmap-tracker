@@ -65,6 +65,21 @@ function newId() {
   });
 }
 
+async function kvScan(env: { url: string; token: string }, match: string) {
+  const res = await fetch(env.url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(['SCAN', '0', 'MATCH', match, 'COUNT', '100']),
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  const result = data && data.result;
+  return Array.isArray(result) && Array.isArray(result[1]) ? result[1] : [];
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'POST only' });
@@ -91,6 +106,17 @@ export default async function handler(req: any, res: any) {
   const kv = kvEnv();
   if (!kv) {
     return res.status(503).json({ error: 'sync not configured' });
+  }
+
+  // Secret-gated discovery: list tracker usernames to configure ingest.
+  // POST { secret, discover: true }
+  if (body.discover === true) {
+    try {
+      const keys = await kvScan(kv, 'user:*');
+      return res.status(200).json({ users: keys });
+    } catch (e) {
+      return res.status(500).json({ error: 'discover failed' });
+    }
   }
 
   try {
