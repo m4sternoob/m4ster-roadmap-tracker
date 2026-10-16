@@ -19,6 +19,7 @@ import { Column } from '@/components/ui/Column';
 import { IssueCardView } from '@/components/ui/IssueCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { BoardToolbar } from '@/components/board/BoardToolbar';
+import { useCardGlide } from '@/hooks/useCardGlide';
 import {
   DENSITY_STORAGE_KEY,
   EMPTY_FILTERS,
@@ -112,6 +113,13 @@ export function BoardView({
   const [dragOverGroup, setDragOverGroup] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  // The scrollable board row — the glide hook folds its scroll offset into
+  // card positions so scrolling doesn't read as every card having moved.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  // A finished drag already has dnd-kit's drop animation; skip the glide
+  // for that one commit so the two don't pile up.
+  const suppressGlide = useRef(false);
+
   // One-shot filter patches from the sidebar (For you, Teams, Goals).
   const filterSignal = useProjectStore((s) => s.boardFilterSignal);
   const appliedNonce = useRef(0);
@@ -203,6 +211,9 @@ export function BoardView({
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveId(null);
     setDragOverGroup(null);
+    // The drop has dnd-kit's own drop animation — tell the glide hook to
+    // sit this commit out so cards don't animate twice.
+    suppressGlide.current = true;
     const { active, over } = event;
     if (!over || !project) return;
 
@@ -232,6 +243,10 @@ export function BoardView({
     store.setSelectedIssue(null);
     store.setShowIssueModal(true);
   };
+
+  // Cards glide to their new spot when their position changes without a
+  // drag (move menu, filters, density, a sync from another device).
+  useCardGlide(issues, activeId, suppressGlide, scrollRef);
 
   const activeFilterCount = countActiveFilters(filters);
   const hasFilters = activeFilterCount > 0 || filters.query.trim() !== '';
@@ -294,7 +309,10 @@ export function BoardView({
             setDragOverGroup(e.over ? (resolveGroup(e.over.id as string)?.id ?? null) : null)
           }
         >
-          <div className="flex gap-3 overflow-x-auto overflow-y-auto pb-4 px-1 flex-1 min-h-0 items-start snap-x snap-mandatory md:snap-none">
+          <div
+            ref={scrollRef}
+            className="flex gap-3 overflow-x-auto overflow-y-auto pb-4 px-1 flex-1 min-h-0 items-start snap-x snap-mandatory md:snap-none"
+          >
             {sortedGroups.map((group, i) => (
               <div
                 key={group.id}
