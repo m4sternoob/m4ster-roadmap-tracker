@@ -22,7 +22,7 @@ export function LogoMark({ size = 16 }: { size?: number }) {
         fontSize={26}
         fill="#ffffff"
       >
-        M4
+        MT
       </text>
     </svg>
   );
