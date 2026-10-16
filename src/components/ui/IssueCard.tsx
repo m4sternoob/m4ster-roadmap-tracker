@@ -36,6 +36,7 @@ export function IssueCardView({
   onClick,
   overlay = false,
   density = 'comfortable',
+  isRecent = false,
 }: {
   issue: Issue;
   epicColor?: string;
@@ -44,6 +45,8 @@ export function IssueCardView({
   /** Rendered inside the drag overlay: lifted look, no interactions. */
   overlay?: boolean;
   density?: BoardDensity;
+  /** Most recently created/moved card: distinctive highlight. */
+  isRecent?: boolean;
 }) {
   const compact = density === 'compact' && !overlay;
   const moveIssue = useProjectStore((s) => s.moveIssue);
@@ -101,12 +104,18 @@ export function IssueCardView({
 
   return (
     <div
-      className={`relative bg-[var(--bg-surface)] rounded-lg border border-[var(--bg-raised)] motion-interactive ${
+      className={`relative bg-[var(--bg-surface)] rounded-lg border motion-interactive glow-hover ${
         compact ? 'px-2 py-1.5' : 'px-3 py-2.5'
+      } ${
+        isRecent && !overlay
+          ? 'border-[var(--danger)] shadow-[0_0_0_1px_var(--danger),0_4px_20px_-6px_var(--danger)]'
+          : 'border-[var(--bg-raised)]'
       } ${
         overlay
           ? 'border-[var(--chrome)] shadow-2xl shadow-black/60 rotate-[1.5deg] scale-[1.02] cursor-grabbing'
-          : 'hover:border-[var(--chrome)] hover:bg-[var(--bg-sunken)]'
+          : isRecent
+            ? 'hover:border-[var(--danger)]'
+            : 'hover:border-[var(--chrome)] hover:bg-[var(--bg-sunken)] hover:shadow-lg hover:shadow-black/30'
       }`}
     >
       {/* Hover quick actions */}
