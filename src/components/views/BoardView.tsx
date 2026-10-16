@@ -3,6 +3,7 @@ import {
   DndContext,
   DragOverlay,
   closestCenter,
+  KeyboardCode,
   KeyboardSensor,
   PointerSensor,
   defaultDropAnimation,
@@ -93,7 +94,17 @@ export function BoardView({
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    // Only Space lifts a card for keyboard dragging. dnd-kit's default also
+    // lifts on Enter, which would steal the card's "open details" key —
+    // IssueCard's onKeyDown opens the issue on Enter when no drag runs.
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+      keyboardCodes: {
+        start: [KeyboardCode.Space],
+        cancel: [KeyboardCode.Esc],
+        end: [KeyboardCode.Space, KeyboardCode.Enter, KeyboardCode.Tab],
+      },
+    })
   );
 
   const [filters, setFilters] = useState<BoardFilters>(EMPTY_FILTERS);
@@ -283,10 +294,7 @@ export function BoardView({
             setDragOverGroup(e.over ? (resolveGroup(e.over.id as string)?.id ?? null) : null)
           }
         >
-          <div
-            className="flex gap-3 overflow-x-auto pb-4 px-1 flex-1 items-start snap-x snap-mandatory md:snap-none"
-            style={{ minHeight: 'calc(100vh - 300px)' }}
-          >
+          <div className="flex gap-3 overflow-x-auto overflow-y-hidden pb-4 px-1 flex-1 min-h-0 items-start snap-x snap-mandatory md:snap-none">
             {sortedGroups.map((group, i) => (
               <div
                 key={group.id}

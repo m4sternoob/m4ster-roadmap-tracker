@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useProjectStore } from '@/store/projectStore';
 import { Avatar } from '@/components/issues/Avatar';
+import { LogoMark } from '@/components/ui/LogoMark';
 import { ThemePicker } from '@/components/ui/ThemePicker';
 import { NotificationsBell } from '@/components/layout/NotificationsBell';
 import { DEFAULT_SLUG } from '@/sync/workspace';
@@ -107,7 +108,7 @@ function AccountButton() {
     return (
       <button
         onClick={() => openAuth('login')}
-        className="ml-1 h-8 px-3 rounded-md border border-[var(--bg-raised)] text-[13px] font-medium text-[var(--text-secondary)] hover:border-[var(--chrome)] hover:text-[var(--text-primary)] btn-artcraft"
+        className="ml-1 h-8 px-3.5 rounded-full border border-[var(--bg-raised)] text-[13px] font-medium text-[var(--text-secondary)] hover:border-[var(--chrome)] hover:text-[var(--text-primary)] btn-artcraft"
       >
         Sign in
       </button>
@@ -161,7 +162,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   };
 
   return (
-    <header className="h-12 shrink-0 flex items-center gap-2 px-3 bg-[var(--bg-app)] border-b border-[var(--bg-raised)] relative z-40">
+    <header className="h-12 shrink-0 flex items-center gap-1.5 px-3 bg-[var(--bg-app)] border-b border-[var(--bg-raised)] relative z-40">
       <button
         onClick={onToggleSidebar}
         className="hidden md:block p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
@@ -174,12 +175,9 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
       {/* Brand */}
       <div className="flex items-center gap-2 pr-2 select-none">
         <span className="brand-pulse w-7 h-7 rounded-[6px] bg-[var(--accent)] flex items-center justify-center shadow-sm">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M7 4h4v7H7zM13 4h4v7h-4zM7 13h4v7H7z" fill="#fff" opacity="0.95" />
-            <path d="M13 13h4v7h-4z" fill="#fff" opacity="0.6" />
-          </svg>
+          <LogoMark size={17} />
         </span>
-        <span className="text-[15px] font-semibold text-[var(--text-primary)] tracking-tight hidden sm:inline">
+        <span className="text-[14px] font-semibold text-[var(--text-primary)] tracking-tight hidden sm:inline">
           M4ster
         </span>
       </div>
@@ -202,7 +200,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         <SyncStatus />
         <button
           onClick={openCreate}
-          className="h-8 px-3 rounded-md bg-[var(--accent)] text-white text-[13px] font-medium flex items-center gap-1.5 btn-artcraft shadow-sm"
+          className="h-8 px-3.5 rounded-full bg-[var(--accent)] text-white text-[13px] font-medium flex items-center gap-1.5 btn-artcraft shadow-sm"
         >
           <Plus size={15} /> <span className="hidden sm:inline">Create</span>
         </button>

@@ -161,7 +161,11 @@ function App() {
                 <main
                   id="board-content"
                   tabIndex={-1}
-                  className="flex-1 min-h-0 overflow-y-auto px-5 py-4 bg-transparent"
+                  // The board manages its own column scrolling so the column
+                  // headers stay pinned; every other view scrolls the page.
+                  className={`flex-1 min-h-0 px-5 py-4 bg-transparent ${
+                    activeView === 'board' ? 'overflow-hidden' : 'overflow-y-auto'
+                  }`}
                 >
                   <div key={activeView} className="animate-view-enter h-full">
                     {activeView === 'board' && (
