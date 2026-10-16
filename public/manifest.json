@@ -1,7 +1,7 @@
 {
-  "name": "m4ster-tracker",
-  "short_name": "m4ster",
-  "description": "Professional roadmap tracker for product teams — Kanban, sprints, burndown, dark mode",
+  "name": "Master Tracker",
+  "short_name": "Master Tracker",
+  "description": "Professional roadmap tracker for product teams \u2014 Kanban, sprints, burndown, dark mode",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -58,26 +58,43 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["productivity", "business"],
+  "categories": [
+    "productivity",
+    "business"
+  ],
   "shortcuts": [
     {
       "name": "New Issue",
       "short_name": "New Issue",
       "description": "Create a new issue",
       "url": "/?newIssue=true",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Board View",
       "short_name": "Board",
       "description": "Open Kanban board",
       "url": "/?view=board",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ],
   "prefer_related_applications": false,
   "related_applications": [],
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "edge_side_panel": {
     "preferred_width": 400
   }
