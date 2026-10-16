@@ -22,6 +22,7 @@ import {
 import { useProjectStore, type SidebarSectionKey } from '@/store/projectStore';
 import type { Issue, Project } from '@/types';
 import { Avatar } from '@/components/issues/Avatar';
+import { LogoMark } from '@/components/ui/LogoMark';
 
 function Item({
   icon: Icon,
@@ -334,7 +335,7 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
             aria-current={activeView === 'board' ? 'page' : undefined}
           >
             <span className="w-6 h-6 rounded-[5px] bg-gradient-to-br from-[var(--accent-bright)] to-[var(--accent)] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-              {project.key.slice(0, 2).toUpperCase()}
+              <LogoMark size={14} />
             </span>
             {!collapsed && (
               <span className="flex-1 text-left truncate text-[13px] font-medium">
@@ -471,7 +472,7 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg motion-interactive text-[var(--text-secondary)] hover:bg-[var(--bg-raised)] hover:text-[var(--text-primary)]"
               >
                 <span className="w-6 h-6 rounded-[5px] bg-gradient-to-br from-[var(--accent-bright)] to-[var(--accent)] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-                  {project.key.slice(0, 2).toUpperCase()}
+                  <LogoMark size={14} />
                 </span>
                 <span className="flex-1 text-left text-[13px] truncate">{project.name}</span>
                 <span className="text-[11px] text-[var(--text-faint)] font-semibold">

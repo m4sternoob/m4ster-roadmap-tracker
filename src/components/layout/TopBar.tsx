@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useProjectStore } from '@/store/projectStore';
 import { Avatar } from '@/components/issues/Avatar';
+import { LogoMark } from '@/components/ui/LogoMark';
 import { ThemePicker } from '@/components/ui/ThemePicker';
 import { NotificationsBell } from '@/components/layout/NotificationsBell';
 import { DEFAULT_SLUG } from '@/sync/workspace';
@@ -174,10 +175,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
       {/* Brand */}
       <div className="flex items-center gap-2 pr-2 select-none">
         <span className="brand-pulse w-7 h-7 rounded-[6px] bg-[var(--accent)] flex items-center justify-center shadow-sm">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M7 4h4v7H7zM13 4h4v7h-4zM7 13h4v7H7z" fill="#fff" opacity="0.95" />
-            <path d="M13 13h4v7h-4z" fill="#fff" opacity="0.6" />
-          </svg>
+          <LogoMark size={17} />
         </span>
         <span className="text-[14px] font-semibold text-[var(--text-primary)] tracking-tight hidden sm:inline">
           M4ster

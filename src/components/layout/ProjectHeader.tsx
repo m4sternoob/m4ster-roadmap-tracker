@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { Download, Ellipsis, Maximize2, Share2, Upload, Users, Zap } from 'lucide-react';
 import type { Project } from '@/types';
 import { useProjectStore, type AppView } from '@/store/projectStore';
+import { LogoMark } from '@/components/ui/LogoMark';
 
 const TABS: { id: AppView; label: string }[] = [
   { id: 'board', label: 'Board' },
@@ -38,7 +39,7 @@ export function ProjectHeader({ project }: { project: Project }) {
 
       <div className="flex items-center gap-3 mt-1">
         <span className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--accent-bright)] to-[var(--accent)] text-white text-[13px] font-bold flex items-center justify-center shadow-sm shrink-0">
-          {project.key.slice(0, 2).toUpperCase()}
+          <LogoMark size={20} />
         </span>
         <h1 className="text-[19px] font-semibold text-[var(--text-primary)] tracking-tight truncate">
           {project.name}
@@ -114,7 +115,11 @@ export function ProjectHeader({ project }: { project: Project }) {
       </div>
 
       {/* Tabs */}
-      <nav className="flex items-center gap-1 mt-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Project views">
+      <nav
+        className="flex items-center gap-1 mt-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        role="tablist"
+        aria-label="Project views"
+      >
         {TABS.map(({ id, label }) => {
           const active = activeView === id;
           return (
