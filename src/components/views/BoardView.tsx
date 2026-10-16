@@ -132,6 +132,16 @@ export function BoardView({
     setCollapsed((prev) => ({ ...prev, [groupId]: !prev[groupId] }));
 
   const issues = useMemo(() => (project?.issues ?? []).filter((i) => !i.archived), [project?.issues]);
+  // Highlight the most recently created/moved card
+  const recentId = useMemo(() => {
+    let maxId: string | null = null;
+    let maxTime = 0;
+    for (const i of issues) {
+      const t = new Date(i.updatedAt).getTime();
+      if (t > maxTime) { maxTime = t; maxId = i.id; }
+    }
+    return maxId;
+  }, [issues]);
   const filtered = useMemo(() => applyBoardFilters(issues, filters), [issues, filters]);
   const groups = useMemo(() => buildGroups(filtered, groupBy), [filtered, groupBy]);
   const epicsById = useMemo(
@@ -280,7 +290,7 @@ export function BoardView({
             {sortedGroups.map((group, i) => (
               <div
                 key={group.id}
-                className="animate-column-enter snap-start shrink-0 md:flex-1 md:min-w-[272px] md:max-w-[400px]"
+                className="animate-column-enter snap-start shrink-0"
                 style={{ animationDelay: `${Math.min(i, 6) * 55}ms` }}
               >
                 <Column
@@ -294,6 +304,7 @@ export function BoardView({
                   collapsed={!!collapsed[group.id]}
                   onToggleCollapse={() => toggleCollapse(group.id)}
                   density={density}
+                  recentId={recentId}
                 />
               </div>
             ))}
@@ -303,7 +314,7 @@ export function BoardView({
               the cursor 1:1 with no transition lag. */}
           <DragOverlay dropAnimation={dropAnimation}>
             {activeIssue ? (
-              <div className="w-full animate-drag-pickup">
+              <div className="w-[270px] animate-drag-pickup">
                 <IssueCardView
                   issue={activeIssue}
                   epicColor={activeEpic?.color}

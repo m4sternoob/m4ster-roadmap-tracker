@@ -17,10 +17,12 @@ export function Column({
   collapsed = false,
   onToggleCollapse,
   density = 'comfortable',
+  recentId,
 }: {
   id: string;
   title: string;
   issues: Issue[];
+  recentId: string | null;
   epicsById: Map<string, { name: string; color: string }>;
   isDragOver: boolean;
   onIssueClick: (issue: Issue) => void;
@@ -64,7 +66,7 @@ export function Column({
   return (
     <div
       ref={setNodeRef}
-      className={`motion-collapse flex flex-col w-[86vw] min-w-[86vw] md:w-full md:min-w-0 max-h-full rounded-xl ${
+      className={`motion-collapse flex flex-col w-[86vw] min-w-[86vw] md:w-[270px] md:min-w-[270px] max-h-full rounded-xl ${
         isDragOver
           ? 'bg-[var(--accent)]/10 ring-2 ring-[var(--accent)]/50 animate-drop-breathe'
           : 'bg-[var(--bg-app)]'
@@ -117,7 +119,8 @@ export function Column({
                 epicName={epic?.name}
                 onClick={onIssueClick}
                 density={density}
-              />
+                isRecent={issue.id === recentId}
+                />
             );
           })}
         </SortableContext>
