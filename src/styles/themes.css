@@ -215,7 +215,12 @@ body {
 }
 
 .animate-view-enter {
-  animation: view-enter var(--motion-normal) var(--ease-out) both;
+  /* NOTE: fill mode must stay `backwards`, never `both`. `both` would leave
+     the `to` keyframe's transform applied forever, turning this wrapper into
+     a containing block for position:fixed descendants — dnd-kit's DragOverlay
+     is fixed, so its viewport coordinates would resolve in this element's
+     space and the dragged card would trail the cursor by this box's offset. */
+  animation: view-enter var(--motion-normal) var(--ease-out) backwards;
 }
 
 /* Board columns stagger in. Delay set inline per column index. */
@@ -231,7 +236,9 @@ body {
 }
 
 .animate-column-enter {
-  animation: column-enter var(--motion-normal) var(--ease-out) both;
+  /* `backwards`, not `both` — see the note on .animate-view-enter: a retained
+     transform would hijack position:fixed descendants (drag overlay, menus). */
+  animation: column-enter var(--motion-normal) var(--ease-out) backwards;
 }
 
 /* Drag pickup: springy pop on the floating card the moment a drag starts.
@@ -252,7 +259,9 @@ body {
 }
 
 .animate-drag-pickup {
-  animation: drag-pickup var(--motion-normal) var(--ease-out) both;
+  /* `backwards`, not `both`: no reason to keep scale(1) as a permanent
+     containing block once the pickup pop finishes. */
+  animation: drag-pickup var(--motion-normal) var(--ease-out) backwards;
 }
 
 /* Drop target breathe: a slow, shallow scale pulse on the column under the
