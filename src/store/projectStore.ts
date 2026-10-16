@@ -21,6 +21,8 @@ import { generateIssueKey, generateEpicKey } from '@/utils/helpers';
 import { createSampleProject } from '@/utils/demoData';
 import { getWorkspaceSlug, workspaceStorageKey, getDeviceId, DEFAULT_SLUG } from '@/sync/workspace';
 import { cloudPull, cloudPush } from '@/sync/cloud';
+import { usePlanStore } from '@/store/planStore';
+import type { ProFeature } from '@/lib/plan';
 
 import type { BoardFilters } from '@/components/board/boardFilters';
 
@@ -305,7 +307,18 @@ export const useProjectStore = create<ProjectState>()(
 
       // UI State defaults
       activeView: 'board',
-      setActiveView: (view) => set({ activeView: view }),
+      // Gated: locked views bounce to the upgrade modal instead of switching.
+      setActiveView: (view) => {
+        if (view !== 'board' && view !== 'list') {
+          const { can, openUpgrade } = usePlanStore.getState();
+          const feature = `view:${view}` as ProFeature;
+          if (!can(feature)) {
+            openUpgrade(feature);
+            return;
+          }
+        }
+        set({ activeView: view });
+      },
       selectedIssue: null,
       setSelectedIssue: (issue) =>
         set((state) => ({
