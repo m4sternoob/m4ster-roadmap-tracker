@@ -1,6 +1,6 @@
 {
-  "name": "Master Tracker",
-  "short_name": "Master Tracker",
+  "name": "M4ster_Tracker",
+  "short_name": "M4ster_Tracker",
   "description": "Professional roadmap tracker for product teams \u2014 Kanban, sprints, burndown, dark mode",
   "start_url": "/",
   "display": "standalone",
