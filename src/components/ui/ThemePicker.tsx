@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { BookmarkPlus, Check, Palette, Plus, RotateCcw, Trash2, X } from 'lucide-react';
+import { BookmarkPlus, Check, Lock, Palette, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { usePlanStore } from '@/store/planStore';
+import { isFreeTheme } from '@/lib/plan';
+import { ProGate } from './ProGate';
 import {
   AURA_DEFAULTS,
   loadAuraSettings,
@@ -156,6 +159,7 @@ export function ThemePicker() {
   const [profiles, setProfiles] = useState<ThemeProfile[]>(() => loadProfiles());
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileName, setProfileName] = useState('');
+  const openUpgrade = usePlanStore((s) => s.openUpgrade);
 
   const closePanel = () => {
     if (previewing) {
@@ -300,13 +304,20 @@ export function ThemePicker() {
             <div className="grid grid-cols-3 gap-1" role="listbox" aria-label="Color themes">
               {builtIns.map((t) => {
                 const isActive = t.id === theme;
+                const locked = !isFreeTheme(t.id);
                 return (
                   <button
                     key={t.id}
                     role="option"
                     aria-selected={isActive}
-                    title={t.name}
-                    onClick={() => setTheme(t.id)}
+                    title={locked ? `${t.name} — Pro theme` : t.name}
+                    onClick={() => {
+                      if (locked) {
+                        openUpgrade('theme:extra');
+                        return;
+                      }
+                      setTheme(t.id);
+                    }}
                     className={`relative flex flex-col items-center gap-1.5 rounded-lg px-1 py-2.5 motion-interactive ${
                       isActive ? 'bg-[var(--accent-soft)]' : 'hover:bg-[var(--bg-raised)]'
                     }`}
@@ -333,6 +344,12 @@ export function ThemePicker() {
                         className="absolute top-1 right-1 text-[var(--accent-bright)]"
                       />
                     )}
+                    {locked && !isActive && (
+                      <Lock
+                        size={11}
+                        className="absolute top-1 right-1 text-[var(--text-faint)]"
+                      />
+                    )}
                   </button>
                 );
               })}
@@ -341,6 +358,7 @@ export function ThemePicker() {
 
           {/* ---- custom themes ---- */}
           <section>
+            <ProGate feature="theme:custom" title="Custom themes" blurb="Design your own colors, live preview">
             <SectionLabel>Custom themes</SectionLabel>
             {customThemes.length > 0 && (
               <ul className="space-y-1 mb-2">
@@ -480,12 +498,14 @@ export function ThemePicker() {
                 <Plus size={14} /> New custom theme
               </button>
             )}
+            </ProGate>
           </section>
 
           <div className="h-px bg-[var(--chrome)]" aria-hidden="true" />
 
           {/* ---- theme profiles ---- */}
           <section>
+            <ProGate feature="theme:profiles" title="Theme profiles" blurb="Save named theme + aura setups">
             <SectionLabel>Profiles</SectionLabel>
             {profiles.length > 0 && (
               <ul className="space-y-1 mb-2">
@@ -553,12 +573,14 @@ export function ThemePicker() {
             <p className="px-1 pt-1.5 text-[11px] text-[var(--text-faint)] leading-snug">
               A profile captures your theme + aura setup in one tap.
             </p>
+            </ProGate>
           </section>
 
           <div className="h-px bg-[var(--chrome)]" aria-hidden="true" />
 
           {/* ---- background aura ---- */}
           <section className="space-y-3">
+            <ProGate feature="theme:aura" title="Background aura" blurb="Ambient glow behind your board">
             <div className="flex items-center justify-between px-1">
               <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
                 Background aura
@@ -624,6 +646,7 @@ export function ThemePicker() {
               <RotateCcw size={12} />
               Reset aura to defaults
             </button>
+            </ProGate>
           </section>
         </div>
       )}

@@ -6,6 +6,7 @@ import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { useSearch } from '@/hooks/useSearch';
 import { ModalShell } from '@/components/ui/ModalShell';
 import { useProjectStore } from '@/store/projectStore';
+import { usePlanStore } from '@/store/planStore';
 
 interface SearchModalProps {
   onSelectIssue: (issue: Issue) => void;
@@ -67,7 +68,19 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
       { id: 'shortcuts', label: 'Keyboard shortcuts', hint: '?', run: () => s.setShowShortcutsModal(true) },
       { id: 'settings', label: 'Project settings', hint: '', run: () => s.setShowSettingsModal(true) },
       { id: 'export', label: 'Export workspace JSON', hint: '', run: () => s.exportProject() },
-      { id: 'export-csv', label: 'Export issues as CSV', hint: '', run: () => s.exportCSV() },
+      {
+        id: 'export-csv',
+        label: 'Export issues as CSV',
+        hint: 'Pro',
+        run: () => {
+          const { can, openUpgrade } = usePlanStore.getState();
+          if (!can('export:csv')) {
+            openUpgrade('export:csv');
+            return;
+          }
+          s.exportCSV();
+        },
+      },
     ];
     const q = query.slice(1).trim().toLowerCase();
     if (!q) return all;

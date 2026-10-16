@@ -1,23 +1,27 @@
 import { useRef } from 'react';
-import { Download, Ellipsis, Maximize2, Share2, Upload, Users, Zap } from 'lucide-react';
+import { Download, Ellipsis, Lock, Maximize2, Share2, Upload, Users, Zap } from 'lucide-react';
 import type { Project } from '@/types';
 import { useProjectStore, type AppView } from '@/store/projectStore';
+import { usePlanStore } from '@/store/planStore';
+import type { ProFeature } from '@/lib/plan';
 import { LogoMark } from '@/components/ui/LogoMark';
 
-const TABS: { id: AppView; label: string }[] = [
+const TABS: { id: AppView; label: string; feature?: ProFeature }[] = [
   { id: 'board', label: 'Board' },
   { id: 'list', label: 'List' },
-  { id: 'backlog', label: 'Backlog' },
-  { id: 'calendar', label: 'Calendar' },
-  { id: 'timeline', label: 'Timeline' },
-  { id: 'workload', label: 'Workload' },
-  { id: 'sprints', label: 'Sprints' },
-  { id: 'reports', label: 'Reports' },
-  { id: 'archived', label: 'Archived' },
+  { id: 'backlog', label: 'Backlog', feature: 'view:backlog' },
+  { id: 'calendar', label: 'Calendar', feature: 'view:calendar' },
+  { id: 'timeline', label: 'Timeline', feature: 'view:timeline' },
+  { id: 'workload', label: 'Workload', feature: 'view:workload' },
+  { id: 'sprints', label: 'Sprints', feature: 'view:sprints' },
+  { id: 'reports', label: 'Reports', feature: 'view:reports' },
+  { id: 'archived', label: 'Archived', feature: 'view:archived' },
 ];
 
 export function ProjectHeader({ project }: { project: Project }) {
   const { activeView, setActiveView, setShowAutomationsModal } = useProjectStore();
+  const can = usePlanStore((s) => s.can);
+  const openUpgrade = usePlanStore((s) => s.openUpgrade);
   const exportProject = useProjectStore((s) => s.exportProject);
   const importProject = useProjectStore((s) => s.importProject);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -99,8 +103,14 @@ export function ProjectHeader({ project }: { project: Project }) {
           <button
             className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
             aria-label="Automations"
-            title="Automations"
-            onClick={() => setShowAutomationsModal(true)}
+            title={can('automations') ? 'Automations' : 'Automations — Pro feature'}
+            onClick={() => {
+              if (!can('automations')) {
+                openUpgrade('automations');
+                return;
+              }
+              setShowAutomationsModal(true);
+            }}
           >
             <Zap size={15} />
           </button>
@@ -120,21 +130,30 @@ export function ProjectHeader({ project }: { project: Project }) {
         role="tablist"
         aria-label="Project views"
       >
-        {TABS.map(({ id, label }) => {
+        {TABS.map(({ id, label, feature }) => {
           const active = activeView === id;
+          const locked = feature ? !can(feature) : false;
           return (
             <button
               key={id}
               role="tab"
               aria-selected={active}
-              onClick={() => setActiveView(id)}
-              className={`relative px-3 py-2 text-[13.5px] motion-interactive ${
+              title={locked ? `${label} — Pro feature` : label}
+              onClick={() => {
+                if (locked && feature) {
+                  openUpgrade(feature);
+                  return;
+                }
+                setActiveView(id);
+              }}
+              className={`relative px-3 py-2 text-[13.5px] motion-interactive flex items-center gap-1.5 ${
                 active
                   ? 'text-[var(--accent-bright)] font-medium'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
               }`}
             >
               {label}
+              {locked && <Lock size={11} className="text-[var(--text-faint)]" />}
               {active && (
                 <span className="absolute left-2 right-2 -bottom-px h-[2.5px] rounded-full bg-[var(--accent-bright)]" />
               )}
