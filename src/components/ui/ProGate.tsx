@@ -1,6 +1,6 @@
 import { Lock } from 'lucide-react';
 import { usePlanStore } from '@/store/planStore';
-import { featureLabel, type ProFeature } from '@/lib/plan';
+import { canUse, featureLabel, type ProFeature } from '@/lib/plan';
 
 /**
  * Renders children when the plan allows `feature`; otherwise renders a
@@ -17,7 +17,10 @@ export function ProGate({
   title?: string;
   blurb?: string;
 }) {
-  const can = usePlanStore((s) => s.can);
+  // NOTE: subscribe to `plan` itself — selecting the `can` helper would
+  // never re-render because it's a stable function reference.
+  const plan = usePlanStore((s) => s.plan);
+  const can = (f: ProFeature) => canUse(plan, f);
   const openUpgrade = usePlanStore((s) => s.openUpgrade);
 
   if (can(feature)) return <>{children}</>;

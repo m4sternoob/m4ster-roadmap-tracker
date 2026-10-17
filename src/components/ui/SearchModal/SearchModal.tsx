@@ -7,6 +7,7 @@ import { useSearch } from '@/hooks/useSearch';
 import { ModalShell } from '@/components/ui/ModalShell';
 import { useProjectStore } from '@/store/projectStore';
 import { usePlanStore } from '@/store/planStore';
+import { canUse } from '@/lib/plan';
 
 interface SearchModalProps {
   onSelectIssue: (issue: Issue) => void;
@@ -73,8 +74,8 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
         label: 'Export issues as CSV',
         hint: 'Pro',
         run: () => {
-          const { can, openUpgrade } = usePlanStore.getState();
-          if (!can('export:csv')) {
+          const { plan, openUpgrade } = usePlanStore.getState();
+          if (!canUse(plan, 'export:csv')) {
             openUpgrade('export:csv');
             return;
           }

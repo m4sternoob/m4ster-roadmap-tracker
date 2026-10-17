@@ -3,7 +3,7 @@ import { Download, Ellipsis, Lock, Maximize2, Share2, Upload, Users, Zap } from 
 import type { Project } from '@/types';
 import { useProjectStore, type AppView } from '@/store/projectStore';
 import { usePlanStore } from '@/store/planStore';
-import type { ProFeature } from '@/lib/plan';
+import { canUse, type ProFeature } from '@/lib/plan';
 import { LogoMark } from '@/components/ui/LogoMark';
 
 const TABS: { id: AppView; label: string; feature?: ProFeature }[] = [
@@ -20,7 +20,10 @@ const TABS: { id: AppView; label: string; feature?: ProFeature }[] = [
 
 export function ProjectHeader({ project }: { project: Project }) {
   const { activeView, setActiveView, setShowAutomationsModal } = useProjectStore();
-  const can = usePlanStore((s) => s.can);
+  // Subscribe to `plan` (not the `can` helper): the helper is a stable
+  // function reference, so selecting it would never re-render on plan change.
+  const plan = usePlanStore((s) => s.plan);
+  const can = (f: ProFeature) => canUse(plan, f);
   const openUpgrade = usePlanStore((s) => s.openUpgrade);
   const exportProject = useProjectStore((s) => s.exportProject);
   const importProject = useProjectStore((s) => s.importProject);

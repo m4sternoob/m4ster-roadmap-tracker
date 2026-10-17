@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Plan, ProFeature } from '@/lib/plan';
-import { canUse, featureLabel } from '@/lib/plan';
+import { featureLabel } from '@/lib/plan';
 
 interface PlanState {
   /** Current plan. Defaults to 'free' (the trial). */
@@ -12,13 +12,11 @@ interface PlanState {
   setPlan: (plan: Plan) => void;
   openUpgrade: (feature?: ProFeature) => void;
   closeUpgrade: () => void;
-  /** Convenience: is this feature available right now? */
-  can: (feature: ProFeature) => boolean;
 }
 
 export const usePlanStore = create<PlanState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       plan: 'free',
       upgradeOpen: false,
       upgradeFeature: null,
@@ -26,7 +24,6 @@ export const usePlanStore = create<PlanState>()(
       openUpgrade: (feature) =>
         set({ upgradeOpen: true, upgradeFeature: feature ?? null }),
       closeUpgrade: () => set({ upgradeOpen: false, upgradeFeature: null }),
-      can: (feature) => canUse(get().plan, feature),
     }),
     {
       name: 'mt_plan_v1',

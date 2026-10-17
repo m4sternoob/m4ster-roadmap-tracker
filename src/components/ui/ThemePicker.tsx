@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BookmarkPlus, Check, Lock, Palette, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { usePlanStore } from '@/store/planStore';
-import { isFreeTheme } from '@/lib/plan';
+import { canUse, isFreeTheme } from '@/lib/plan';
 import { ProGate } from './ProGate';
 import {
   AURA_DEFAULTS,
@@ -159,6 +159,7 @@ export function ThemePicker() {
   const [profiles, setProfiles] = useState<ThemeProfile[]>(() => loadProfiles());
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileName, setProfileName] = useState('');
+  const plan = usePlanStore((s) => s.plan);
   const openUpgrade = usePlanStore((s) => s.openUpgrade);
 
   const closePanel = () => {
@@ -304,7 +305,8 @@ export function ThemePicker() {
             <div className="grid grid-cols-3 gap-1" role="listbox" aria-label="Color themes">
               {builtIns.map((t) => {
                 const isActive = t.id === theme;
-                const locked = !isFreeTheme(t.id);
+                // Pro unlocks every theme; Free gets only the free-tier list.
+                const locked = !canUse(plan, 'theme:extra') && !isFreeTheme(t.id);
                 return (
                   <button
                     key={t.id}
