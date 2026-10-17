@@ -11,7 +11,7 @@ interface SettingsModalProps {
 
 export function SettingsModal({ project, onClose }: SettingsModalProps) {
   const [importFile, setImportFile] = useState<File | null>(null);
-  const { exportProject, importProject, loadSampleData, clearWorkspace, setShowConfirmDialog } =
+  const { exportProject, importProject, loadSampleData, clearWorkspace, setShowConfirmDialog, setActiveView } =
     useProjectStore.getState();
 
   const handleExport = () => {
@@ -148,6 +148,15 @@ export function SettingsModal({ project, onClose }: SettingsModalProps) {
           <p className="text-sm text-slate-400">
             View burndown charts and sprint progress in the Reports view.
           </p>
+          <button
+            onClick={() => {
+              setActiveView('reports');
+              onClose();
+            }}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-white/15 motion-press"
+          >
+            <BarChart2 size={16} /> Open reports
+          </button>
         </section>
       </div>
     </ModalShell>
