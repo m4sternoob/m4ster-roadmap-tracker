@@ -1,84 +1,72 @@
-# M4ster Tracker — Launch Roadmap
+# M4ster Tracker — The Roadmap
 
-> The project tracker without the per-seat tax.
-> **One price. Every feature. No per-seat math.**
+*The one roadmap. We follow it always.*
 
-## The pitch
+> The project tracker for small teams who hate enterprise software.
 
-Project tools charge per user, per month — $10–$25 a seat — then punish you
-for growing: seat buckets, ghost seats, automation overage fees, AI features
-locked behind the top tier. A 10-person team pays $1,200–$3,000/year before
-they've done any work.
+## Who we are
 
-M4ster Tracker is **$20/year. Flat.** Unlimited boards, every view,
-automations, all themes, CSV export. The whole product, one price, whether
-you're one person or fifty.
+- **For:** solo devs, indie hackers, teams of 2–10.
+- **Not for:** enterprises. No sales team. No "contact sales" button. Ever.
+- **Price:** $20/year. Flat. One price, every feature, no per-seat math.
 
-## How we compare
+## Why we win
 
-| | Free tier | Paid | The catch |
-|---|---|---|---|
-| **M4ster Tracker** | 1 board, unlimited issues, Board + List, 2 themes | **$20/year flat** | None — that's the point |
-| Linear | 250 issues cap | $10–$16/user/mo | AI + analytics locked at $16 |
-| Asana | 2 users max | $10.99–$24.99/user/mo | Seat buckets — pay for seats you don't have |
-| Monday | 2 seats max | $9–$19/user/mo | 3-seat minimum, scales in 5s |
-| ClickUp | Generous | $7–$12/user/mo | Complexity — everything including the kitchen sink |
+The incumbents charge per user per month, then punish growth:
 
-A 10-person team on the incumbents: **$1,080–$2,999/year.**
-The same team on M4ster Tracker Pro: **$20/year.**
+| | Paid | The catch |
+|---|---|---|
+| **M4ster Tracker** | **$20/year flat** | None — that's the point |
+| Linear | $10–$16/user/mo | AI + analytics locked at $16 |
+| Asana | $10.99–$24.99/user/mo | Seat buckets — pay for seats you don't have |
+| Monday | $9–$19/user/mo | 3-seat minimum, scales in 5s |
+| ClickUp | $7–$12/user/mo | Complexity — everything including the kitchen sink |
 
-## The tiers
+A 10-person team pays them $1,080–$2,999/year. Us: **$20.**
 
-**Free — the trial**
-- 1 board, unlimited issues
-- Board + List views
-- Cloud sync across devices
-- Midnight + Porcelain themes
-- JSON export / import
+## How we get famous
 
-**Pro — $20/year**
-- Everything in Free, plus:
-- Unlimited boards & projects
-- All views: Backlog, Calendar, Timeline, Workload, Sprints, Reports, Archive
-- Automations engine
-- All 6 themes + background aura
-- Theme profiles + custom theme builder
-- CSV export
-- AI features (coming)
+No ads. No sales team. Product-led, bottom-up:
 
-## The demo
+1. Land **1–2 small teams**.
+2. They **love it** (it's fast, beautiful, $20).
+3. They **tell everyone**. That's the whole marketing plan.
 
-The live trial **is** the pitch — no slides, no sales call:
+## The phases
 
-**Try it now:** https://m4ster-tracker-git-experimental-m4ster-verse.vercel.app/
+### Phase 1 — Trial build ✅ DONE
+- Free/Pro split enforced, Go Pro upgrade surface ($20/year pitch)
+- Demo link live (the trial IS the pitch)
+- Instant plan switching, no refresh
 
-- Full product, free. Hit any locked feature and the Go Pro modal shows
-  exactly what $20/year unlocks.
-- "Start free trial" unlocks Pro instantly — feel the whole product
-  before paying anything.
+### Phase 2 — Paywall (next)
+- Stripe checkout: $20/year subscriptions
+- Customer portal (cancel/renew), license states (free / trialing / pro / expired)
+- Timed trial mechanics + graceful downgrade
+- 100% money-back guarantee on the landing page
 
-## The paywall
+### Phase 3 — The Pro mix (best from each rival)
+1. **Triage inbox** — Linear's best idea; keyboard-driven issue intake
+2. **Goals** — Asana's best idea; objectives with progress rollup
+3. **Forms intake** — shareable forms feeding Triage
+4. **Dependencies + critical path** — Timeline goes Pro-grade
+5. **Dashboards** — customizable widgets
+6. **Slack intake + Git auto-close** — dev integrations
+7. **Custom statuses** — ClickUp parity
 
-- Upgrade modal in-app ($20/year pitch, feature comparison).
-- Stripe checkout — $20/year subscriptions, customer portal
-  (cancel/renew), license states (free / trialing / pro / expired)
-  with graceful downgrade.
-- No per-seat math anywhere in the funnel. Ever.
+### Phase 4 — Landing page + launch
+- Pitch page, pricing page, honest comparison table
+- Demo link everywhere; "try it, no card required"
+- Money-back guarantee up front
 
-## Launch checklist
+### Phase 5 — Famous
+- First 2 teams → testimonials, case notes
+- Public changelog, shareable board templates
+- Referral: teams invite teams
 
-- [x] Product: fast board, drag-and-drop, 9 views, sprints, epics, reports
-- [x] Free/Pro split enforced on the trial build
-- [x] Go Pro upgrade surface ($20/year pitch)
-- [x] Trial demo link live
-- [ ] Stripe checkout + customer portal
-- [ ] License states + graceful downgrade
-- [ ] Landing page (pitch, pricing, comparison)
-- [ ] Public launch: show the demo link around
-- [ ] Pro-only AI (drafting, triage, summaries)
+## Rules we never break
 
-## Principles
-
-- The core stays fast. The app must never feel heavy.
-- Pricing stays flat. No seat buckets, no ghost seats, no overage meters.
-- Free stays genuinely useful — the trial sells the product, not a crippleware trap.
+- No per-seat math. No seat buckets. No ghost seats.
+- No enterprise tier, no "contact sales" — ever.
+- The core stays fast. Free stays genuinely useful.
+- The trial sells the product; it is not a crippleware trap.
