@@ -1,253 +1,133 @@
 # m4ster-tracker
 
-> Professional roadmap tracker for product teams — Kanban, sprints, burndown, dark mode.
+> Freemium Jira alternative — project tracker without the per-seat tax. Free forever, Pro at $20/year flat.
 
-![m4ster-tracker banner](https://img.shields.io/badge/m4ster--tracker-v1.0.0-0ea5e9?style=for-the-badge&logo=react&logoColor=white)
+[![Live](https://img.shields.io/badge/Live-m4ster--tracker.vercel.app-0ea5e9?style=for-the-badge)](https://m4ster-tracker.vercel.app)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss&logoColor=white)
 ![Zustand](https://img.shields.io/badge/Zustand-5-FF6B35?logo=zustand&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/Tests-Vitest-6E9F18?logo=vitest&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## 🎯 Overview
 
-**m4ster-tracker** is a production-ready, offline-first roadmap tracker built for product teams and solo developers. It combines a clean Kanban board with sprint planning, burndown analytics, and epic management — all in a fast, accessible, dark-mode-friendly SPA.
+**m4ster-tracker** is a freemium project tracker for solo devs, indie hackers, and small teams (2-10) who are fed up with Jira's per-seat pricing. 
 
-Offline-first with optional cloud sync (Vercel serverless API + Upstash Redis). Deploy anywhere as static files or with the included serverless backend.
+**Pricing:** Free tier for everyone. Pro at **$20/year flat** — no per-seat math, no "contact sales", no enterprise tier. Ever.
+
+**Live:**
+- **Production:** https://m4ster-tracker.vercel.app
+- **Experimental (Pro trial build):** https://m4ster-tracker-git-experimental-m4ster-verse.vercel.app/
+
+Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless on Vercel + Upstash Redis.
 
 ## ✨ Features
 
-| Category             | Features                                                                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| **Kanban Board**     | Drag-and-drop (@dnd-kit), 5 columns (Backlog → To Do → In Progress → Review → Done), priority sorting, paginated columns           |
-| **Issue Management** | Create/edit/delete, types (Epic/Story/Task/Subtask/Bug), priorities, story points, assignees, labels, due dates, epic/sprint linking |
-| **Epics**            | Color-coded, issue grouping, progress tracking                                                                                       |
-| **Sprints**          | Planning → Active → Complete lifecycle, sprint goals, burndown charts, issue assignment                                              |
-| **Reports**          | SVG burndown charts (ideal vs actual), sprint health indicators                                                   |
-| **UX**               | Dark/light theme (system + manual), keyboard navigation, ARIA labels, focus management, responsive grid                              |
-| **Data**             | localStorage persistence, export/import JSON backups, zero-config                                                                    |
-| **DevEx**            | TypeScript strict, Oxlint, Prettier, Vitest, CI/CD, Docker                                                                  |
+### Board
+- Drag-and-drop Kanban (@dnd-kit) — 5 columns (Backlog → To Do → In Progress → Review → Done)
+- Fluid responsive columns (1080p, MacBook, 2K, 4K, 90%/100%/110% zoom)
+- Whole-board vertical scroll (no per-column scroll traps)
+- Most-recently-created/moved card highlighted with red border + glow
+- Cursor-accurate drag (1:1 tracking, no offset jumps)
+
+### Views
+- **Board:** Kanban with drag-drop
+- **List:** Compact table view
+- **Calendar:** Month grid with visible borders (light/dark themes)
+- **Timeline:** Gantt-style
+- **Reports:** Burndown charts, sprint health
+- **Backlog & Sprints:** Planning → Active → Complete lifecycle
+
+### Customization
+- 6 theme swatches (Midnight, Ocean, Ember, Forest, Violet, Porcelain)
+- Custom theme builder (hex/HSL, 23-var palette)
+- Theme profiles (save/load/share)
+- Background aura controls (Aurora, Intensity, Motion, Cursor glow, Tap ripples)
+- MT logo mark (white on blue gradient)
+
+### Pro Features (Trial Build)
+- Plan system (Free vs Pro)
+- Locked Pro tabs, automations, themes, aura, profiles, CSV export
+- Upgrade modal ($20/year pitch)
+- "Free trial" / "PRO" pill in top bar
+
+### Data & Sync
+- Offline-first with localStorage
+- Cloud sync via Vercel serverless API + Upstash Redis
+- Debounced auto-sync + 30s pull
+- Export/Import JSON
+- Per-user boards, Google sign-in
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- Node.js 20+
-- npm / pnpm / yarn
-
-### Local Development
-
 ```bash
-# Clone
 git clone https://github.com/m4sternoob/m4ster-roadmap-tracker.git
 cd m4ster-roadmap-tracker
-
-# Install dependencies
 npm install
-
-# Start dev server (http://localhost:3000)
 npm run dev
 ```
 
-### Available Scripts
+## 📦 Scripts
 
 ```bash
-npm run dev          # Start dev server with HMR
-npm run build        # Production build → ./dist
-npm run preview      # Preview production build locally
-npm run test         # Run unit tests (Vitest)
-npm run test:watch   # Watch mode
-npm run test:coverage # Coverage report
+npm run dev          # Dev server
+npm run build        # Production build
+npm run preview      # Preview build
+npm run test         # Vitest
 npm run lint         # Oxlint
-npm run lint:fix     # Auto-fix lint issues
-npm run format       # Prettier format
-npm run format:check # Check formatting
-npm run typecheck    # TypeScript validation
+npm run typecheck    # TypeScript
 ```
 
-## 🐳 Docker
+## 🏗️ Stack
 
-```bash
-# Build image
-docker build -t m4ster-tracker .
-
-# Run container (port 80)
-docker run -d -p 80:80 --name m4ster-tracker m4ster-tracker
-
-```
-
-
-## ☁️ Deployment
-
-### Vercel (Recommended)
-
-1. Push to GitHub
-2. Import project in Vercel
-3. Auto-detects Vite → deploys on every push
-4. Custom domain in Settings → Domains
-
-### Netlify
-
-```bash
-npm run build
-# Drag ./dist to Netlify Drop or connect repo
-```
-
-### Static Hosting (Anywhere)
-
-```bash
-npm run build
-# Upload ./dist to: GitHub Pages, Cloudflare Pages, AWS S3, Firebase, Surge, etc.
-```
-
-### Docker Hub / Container Registry
-
-```bash
-docker tag m4ster-tracker m4sternoob/m4ster-roadmap-tracker:latest
-docker push m4sternoob/m4ster-roadmap-tracker:latest
-```
-
-## 🏗️ Architecture
-
-```
-src/
-├── components/
-│   ├── modals/          # IssueModal, EpicModal, SprintModal, SettingsModal
-│   ├── providers/       # ThemeProvider
-│   ├── ui/              # Column, IssueCard, Toolbar, SectionHeader, ConfirmDialog
-│   └── views/           # BoardView, BacklogView, SprintsView, ReportsView
-├── store/
-│   └── projectStore.ts  # Zustand store with persistence middleware
-├── types/
-│   └── index.ts         # All TypeScript interfaces & constants
-├── utils/
-│   ├── constants.ts     # Color maps, status styles
-│   └── helpers.ts       # generateIssueKey, formatDate, isOverdue, etc.
-├── styles/
-│   └── index.css        # Tailwind v4 + custom utilities
-├── test/
-│   └── setup.ts         # Vitest globals, mocks
-└── main.tsx             # Entry point
-```
-
-### State Management
-
-- **Zustand** with `persist` middleware → localStorage
-- Single source of truth for Project, Issues, Epics, Sprints, UI state
-- Optimistic updates, auto-save on every mutation
-
-### Data Model
-
-```typescript
-Project {
-  id, key, name, description
-  issues: Issue[]
-  epics: Epic[]
-  sprints: Sprint[]
-  nextIssueNumber
-}
-
-Issue {
-  id, key, title, description
-  type: 'epic'|'story'|'task'|'subtask'|'bug'
-  status: 'backlog'|'todo'|'in-progress'|'review'|'done'
-  priority: 'low'|'medium'|'high'|'critical'
-  storyPoints, assignee, labels[], epicId, parentId, sprintId
-  dueDate, createdAt, updatedAt, completedAt
-}
-
-Epic { id, key, name, description, color, issues[], createdAt }
-Sprint { id, name, goal, startDate, endDate, status, issues[] }
-```
-
-## 🧪 Testing
-
-```bash
-# Run all tests
-npm run test
-
-# Watch mode
-npm run test:watch
-
-# Coverage report (HTML in ./coverage)
-npm run test:coverage
-```
-
-**Test Structure:**
-
-- `src/utils/helpers.test.ts` — Pure function tests (generate keys, formatting, overdue detection)
-- Add component tests in `src/components/**/*.test.tsx`
-- Add integration tests in `src/test/integration/`
-
-## 🔧 Configuration
-
-### Tailwind v4
-
-`tailwind.config.js` — Custom colors, fonts, animations, dark mode
-
-### TypeScript
-
-`tsconfig.json` — Strict mode, path aliases (`@/`, `@components/`, etc.)
-
-### Vite
-
-`vite.config.ts` — Aliases, chunk splitting, dev server config
-
-### CI/CD
-
-`.github/workflows/ci.yml` — Lint → Test → Build → Docker → Deploy
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4
+- **State:** Zustand with persist middleware
+- **Drag-drop:** @dnd-kit
+- **Backend:** Vercel serverless functions (self-contained, zero imports)
+- **DB:** Upstash Redis
+- **Auth:** GitHub OAuth, Google sign-in
 
 ## 🗺️ Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for detailed phases.
+See [LAUNCH.md](LAUNCH.md) for the full launch plan.
 
-| Phase    | Focus                                                | Status     |
-| -------- | ---------------------------------------------------- | ---------- |
-| **v1.0** | Core Kanban, sprints, burndown, themes, persistence  | ✅ Done    |
-| **v1.1** | Search/filter, keyboard shortcuts, PWA               | ✅ Done    |
-| **v1.2** | Backend API, auth, comments                          | 🔄 In progress |
-| **v1.3** | GitHub/GitLab sync, webhooks, Slack/Discord, imports | ⏳ Planned |
-| **v2.0** | Time tracking, AI assist, custom fields, automation  | ⏳ Planned |
+**Phase 1:** Trial build ✅ Done
+**Phase 2:** Paywall (Stripe) — next
+**Phase 3:** Pro feature mix (Triage, Goals, Forms, dependencies, dashboards)
+**Phase 4:** Landing page + launch
+**Phase 5:** Famous (word of mouth from small teams)
+
+**Strategy:** No enterprise. Target solo devs, indie hackers, teams of 2-10. Land 1-2 small teams → they love it → word of mouth → famous.
+
+## 💰 Pricing
+
+| | Free | Pro |
+|---|---|---|
+| Price | $0 | **$20/year flat** |
+| Boards | Unlimited | Unlimited |
+| Views | All | All |
+| Automations | — | ✅ |
+| Custom themes | 6 presets | ✅ Builder + profiles |
+| CSV export | — | ✅ |
+| Aura effects | Basic | ✅ Full |
+
+No per-seat pricing. No "contact sales". No enterprise tier. Ever.
 
 ## 🤝 Contributing
 
-1. Fork the repo
-2. Create feature branch: `git checkout -b feat/amazing-feature`
-3. Commit changes: `git commit -m 'feat: add amazing feature'`
-4. Push: `git push origin feat/amazing-feature`
-5. Open a Pull Request
-
-### Code Style
-
-- TypeScript strict mode
-- Oxlint (run `npm run lint:fix`)
-- Prettier (run `npm run format`)
-- Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`)
+1. Fork → feature branch → PR
+2. Conventional commits (`feat:`, `fix:`, `docs:`, `chore:`)
+3. Human-written messages, no AI slop
+4. Update README in the same pass as code changes
 
 ## 📄 License
 
-MIT License — see [LICENSE](LICENSE) for details.
-
-## 🙏 Acknowledgments
-
-- [@dnd-kit](https://dndkit.com/) — Accessible drag-and-drop
-- [Zustand](https://zustand-demo.pmnd.rs/) — Simple state management
-- [Tailwind CSS](https://tailwindcss.com/) — Utility-first styling
-- [Lucide](https://lucide.dev/) — Beautiful icons
-- [Vite](https://vite.dev/) — Lightning-fast build tool
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/m4sternoob/m4ster-roadmap-tracker/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/m4sternoob/m4ster-roadmap-tracker/discussions)
-- **Security**: See [SECURITY.md](SECURITY.md)
+MIT — see [LICENSE](LICENSE)
 
 ---
 
 <p align="center">
-  Built with ❤️ for product teams everywhere.<br>
-  <a href="https://github.com/m4sternoob/m4ster-roadmap-tracker">⭐ Star this repo</a> if you find it useful!
+  <a href="https://m4ster-tracker.vercel.app">Try it live</a> ·
+  <a href="https://github.com/m4sternoob/m4ster-roadmap-tracker">⭐ Star</a>
 </p>
