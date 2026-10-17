@@ -105,6 +105,18 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
     onClose();
   };
 
+  const createNewIssue = () => {
+    const s = useProjectStore.getState();
+    close();
+    onClose();
+    // Run after the modal closes so focus/blur settles (same as palette actions).
+    setTimeout(() => {
+      s.setNewIssueDefaultStatus('backlog');
+      s.setSelectedIssue(null);
+      s.setShowIssueModal(true);
+    }, 0);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -193,7 +205,13 @@ export function SearchModal({ onSelectIssue, onClose }: SearchModalProps) {
             <div className="p-8 text-center text-slate-400">
               <Search className="mx-auto mb-3 text-slate-600" size={32} />
               <p className="text-lg text-slate-200">No issues found for "{query}"</p>
-              <p className="mt-1 text-sm">Try different keywords or create a new issue</p>
+              <p className="mt-1 text-sm">Try different keywords, or create a new issue</p>
+              <button
+                onClick={createNewIssue}
+                className="mt-4 px-4 py-2 rounded-lg text-sm font-medium bg-[var(--accent)] text-white hover:opacity-85 motion-press"
+              >
+                Create issue
+              </button>
             </div>
           ) : (
             <div className="p-8 text-center text-slate-400">
