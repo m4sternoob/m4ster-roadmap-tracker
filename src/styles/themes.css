@@ -154,7 +154,6 @@ html[data-theme='violet'] {
   --bg-sunken: #17171f;
   --bg-deep: #101016;
   --chrome: #2e2e3d;
-  --separator-glow: 0 0 10px -2px rgba(139, 92, 246, 0.35);
   --text-primary: #f4f2ff;
   --text-secondary: #c4bff0;
   --text-muted: #9a94c7;
@@ -173,13 +172,6 @@ html[data-theme='violet'] {
   --orb-3: #6366f1;
   --orb-opacity: 0.5;
 }
-/* Violet theme: separators and card borders glow purple like the icon packs. */
-html[data-theme='violet'] .divide-y > :not([hidden]) ~ :not([hidden]),
-html[data-theme='violet'] hr {
-  border-color: color-mix(in srgb, var(--accent) 40%, var(--chrome));
-  box-shadow: var(--separator-glow);
-}
-
 
 /* Smooth repaint when the theme changes (colors only — cheap). */
 body {
@@ -425,6 +417,30 @@ html[data-iconpack='glass'] {
   --icon-border: 1px solid color-mix(in srgb, var(--accent-bright) 45%, transparent);
   --icon-backdrop: blur(6px);
 }
+
+html[data-iconpack='hologram'] {
+  --icon-bg: linear-gradient(135deg, #8b5cf6, #ec4899, #06b6d4, #8b5cf6);
+  --icon-bg-size: 300% 300%;
+  --icon-fg: #ffffff;
+  --icon-glow:
+    0 0 12px color-mix(in srgb, #a78bfa 60%, transparent),
+    0 0 28px color-mix(in srgb, #ec4899 30%, transparent);
+  --icon-border: 1px solid rgba(255, 255, 255, 0.25);
+  --icon-backdrop: none;
+}
+
+/* Animated hologram shimmer */
+html[data-iconpack='hologram'] .icon-pack {
+  background-size: 300% 300%;
+  animation: hologram-shift 4s ease infinite;
+}
+
+@keyframes hologram-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 /* Every logo square uses this one class — pack + theme do the rest. */
 .icon-pack {
   background: var(--icon-bg);

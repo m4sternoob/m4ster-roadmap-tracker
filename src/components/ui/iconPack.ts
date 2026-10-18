@@ -4,7 +4,7 @@
  * theme's dark/light mode, `neon` glows in the theme's accent color.
  */
 
-export type IconPackId = 'auto' | 'dark' | 'light' | 'neon' | 'outline' | 'gradient' | 'glass';
+export type IconPackId = 'auto' | 'dark' | 'light' | 'neon' | 'outline' | 'gradient' | 'glass' | 'hologram';
 
 export const ICON_PACKS: { id: IconPackId; name: string; blurb: string }[] = [
   { id: 'auto', name: 'Auto', blurb: 'Dark on dark themes, light on light' },
@@ -14,10 +14,11 @@ export const ICON_PACKS: { id: IconPackId; name: string; blurb: string }[] = [
   { id: 'outline', name: 'Outline', blurb: 'Accent ring, transparent' },
   { id: 'gradient', name: 'Gradient', blurb: 'Theme accent gradient' },
   { id: 'glass', name: 'Glass', blurb: 'Frosted accent glass' },
+  { id: 'hologram', name: 'Hologram', blurb: 'Animated iridescent shimmer' },
 ];
 
 const STORAGE_KEY = 'mt_icon_pack_v1';
-const IDS = new Set<IconPackId>(['auto', 'dark', 'light', 'neon', 'outline', 'gradient', 'glass']);
+const IDS = new Set<IconPackId>(['auto', 'dark', 'light', 'neon', 'outline', 'gradient', 'glass', 'hologram']);
 
 export function loadIconPack(): IconPackId {
   try {
@@ -35,6 +36,8 @@ export function saveIconPack(pack: IconPackId): void {
   } catch {
     // Non-fatal.
   }
+  // Sync to cloud (if logged in) — fire-and-forget.
+  import('@/lib/prefsSync').then(m => m.syncPrefsToCloud({ iconPack: pack })).catch(() => {});
 }
 
 /**
