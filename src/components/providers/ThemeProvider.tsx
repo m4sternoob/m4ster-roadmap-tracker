@@ -3,16 +3,10 @@ import { CUSTOM_VAR_NAMES, generateThemeVars, normalizeHex } from '@/components/
 import { applyIconPack } from '@/components/ui/iconPack';
 
 export const THEMES = [
-  { id: 'midnight', name: 'Midnight', swatch: '#0c66e4' },
-  { id: 'ocean', name: 'Ocean', swatch: '#0ea5e9' },
-  { id: 'ember', name: 'Ember', swatch: '#f97316' },
-  { id: 'forest', name: 'Forest', swatch: '#22c55e' },
   { id: 'violet', name: 'Violet', swatch: '#8b5cf6' },
+  { id: 'ocean', name: 'Ocean', swatch: '#0ea5e9' },
+  { id: 'midnight', name: 'Midnight', swatch: '#0c66e4' },
   { id: 'porcelain', name: 'Porcelain', swatch: '#e2e8f0' },
-  { id: 'crimson', name: 'Crimson', swatch: '#ef4444' },
-  { id: 'gold', name: 'Gold', swatch: '#f59e0b' },
-  { id: 'rose', name: 'Rose', swatch: '#ec4899' },
-  { id: 'mint', name: 'Mint', swatch: '#14b8a6' },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]['id'];
@@ -95,13 +89,13 @@ function readStoredTheme(customs: CustomTheme[]): string {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     // Migrate the old binary theme values.
-    if (stored === 'dark') return 'midnight';
+    if (stored === 'dark') return 'violet';
     if (stored === 'light') return 'porcelain';
     if (stored && (THEME_IDS.has(stored) || customs.some((c) => c.id === stored))) return stored;
   } catch {
     // Private mode / storage blocked — fall through to default.
   }
-  return 'midnight';
+  return 'violet';
 }
 
 /** Apply a variable map as the active custom theme. */
@@ -131,7 +125,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       applyCustomVars(generateThemeVars(custom.accent, custom.bg, custom.dark), custom.dark);
     } else {
       clearCustomVars();
-      root.dataset.theme = THEME_IDS.has(id) ? id : 'midnight';
+      root.dataset.theme = THEME_IDS.has(id) ? id : 'violet';
       root.classList.toggle('dark', id !== 'porcelain');
     }
     try {
@@ -172,7 +166,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const next = customs.filter((c) => c.id !== id);
     setCustoms(next);
     persistCustomThemes(next);
-    if (theme === id) setThemeState('midnight');
+    if (theme === id) setThemeState('violet');
   };
 
   const previewCustomTheme = (accent: string, bg: string, dark: boolean) => {
