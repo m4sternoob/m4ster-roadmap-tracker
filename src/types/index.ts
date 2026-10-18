@@ -10,15 +10,15 @@ export interface IssueComment {
   createdAt: string;
 }
 
-/** File pinned to an issue. Only metadata rides with the issue record —
- *  the raw bytes live in this browser's IndexedDB (see src/lib/attachments.ts). */
 export interface IssueAttachment {
   id: string;
   name: string;
+  /** bytes */
   size: number;
-  type: string;
-  uploadedBy: string;
-  createdAt: string;
+  mime: string;
+  /** public blob URL */
+  url: string;
+  uploadedAt: string;
 }
 
 export type NotificationType = 'mention' | 'assignment' | 'comment' | 'due';

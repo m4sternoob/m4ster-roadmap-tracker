@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { CreateIssueInput, Issue, IssueAttachment, IssueType, Priority, Project, Status } from '@/types';
+import { useEffect, useMemo, useState } from 'react';
+import type { CreateIssueInput, Issue, IssueType, Priority, Project, Status } from '@/types';
 import { PRIORITIES, STATUSES } from '@/types';
-import { ChevronDown, Download, FileIcon, Link2, MessageSquare, Paperclip, Plus, Trash2, X, Archive, ArchiveRestore } from 'lucide-react';
+import { ChevronDown, Link2, MessageSquare, Plus, Trash2, X, Archive, ArchiveRestore } from 'lucide-react';
 import { useProjectStore } from '@/store/projectStore';
 import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { PriorityIcon } from '@/components/issues/PriorityIcon';
@@ -9,15 +9,9 @@ import { Avatar } from '@/components/issues/Avatar';
 import { StatusPill } from '@/components/issues/StatusPill';
 import { ModalShell } from '@/components/ui/ModalShell';
 import { MentionTextarea } from '@/components/ui/MentionTextarea';
+import { AttachmentsField } from '@/components/modals/AttachmentsField';
 import { CURRENT_USER } from '@/components/board/boardFilters';
 import { formatRelativeTime } from '@/utils/helpers';
-import {
-  MAX_ATTACHMENT_BYTES,
-  formatFileSize,
-  getAttachmentBlob,
-  isPreviewableImage,
-  saveAttachmentBlob,
-} from '@/lib/attachments';
 
 const TYPE_ORDER: IssueType[] = ['task', 'story', 'bug', 'epic', 'subtask'];
 const TYPE_LABELS: Record<IssueType, string> = {
@@ -37,82 +31,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div>
       <label className={labelCls}>{label}</label>
       {children}
-    </div>
-  );
-}
-
-/* ------------------------------- attachments -------------------------------- */
-
-function AttachmentRow({ issueId, attachment }: { issueId: string; attachment: IssueAttachment }) {
-  const { deleteAttachment, pushToast } = useProjectStore();
-  const [thumb, setThumb] = useState<string | null>(null);
-
-  // Thumbnails only for images; everything else gets a file icon.
-  useEffect(() => {
-    if (!isPreviewableImage(attachment.type)) return;
-    let url: string | null = null;
-    let cancelled = false;
-    getAttachmentBlob(attachment.id)
-      .then((blob) => {
-        if (cancelled || !blob) return;
-        url = URL.createObjectURL(blob);
-        setThumb(url);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-      if (url) URL.revokeObjectURL(url);
-    };
-  }, [attachment.id, attachment.type]);
-
-  const download = async () => {
-    const blob = await getAttachmentBlob(attachment.id).catch(() => undefined);
-    if (!blob) {
-      pushToast('info', 'This file is not stored on this device');
-      return;
-    }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = attachment.name;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
-
-  return (
-    <div className="flex items-center gap-3 px-2.5 py-2 rounded-md hover:bg-[var(--bg-surface)] group motion-interactive">
-      {thumb ? (
-        <img src={thumb} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
-      ) : (
-        <div className="w-10 h-10 rounded bg-[var(--bg-raised)] flex items-center justify-center shrink-0">
-          <FileIcon size={18} className="text-[var(--text-muted)]" />
-        </div>
-      )}
-      <div className="flex-1 min-w-0">
-        <p className="text-[13px] text-[var(--text-primary)] truncate">{attachment.name}</p>
-        <p className="text-[11.5px] text-[var(--text-faint)]">
-          {formatFileSize(attachment.size)} · {attachment.uploadedBy} ·{' '}
-          {formatRelativeTime(attachment.createdAt)}
-        </p>
-      </div>
-      <button
-        onClick={download}
-        className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-raised)] hover:text-[var(--text-primary)] motion-press"
-        title="Download"
-        aria-label={`Download ${attachment.name}`}
-      >
-        <Download size={14} />
-      </button>
-      <button
-        onClick={() => deleteAttachment(issueId, attachment.id)}
-        className="p-1.5 rounded-md text-[var(--text-faint)] hover:bg-[var(--bg-raised)] hover:text-[var(--danger)] motion-press"
-        title="Delete attachment"
-        aria-label={`Delete ${attachment.name}`}
-      >
-        <Trash2 size={14} />
-      </button>
     </div>
   );
 }
@@ -368,8 +286,8 @@ function DetailView({
   issue: Issue;
   onClose: () => void;
 }) {
-  const { updateIssue, deleteIssue, createIssue, addComment, deleteComment, addAttachment, pushToast,
-    setShowConfirmDialog, addDependency, removeDependency, logTime, deleteTimeEntry, archiveIssue, unarchiveIssue } =
+  const { updateIssue, deleteIssue, createIssue, addComment, deleteComment, setShowConfirmDialog,
+    addDependency, removeDependency, logTime, deleteTimeEntry, archiveIssue, unarchiveIssue } =
     useProjectStore();
 
   // Live issue from the store so edits reflect immediately.
@@ -380,39 +298,6 @@ function DetailView({
   const [commentDraft, setCommentDraft] = useState('');
   const [subtaskDraft, setSubtaskDraft] = useState('');
   const [showSubtaskInput, setShowSubtaskInput] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const attachments = useMemo(() => live.attachments ?? [], [live.attachments]);
-
-  /** Pick files → store bytes in IndexedDB, then record metadata on the issue. */
-  const attachFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    e.target.value = '';
-    if (files.length === 0) return;
-    setUploading(true);
-    for (const file of files) {
-      if (file.size > MAX_ATTACHMENT_BYTES) {
-        pushToast('error', `"${file.name}" is over the ${formatFileSize(MAX_ATTACHMENT_BYTES)} limit`);
-        continue;
-      }
-      const id = crypto.randomUUID();
-      try {
-        await saveAttachmentBlob(id, file);
-        addAttachment(live.id, {
-          id,
-          name: file.name,
-          size: file.size,
-          type: file.type || 'application/octet-stream',
-          uploadedBy: CURRENT_USER,
-          createdAt: new Date().toISOString(),
-        });
-      } catch {
-        pushToast('error', `Couldn't attach "${file.name}"`);
-      }
-    }
-    setUploading(false);
-  };
 
   useEffect(() => {
     setTitle(live.title);
@@ -683,46 +568,7 @@ function DetailView({
             </div>
           </div>
           {/* Attachments */}
-          <div className="mt-6">
-            <div className="flex items-center gap-1.5 mb-2">
-              <Paperclip size={14} className="text-[var(--text-muted)]" />
-              <span className="text-[13px] font-semibold text-[var(--text-primary)]">Attachments</span>
-              {attachments.length > 0 && (
-                <span className="text-[13px] text-[var(--text-faint)] font-normal">
-                  {attachments.length}
-                </span>
-              )}
-              <span className="flex-1" />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="flex items-center gap-1 text-[12.5px] text-[var(--text-muted)] hover:text-[var(--text-primary)] px-2 py-1 rounded hover:bg-[var(--bg-surface)] motion-press disabled:opacity-50"
-              >
-                <Plus size={13} /> Attach
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                className="hidden"
-                onChange={attachFiles}
-                aria-label="Attach files"
-              />
-            </div>
-            {uploading && (
-              <p className="text-[12px] text-[var(--text-faint)] px-1 mb-1">Attaching…</p>
-            )}
-            <div className="space-y-1">
-              {attachments.map((a) => (
-                <AttachmentRow key={a.id} issueId={live.id} attachment={a} />
-              ))}
-              {attachments.length === 0 && !uploading && (
-                <p className="text-[12.5px] text-[var(--text-faint)] px-1">
-                  Screenshots, specs, anything — up to 10 MB each. Files stay on this device.
-                </p>
-              )}
-            </div>
-          </div>
+          <AttachmentsField live={live} />
         </div>
 
         {/* Right rail */}

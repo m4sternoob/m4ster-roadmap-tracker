@@ -35,7 +35,7 @@ one focused improvement per day, every day.
 ## Phase 3 — Feature days
 
 - [x] **Comments on cards** — discuss work right on the issue
-- [x] **File attachments** — pin screenshots and docs to any card (image thumbnails, download, per-file metadata; bytes stored in this browser's IndexedDB, metadata syncs with the workspace — server-side Vercel Blob is the follow-up for cross-device files)
+- [x] **File attachments** — Vercel Blob storage for screenshots and docs
 - [ ] **Due dates + reminders** — date picker, overdue highlighting
 - [ ] **Subtasks / checklists** — break a card into checkable steps
 - [ ] **Board templates** — start from Sprint, Bug triage, or Roadmap presets
