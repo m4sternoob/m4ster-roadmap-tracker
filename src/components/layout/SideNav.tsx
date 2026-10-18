@@ -334,7 +334,7 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
             }`}
             aria-current={activeView === 'board' ? 'page' : undefined}
           >
-            <span className="w-6 h-6 rounded-[5px] bg-gradient-to-br from-[var(--accent-bright)] to-[var(--accent)] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+            <span className="w-6 h-6 rounded-[5px] bg-[var(--accent-deep)] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
               <LogoMark size={14} />
             </span>
             {!collapsed && (
@@ -471,7 +471,7 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
                 onClick={goBoard}
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg motion-interactive text-[var(--text-secondary)] hover:bg-[var(--bg-raised)] hover:text-[var(--text-primary)]"
               >
-                <span className="w-6 h-6 rounded-[5px] bg-gradient-to-br from-[var(--accent-bright)] to-[var(--accent)] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                <span className="w-6 h-6 rounded-[5px] bg-[var(--accent-deep)] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                   <LogoMark size={14} />
                 </span>
                 <span className="flex-1 text-left text-[13px] truncate">{project.name}</span>

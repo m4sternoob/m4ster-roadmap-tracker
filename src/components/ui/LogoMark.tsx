@@ -1,7 +1,7 @@
 /**
- * The M4ster brand mark — white "M4" monogram.
+ * The M4ster brand mark — white "MT" monogram.
  * Rendered without its own background: the parent provides the
- * (theme-aware accent) rounded square behind it.
+ * (theme-aware, deep accent) rounded square behind it.
  */
 export function LogoMark({ size = 16 }: { size?: number }) {
   return (
@@ -22,7 +22,7 @@ export function LogoMark({ size = 16 }: { size?: number }) {
         fontSize={29}
         fill="#ffffff"
       >
-        M4
+        MT
       </text>
     </svg>
   );
