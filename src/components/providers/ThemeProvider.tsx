@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { CUSTOM_VAR_NAMES, generateThemeVars, normalizeHex } from '@/components/ui/colorUtils';
+import { applyIconPack } from '@/components/ui/iconPack';
 
 export const THEMES = [
   { id: 'midnight', name: 'Midnight', swatch: '#0c66e4' },
@@ -138,6 +139,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     applyThemeById(theme, customs);
+    // Re-resolve the icon pack (auto follows the theme's dark/light mode).
+    applyIconPack();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme, customs]);
 

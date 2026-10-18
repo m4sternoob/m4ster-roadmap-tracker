@@ -20,7 +20,7 @@ export function LogoMark({ size = 16 }: { size?: number }) {
         fontFamily="Arial, Helvetica, sans-serif"
         fontWeight={900}
         fontSize={29}
-        fill="#ffffff"
+        fill="currentColor"
       >
         MT
       </text>

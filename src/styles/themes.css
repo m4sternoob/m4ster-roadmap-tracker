@@ -353,3 +353,29 @@ body {
     display: none;
   }
 }
+
+/* ---------- icon packs (logo squares) ---------- */
+/* data-iconpack is set by applyIconPack(); 'auto' resolves to dark/light. */
+html {
+  --icon-bg: #17171f;
+  --icon-fg: #ffffff;
+  --icon-glow: none;
+}
+html[data-iconpack='light'] {
+  --icon-bg: #eef0f6;
+  --icon-fg: #17171f;
+  --icon-glow: none;
+}
+html[data-iconpack='neon'] {
+  --icon-bg: #17171f;
+  --icon-fg: var(--accent-bright);
+  --icon-glow:
+    0 0 8px color-mix(in srgb, var(--accent) 65%, transparent),
+    0 0 22px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+/* Every logo square uses this one class — pack + theme do the rest. */
+.icon-pack {
+  background: var(--icon-bg);
+  color: var(--icon-fg);
+  box-shadow: var(--icon-glow);
+}

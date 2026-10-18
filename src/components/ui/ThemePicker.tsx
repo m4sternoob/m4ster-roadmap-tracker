@@ -11,6 +11,13 @@ import {
   type AuraSettings,
 } from './auraSettings';
 import { normalizeHex } from './colorUtils';
+import {
+  ICON_PACKS,
+  applyIconPack,
+  loadIconPack,
+  saveIconPack,
+  type IconPackId,
+} from './iconPack';
 
 /* ---------- tiny building blocks ---------- */
 
@@ -159,6 +166,14 @@ export function ThemePicker() {
   const [profiles, setProfiles] = useState<ThemeProfile[]>(() => loadProfiles());
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileName, setProfileName] = useState('');
+
+  // Icon pack (logo squares).
+  const [pack, setPack] = useState<IconPackId>(() => loadIconPack());
+  const choosePack = (id: IconPackId) => {
+    setPack(id);
+    saveIconPack(id);
+    applyIconPack(id);
+  };
   const plan = usePlanStore((s) => s.plan);
   const openUpgrade = usePlanStore((s) => s.openUpgrade);
 
@@ -356,6 +371,73 @@ export function ThemePicker() {
                 );
               })}
             </div>
+          </section>
+
+          {/* ---- icon packs ---- */}
+          <section>
+            <SectionLabel>Icon pack</SectionLabel>
+            <div className="grid grid-cols-4 gap-1" role="listbox" aria-label="Icon packs">
+              {ICON_PACKS.map((p) => {
+                const isActive = p.id === pack;
+                const previewStyle: React.CSSProperties =
+                  p.id === 'auto'
+                    ? {
+                        background: 'linear-gradient(135deg, #17171f 50%, #eef0f6 50%)',
+                        color: '#ffffff',
+                      }
+                    : p.id === 'dark'
+                      ? { background: '#17171f', color: '#ffffff' }
+                      : p.id === 'light'
+                        ? { background: '#eef0f6', color: '#17171f' }
+                        : {
+                            background: '#17171f',
+                            color: 'var(--accent-bright)',
+                            boxShadow:
+                              '0 0 8px var(--accent), 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent)',
+                          };
+                return (
+                  <button
+                    key={p.id}
+                    role="option"
+                    aria-selected={isActive}
+                    title={`${p.name} — ${p.blurb}`}
+                    onClick={() => choosePack(p.id)}
+                    className={`relative flex flex-col items-center gap-1.5 rounded-lg px-1 py-2.5 motion-interactive ${
+                      isActive ? 'bg-[var(--accent-soft)]' : 'hover:bg-[var(--bg-raised)]'
+                    }`}
+                  >
+                    <span
+                      className={`w-7 h-7 rounded-[6px] flex items-center justify-center text-[8px] font-black ${
+                        isActive ? 'ring-2 ring-[var(--accent-bright)]' : 'ring-1 ring-[var(--chrome)]'
+                      }`}
+                      style={previewStyle}
+                      aria-hidden="true"
+                    >
+                      MT
+                    </span>
+                    <span
+                      className={`text-[11.5px] leading-none ${
+                        isActive
+                          ? 'text-[var(--text-primary)] font-semibold'
+                          : 'text-[var(--text-secondary)]'
+                      }`}
+                    >
+                      {p.name}
+                    </span>
+                    {isActive && (
+                      <Check
+                        size={13}
+                        className="absolute top-1 right-1 text-[var(--accent-bright)]"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="px-1 pt-1.5 text-[11px] text-[var(--text-faint)] leading-snug">
+              Auto follows the theme — dark icons on dark themes, light on light. Neon
+              glows in the theme's accent color.
+            </p>
           </section>
 
           {/* ---- custom themes ---- */}
