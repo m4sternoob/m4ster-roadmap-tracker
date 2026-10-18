@@ -360,11 +360,15 @@ html {
   --icon-bg: #17171f;
   --icon-fg: #ffffff;
   --icon-glow: none;
+  --icon-border: none;
+  --icon-backdrop: none;
 }
 html[data-iconpack='light'] {
   --icon-bg: #eef0f6;
   --icon-fg: #17171f;
   --icon-glow: none;
+  --icon-border: none;
+  --icon-backdrop: none;
 }
 html[data-iconpack='neon'] {
   --icon-bg: #17171f;
@@ -372,10 +376,144 @@ html[data-iconpack='neon'] {
   --icon-glow:
     0 0 8px color-mix(in srgb, var(--accent) 65%, transparent),
     0 0 22px color-mix(in srgb, var(--accent) 30%, transparent);
+  --icon-border: none;
+  --icon-backdrop: none;
+}
+html[data-iconpack='outline'] {
+  --icon-bg: transparent;
+  --icon-fg: var(--accent-bright);
+  --icon-glow: none;
+  --icon-border: 1.5px solid var(--accent);
+  --icon-backdrop: none;
+}
+html[data-iconpack='gradient'] {
+  --icon-bg: linear-gradient(135deg, var(--accent-bright), var(--accent-deep));
+  --icon-fg: #ffffff;
+  --icon-glow: none;
+  --icon-border: none;
+  --icon-backdrop: none;
+}
+html[data-iconpack='glass'] {
+  --icon-bg: color-mix(in srgb, var(--accent) 22%, transparent);
+  --icon-fg: #ffffff;
+  --icon-glow: none;
+  --icon-border: 1px solid color-mix(in srgb, var(--accent-bright) 45%, transparent);
+  --icon-backdrop: blur(6px);
 }
 /* Every logo square uses this one class — pack + theme do the rest. */
 .icon-pack {
   background: var(--icon-bg);
   color: var(--icon-fg);
   box-shadow: var(--icon-glow);
+  border: var(--icon-border);
+  backdrop-filter: var(--icon-backdrop);
+  -webkit-backdrop-filter: var(--icon-backdrop);
+}
+
+html[data-theme='crimson'] {
+  color-scheme: dark;
+  --bg-app: #1e1214;
+  --bg-surface: #281518;
+  --bg-raised: #331b1f;
+  --bg-sunken: #221114;
+  --bg-deep: #160c0e;
+  --chrome: #4e2b30;
+  --text-primary: #f9ecec;
+  --text-secondary: #e3bcbc;
+  --text-muted: #b98a8a;
+  --text-faint: #7f5a5e;
+  --accent: #ef4444;
+  --accent-bright: #f87171;
+  --accent-deep: #b91c1c;
+  --accent-soft: rgba(239, 68, 68, 0.14);
+  --danger: #f43f5e;
+  --info: #fbbf24;
+
+  --success: #4ade80;
+  --muted-foreground: #b98a8a;
+  --orb-1: #ef4444;
+  --orb-2: #f43f5e;
+  --orb-3: #f97316;
+  --orb-opacity: 0.45;
+}
+
+html[data-theme='gold'] {
+  color-scheme: dark;
+  --bg-app: #1c1610;
+  --bg-surface: #251d13;
+  --bg-raised: #302719;
+  --bg-sunken: #201911;
+  --bg-deep: #14100b;
+  --chrome: #4a3a24;
+  --text-primary: #f7f0e1;
+  --text-secondary: #ddc9a3;
+  --text-muted: #b39a6b;
+  --text-faint: #7d6a48;
+  --accent: #f59e0b;
+  --accent-bright: #fbbf24;
+  --accent-deep: #b45309;
+  --accent-soft: rgba(245, 158, 11, 0.14);
+  --danger: #ef4444;
+  --info: #38bdf8;
+
+  --success: #4ade80;
+  --muted-foreground: #b39a6b;
+  --orb-1: #f59e0b;
+  --orb-2: #f97316;
+  --orb-3: #eab308;
+  --orb-opacity: 0.45;
+}
+
+html[data-theme='rose'] {
+  color-scheme: dark;
+  --bg-app: #1f1218;
+  --bg-surface: #291722;
+  --bg-raised: #341e2c;
+  --bg-sunken: #221118;
+  --bg-deep: #150c11;
+  --chrome: #52303f;
+  --text-primary: #faeaf1;
+  --text-secondary: #e3b9c9;
+  --text-muted: #b9899c;
+  --text-faint: #7f5a6a;
+  --accent: #ec4899;
+  --accent-bright: #f472b6;
+  --accent-deep: #be185d;
+  --accent-soft: rgba(236, 72, 153, 0.14);
+  --danger: #f43f5e;
+  --info: #38bdf8;
+
+  --success: #4ade80;
+  --muted-foreground: #b9899c;
+  --orb-1: #ec4899;
+  --orb-2: #d946ef;
+  --orb-3: #f43f5e;
+  --orb-opacity: 0.45;
+}
+
+html[data-theme='mint'] {
+  color-scheme: light;
+  --bg-app: #edf3f1;
+  --bg-surface: #ffffff;
+  --bg-raised: #f5f9f8;
+  --bg-sunken: #e2ebe8;
+  --bg-deep: #d3e0db;
+  --chrome: #b9c9c4;
+  --text-primary: #14332e;
+  --text-secondary: #3d5a54;
+  --text-muted: #5f7a74;
+  --text-faint: #8ba39d;
+  --accent: #0d9488;
+  --accent-bright: #14b8a6;
+  --accent-deep: #0f766e;
+  --accent-soft: rgba(13, 148, 136, 0.1);
+  --danger: #e5493a;
+  --info: #0ea5e9;
+
+  --success: #1f8455;
+  --muted-foreground: #5f7a74;
+  --orb-1: #99f6e4;
+  --orb-2: #a5f3fc;
+  --orb-3: #fef3c7;
+  --orb-opacity: 0.7;
 }

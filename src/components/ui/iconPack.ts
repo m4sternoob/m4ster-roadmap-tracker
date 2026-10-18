@@ -4,17 +4,20 @@
  * theme's dark/light mode, `neon` glows in the theme's accent color.
  */
 
-export type IconPackId = 'auto' | 'dark' | 'light' | 'neon';
+export type IconPackId = 'auto' | 'dark' | 'light' | 'neon' | 'outline' | 'gradient' | 'glass';
 
 export const ICON_PACKS: { id: IconPackId; name: string; blurb: string }[] = [
   { id: 'auto', name: 'Auto', blurb: 'Dark on dark themes, light on light' },
   { id: 'dark', name: 'Dark', blurb: 'Solid dark squares' },
   { id: 'light', name: 'Light', blurb: 'Solid light squares' },
   { id: 'neon', name: 'Neon', blurb: 'Dark squares, theme-colored glow' },
+  { id: 'outline', name: 'Outline', blurb: 'Accent ring, transparent' },
+  { id: 'gradient', name: 'Gradient', blurb: 'Theme accent gradient' },
+  { id: 'glass', name: 'Glass', blurb: 'Frosted accent glass' },
 ];
 
 const STORAGE_KEY = 'mt_icon_pack_v1';
-const IDS = new Set<IconPackId>(['auto', 'dark', 'light', 'neon']);
+const IDS = new Set<IconPackId>(['auto', 'dark', 'light', 'neon', 'outline', 'gradient', 'glass']);
 
 export function loadIconPack(): IconPackId {
   try {

@@ -389,12 +389,32 @@ export function ThemePicker() {
                       ? { background: '#17171f', color: '#ffffff' }
                       : p.id === 'light'
                         ? { background: '#eef0f6', color: '#17171f' }
-                        : {
-                            background: '#17171f',
-                            color: 'var(--accent-bright)',
-                            boxShadow:
-                              '0 0 8px var(--accent), 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent)',
-                          };
+                        : p.id === 'outline'
+                          ? {
+                              background: 'transparent',
+                              color: 'var(--accent-bright)',
+                              border: '1.5px solid var(--accent)',
+                            }
+                          : p.id === 'gradient'
+                            ? {
+                                background:
+                                  'linear-gradient(135deg, var(--accent-bright), var(--accent-deep))',
+                                color: '#ffffff',
+                              }
+                            : p.id === 'glass'
+                              ? {
+                                  background:
+                                    'color-mix(in srgb, var(--accent) 22%, transparent)',
+                                  color: '#ffffff',
+                                  border:
+                                    '1px solid color-mix(in srgb, var(--accent-bright) 45%, transparent)',
+                                }
+                              : {
+                                  background: '#17171f',
+                                  color: 'var(--accent-bright)',
+                                  boxShadow:
+                                    '0 0 8px var(--accent), 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent)',
+                                };
                 return (
                   <button
                     key={p.id}
