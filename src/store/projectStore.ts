@@ -15,6 +15,7 @@ import type {
   AppNotification,
   AutomationRule,
   AutomationTrigger,
+  IssueAttachment,
 } from '@/types';
 import { STATUSES } from '@/types';
 import { generateIssueKey, generateEpicKey } from '@/utils/helpers';
@@ -137,6 +138,8 @@ interface ProjectState {
   // Issue actions
   createIssue: (input: CreateIssueInput) => Issue;
   updateIssue: (issueId: string, input: UpdateIssueInput, silent?: boolean) => void;
+  addAttachment: (issueId: string, input: Omit<IssueAttachment, 'id' | 'uploadedAt'>) => void;
+  removeAttachment: (issueId: string, attachmentId: string) => void;
   deleteIssue: (issueId: string) => void;
   archiveIssue: (issueId: string) => void;
   unarchiveIssue: (issueId: string) => void;
@@ -679,6 +682,7 @@ export const useProjectStore = create<ProjectState>()(
           parentId: input.parentId,
           sprintId: input.sprintId,
           comments: [],
+          attachments: [],
           createdAt: now,
           updatedAt: now,
           dueDate: input.dueDate,
@@ -756,6 +760,57 @@ export const useProjectStore = create<ProjectState>()(
             });
           }
         }
+      },
+
+      addAttachment: (issueId: string, input: Omit<IssueAttachment, 'id' | 'uploadedAt'>) => {
+        const now = new Date().toISOString();
+        const prev = get().project?.issues.find((i) => i.id === issueId);
+        if (!prev) return;
+        get().pushUndo(`Add attachment to ${prev.key}`);
+        const attachment: IssueAttachment = { ...input, id: crypto.randomUUID(), uploadedAt: now };
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((issue) =>
+                  issue.id === issueId
+                    ? {
+                        ...issue,
+                        attachments: [...(issue.attachments ?? []), attachment],
+                        updatedAt: now,
+                      }
+                    : issue
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+      },
+
+      removeAttachment: (issueId: string, attachmentId: string) => {
+        const now = new Date().toISOString();
+        const prev = get().project?.issues.find((i) => i.id === issueId);
+        if (!prev) return;
+        get().pushUndo(`Remove attachment from ${prev.key}`);
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((issue) =>
+                  issue.id === issueId
+                    ? {
+                        ...issue,
+                        attachments: (issue.attachments ?? []).filter((a) => a.id !== attachmentId),
+                        updatedAt: now,
+                      }
+                    : issue
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
       },
 
       addComment: (issueId: string, author: string, text: string) => {

@@ -265,6 +265,7 @@ export function createSampleProject(): Project {
         text: c.text,
         createdAt: iso(c.daysAgo),
       })),
+      attachments: [],
       createdAt: iso(6 + s.n),
       updatedAt: iso(Math.max(0, 2 - (s.n % 3))),
       dueDate:
