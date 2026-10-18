@@ -1,11 +1,12 @@
 /**
- * The M4ster brand mark — neon "MT" monogram with black outline.
- * White MT with black outline for max contrast/readability.
- * Thick rounded flowing strokes: M's right peak flows into T's crossbar.
+ * The M4ster brand mark — neon glowing "MT" monogram.
+ * Light lavender (#e9d5ff) with SVG neon glow filter, thick rounded
+ * flowing strokes. Matches the purple neon app-icon aesthetic.
  * Rendered without its own background: the parent provides the
  * (theme-aware accent) rounded square behind it.
  */
 export function LogoMark({ size = 16 }: { size?: number }) {
+  const gid = `neon-${size}`;
   return (
     <svg
       width={size}
@@ -15,21 +16,23 @@ export function LogoMark({ size = 16 }: { size?: number }) {
       aria-hidden="true"
       focusable="false"
     >
-      {/* Black outline (behind) */}
+      <defs>
+        <filter id={gid} x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="1.8" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
       <path
         d="M12 48 V16 L26 34 L40 16 H56 M48 16 V48"
-        stroke="#000000"
-        strokeWidth={13}
+        stroke="#e9d5ff"
+        strokeWidth={8}
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-      {/* White MT (front) */}
-      <path
-        d="M12 48 V16 L26 34 L40 16 H56 M48 16 V48"
-        stroke="#ffffff"
-        strokeWidth={9}
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        filter={`url(#${gid})`}
       />
     </svg>
   );
