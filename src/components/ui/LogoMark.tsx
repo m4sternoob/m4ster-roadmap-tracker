@@ -1,7 +1,7 @@
 /**
- * The M4ster brand mark — neon glowing "MT" monogram.
+ * The M4ster brand mark — neon glowing "MT" monogram, 80% icon coverage.
  * Light lavender (#e9d5ff) with SVG neon glow filter, thick rounded
- * flowing strokes. Matches the purple neon app-icon aesthetic.
+ * flowing strokes. MT spans 80% of the icon (not small).
  * Rendered without its own background: the parent provides the
  * (theme-aware accent) rounded square behind it.
  */
@@ -27,7 +27,7 @@ export function LogoMark({ size = 16 }: { size?: number }) {
         </filter>
       </defs>
       <path
-        d="M12 48 V16 L26 34 L40 16 H56 M48 16 V48"
+        d="M9 50 V14 L25 34 L41 14 H60 M51 14 V50"
         stroke="#e9d5ff"
         strokeWidth={8}
         strokeLinecap="round"

@@ -1,11 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
     <linearGradient id="mtg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1a1a2e"/>
-      <stop offset="1" stop-color="#0f0f1a"/>
+      <stop offset="0" stop-color="#0a0a14"/>
+      <stop offset="1" stop-color="#050508"/>
     </linearGradient>
+    <filter id="neon" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
   <rect width="64" height="64" rx="14" fill="url(#mtg)"/>
-  <path d="M12 48 V16 L26 34 L40 16 H56 M48 16 V48" stroke="#000000" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M12 48 V16 L26 34 L40 16 H56 M48 16 V48" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M9 50 V14 L25 34 L41 14 H60 M51 14 V50" stroke="#c4b5fd" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#neon)"/>
 </svg>
