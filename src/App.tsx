@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useProjectStore } from '@/store/projectStore';
+import { usePlanStore } from '@/store/planStore';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { AuthProvider } from '@/sync/auth';
 import { TopBar } from '@/components/layout/TopBar';
@@ -20,6 +21,7 @@ import { SprintModal } from '@/components/modals/SprintModal';
 import { SettingsModal } from '@/components/modals/SettingsModal';
 import { ShortcutsModal } from '@/components/modals/ShortcutsModal';
 import { AutomationsModal } from '@/components/modals/AutomationsModal';
+import { UpgradeModal } from '@/components/modals/UpgradeModal';
 import { WelcomeModal } from '@/components/modals/WelcomeModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SearchModal } from '@/components/ui/SearchModal/SearchModal';
@@ -229,6 +231,8 @@ function App() {
             <AutomationsModal onClose={() => setShowAutomationsModal(false)} />
           )}
 
+          <PlanUpgradeMount />
+
           {showConfirmDialog && (
             <ConfirmDialog
               title={showConfirmDialog.title}
@@ -255,3 +259,10 @@ function App() {
 }
 
 export default App;
+
+/** Renders the Pro upgrade modal whenever a locked feature is hit. */
+function PlanUpgradeMount() {
+  const upgradeOpen = usePlanStore((s) => s.upgradeOpen);
+  if (!upgradeOpen) return null;
+  return <UpgradeModal />;
+}

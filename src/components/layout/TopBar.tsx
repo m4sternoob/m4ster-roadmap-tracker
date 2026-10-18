@@ -3,6 +3,7 @@ import {
   CircleHelp,
   Cloud,
   CloudOff,
+  Crown,
   Loader2,
   LogOut,
   PanelLeft,
@@ -12,6 +13,8 @@ import {
   Settings,
 } from 'lucide-react';
 import { useProjectStore } from '@/store/projectStore';
+import { usePlanStore } from '@/store/planStore';
+import { PLAN_ENFORCEMENT } from '@/lib/plan';
 import { Avatar } from '@/components/issues/Avatar';
 import { LogoMark } from '@/components/ui/LogoMark';
 import { ThemePicker } from '@/components/ui/ThemePicker';
@@ -160,6 +163,8 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
     s.setSelectedIssue(null);
     s.setShowIssueModal(true);
   };
+  const plan = usePlanStore((s) => s.plan);
+  const openUpgrade = usePlanStore((s) => s.openUpgrade);
 
   return (
     <header className="h-12 shrink-0 flex items-center gap-1.5 px-3 bg-[var(--bg-app)] border-b border-[var(--bg-raised)] relative z-40">
@@ -179,7 +184,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         aria-label="Go to board"
         title="Go to board"
       >
-        <span className="brand-alive w-7 h-7 rounded-[6px] bg-[#17171f] flex items-center justify-center shadow-sm">
+        <span className="brand-alive icon-pack w-7 h-7 rounded-[6px] bg-[#17171f] flex items-center justify-center shadow-sm">
           <LogoMark size={17} />
         </span>
         <span className="text-[14px] font-semibold text-[var(--text-primary)] tracking-tight hidden sm:inline">
@@ -203,6 +208,20 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
       {/* Right actions */}
       <div className="flex items-center gap-1">
         <SyncStatus />
+        {PLAN_ENFORCEMENT && (
+          <button
+            onClick={() => openUpgrade()}
+            title={plan === 'pro' ? 'M4ster Pro — manage plan' : 'Free trial — upgrade to Pro'}
+            className={`h-7 px-2.5 rounded-full text-[12px] font-semibold flex items-center gap-1 motion-interactive ${
+              plan === 'pro'
+                ? 'bg-[var(--accent)]/15 text-[var(--accent-bright)]'
+                : 'border border-[var(--chrome)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+            }`}
+          >
+            {plan === 'pro' && <Crown size={12} />}
+            {plan === 'pro' ? 'PRO' : 'Free trial'}
+          </button>
+        )}
         <button
           onClick={openCreate}
           className="h-8 px-3.5 rounded-full bg-[var(--accent)] text-white text-[13px] font-medium flex items-center gap-1.5 btn-artcraft shadow-sm"
