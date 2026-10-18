@@ -172,15 +172,20 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         <PanelLeft size={18} />
       </button>
 
-      {/* Brand */}
-      <div className="flex items-center gap-2 pr-2 select-none">
+      {/* Brand — clicking the logo goes home (board) */}
+      <button
+        onClick={() => useProjectStore.getState().setActiveView('board')}
+        className="flex items-center gap-2 pr-2 select-none cursor-pointer"
+        aria-label="Go to board"
+        title="Go to board"
+      >
         <span className="brand-alive w-7 h-7 rounded-[6px] bg-[var(--accent)] flex items-center justify-center shadow-sm">
           <LogoMark size={17} />
         </span>
         <span className="text-[14px] font-semibold text-[var(--text-primary)] tracking-tight hidden sm:inline">
           M4ster Tracker
         </span>
-      </div>
+      </button>
 
       {/* Global search */}
       <button
