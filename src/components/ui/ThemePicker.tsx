@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { BookmarkPlus, Check, Palette, Plus, RotateCcw, Trash2, X } from 'lucide-react';
+import { BookmarkPlus, Check, Lock, Palette, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { usePlanStore } from '@/store/planStore';
+import { canUse, isFreeTheme } from '@/lib/plan';
+import { ProGate } from './ProGate';
 import {
   AURA_DEFAULTS,
   loadAuraSettings,
@@ -8,6 +11,13 @@ import {
   type AuraSettings,
 } from './auraSettings';
 import { normalizeHex } from './colorUtils';
+import {
+  ICON_PACKS,
+  applyIconPack,
+  loadIconPack,
+  saveIconPack,
+  type IconPackId,
+} from './iconPack';
 
 /* ---------- tiny building blocks ---------- */
 
@@ -157,6 +167,16 @@ export function ThemePicker() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileName, setProfileName] = useState('');
 
+  // Icon pack (logo squares).
+  const [pack, setPack] = useState<IconPackId>(() => loadIconPack());
+  const choosePack = (id: IconPackId) => {
+    setPack(id);
+    saveIconPack(id);
+    applyIconPack(id);
+  };
+  const plan = usePlanStore((s) => s.plan);
+  const openUpgrade = usePlanStore((s) => s.openUpgrade);
+
   const closePanel = () => {
     if (previewing) {
       cancelPreview();
@@ -300,13 +320,21 @@ export function ThemePicker() {
             <div className="grid grid-cols-3 gap-1" role="listbox" aria-label="Color themes">
               {builtIns.map((t) => {
                 const isActive = t.id === theme;
+                // Pro unlocks every theme; Free gets only the free-tier list.
+                const locked = !canUse(plan, 'theme:extra') && !isFreeTheme(t.id);
                 return (
                   <button
                     key={t.id}
                     role="option"
                     aria-selected={isActive}
-                    title={t.name}
-                    onClick={() => setTheme(t.id)}
+                    title={locked ? `${t.name} — Pro theme` : t.name}
+                    onClick={() => {
+                      if (locked) {
+                        openUpgrade('theme:extra');
+                        return;
+                      }
+                      setTheme(t.id);
+                    }}
                     className={`relative flex flex-col items-center gap-1.5 rounded-lg px-1 py-2.5 motion-interactive ${
                       isActive ? 'bg-[var(--accent-soft)]' : 'hover:bg-[var(--bg-raised)]'
                     }`}
@@ -333,14 +361,108 @@ export function ThemePicker() {
                         className="absolute top-1 right-1 text-[var(--accent-bright)]"
                       />
                     )}
+                    {locked && !isActive && (
+                      <Lock
+                        size={11}
+                        className="absolute top-1 right-1 text-[var(--text-faint)]"
+                      />
+                    )}
                   </button>
                 );
               })}
             </div>
           </section>
 
+          {/* ---- icon packs ---- */}
+          <section>
+            <SectionLabel>Icon pack</SectionLabel>
+            <div className="grid grid-cols-4 gap-1" role="listbox" aria-label="Icon packs">
+              {ICON_PACKS.map((p) => {
+                const isActive = p.id === pack;
+                const previewStyle: React.CSSProperties =
+                  p.id === 'auto'
+                    ? {
+                        background: 'linear-gradient(135deg, #17171f 50%, #eef0f6 50%)',
+                        color: '#ffffff',
+                      }
+                    : p.id === 'dark'
+                      ? { background: '#17171f', color: '#ffffff' }
+                      : p.id === 'light'
+                        ? { background: '#eef0f6', color: '#17171f' }
+                        : p.id === 'outline'
+                          ? {
+                              background: 'transparent',
+                              color: 'var(--accent-bright)',
+                              border: '1.5px solid var(--accent)',
+                            }
+                          : p.id === 'gradient'
+                            ? {
+                                background:
+                                  'linear-gradient(135deg, var(--accent-bright), var(--accent-deep))',
+                                color: '#ffffff',
+                              }
+                            : p.id === 'glass'
+                              ? {
+                                  background:
+                                    'color-mix(in srgb, var(--accent) 22%, transparent)',
+                                  color: '#ffffff',
+                                  border:
+                                    '1px solid color-mix(in srgb, var(--accent-bright) 45%, transparent)',
+                                }
+                              : {
+                                  background: '#17171f',
+                                  color: 'var(--accent-bright)',
+                                  boxShadow:
+                                    '0 0 8px var(--accent), 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent)',
+                                };
+                return (
+                  <button
+                    key={p.id}
+                    role="option"
+                    aria-selected={isActive}
+                    title={`${p.name} — ${p.blurb}`}
+                    onClick={() => choosePack(p.id)}
+                    className={`relative flex flex-col items-center gap-1.5 rounded-lg px-1 py-2.5 motion-interactive ${
+                      isActive ? 'bg-[var(--accent-soft)]' : 'hover:bg-[var(--bg-raised)]'
+                    }`}
+                  >
+                    <span
+                      className={`w-7 h-7 rounded-[6px] flex items-center justify-center text-[8px] font-black ${
+                        isActive ? 'ring-2 ring-[var(--accent-bright)]' : 'ring-1 ring-[var(--chrome)]'
+                      }`}
+                      style={previewStyle}
+                      aria-hidden="true"
+                    >
+                      MT
+                    </span>
+                    <span
+                      className={`text-[11.5px] leading-none ${
+                        isActive
+                          ? 'text-[var(--text-primary)] font-semibold'
+                          : 'text-[var(--text-secondary)]'
+                      }`}
+                    >
+                      {p.name}
+                    </span>
+                    {isActive && (
+                      <Check
+                        size={13}
+                        className="absolute top-1 right-1 text-[var(--accent-bright)]"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="px-1 pt-1.5 text-[11px] text-[var(--text-faint)] leading-snug">
+              Auto follows the theme — dark icons on dark themes, light on light. Neon
+              glows in the theme's accent color.
+            </p>
+          </section>
+
           {/* ---- custom themes ---- */}
           <section>
+            <ProGate feature="theme:custom" title="Custom themes" blurb="Design your own colors, live preview">
             <SectionLabel>Custom themes</SectionLabel>
             {customThemes.length > 0 && (
               <ul className="space-y-1 mb-2">
@@ -480,12 +602,14 @@ export function ThemePicker() {
                 <Plus size={14} /> New custom theme
               </button>
             )}
+            </ProGate>
           </section>
 
           <div className="h-px bg-[var(--chrome)]" aria-hidden="true" />
 
           {/* ---- theme profiles ---- */}
           <section>
+            <ProGate feature="theme:profiles" title="Theme profiles" blurb="Save named theme + aura setups">
             <SectionLabel>Profiles</SectionLabel>
             {profiles.length > 0 && (
               <ul className="space-y-1 mb-2">
@@ -553,12 +677,14 @@ export function ThemePicker() {
             <p className="px-1 pt-1.5 text-[11px] text-[var(--text-faint)] leading-snug">
               A profile captures your theme + aura setup in one tap.
             </p>
+            </ProGate>
           </section>
 
           <div className="h-px bg-[var(--chrome)]" aria-hidden="true" />
 
           {/* ---- background aura ---- */}
           <section className="space-y-3">
+            <ProGate feature="theme:aura" title="Background aura" blurb="Ambient glow behind your board">
             <div className="flex items-center justify-between px-1">
               <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
                 Background aura
@@ -624,6 +750,7 @@ export function ThemePicker() {
               <RotateCcw size={12} />
               Reset aura to defaults
             </button>
+            </ProGate>
           </section>
         </div>
       )}
