@@ -135,13 +135,31 @@ export default async function handler(req: any, res: any) {
       await kv.set(`google:${profile.sub}`, uid);
     }
 
-    // Session cookie, then home.
+    // Session cookie, then home (or deep link for desktop).
     const sessionToken = crypto.randomUUID();
     await kv.set(
       `sess:${sessionToken}`,
       { uid, createdAt: Date.now() },
       { ex: SESSION_TTL_SECONDS }
     );
+
+    // Desktop app (Tauri): use one-time code via deep link, not raw token.
+    const isDesktop = getCookie(req, 'mt_oauth_desktop') === '1';
+    if (isDesktop) {
+      const otc = crypto.randomUUID();
+      await kv.set(
+        `desktop_otc:${otc}`,
+        { uid, sessionToken, createdAt: Date.now() },
+        { ex: 300 } // 5 minutes
+      );
+      res.setHeader('Set-Cookie', [
+        `mt_oauth_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure}`,
+        `mt_oauth_desktop=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure}`,
+      ]);
+      res.writeHead(302, { Location: `m4ster-tracker://auth/callback?code=${otc}&state=${state}` });
+      return res.end();
+    }
+
     res.setHeader('Set-Cookie', [
       `mt_oauth_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure}`,
       `mt_session=${sessionToken}; HttpOnly; Path=/; Max-Age=${SESSION_TTL_SECONDS}; SameSite=Lax${secure}`,

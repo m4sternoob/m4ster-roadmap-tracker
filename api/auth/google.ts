@@ -18,12 +18,19 @@ export default async function handler(req: any, res: any) {
     return res.end();
   }
   const host = req.headers?.host || 'm4ster-tracker.vercel.app';
-  const redirectUri = `https://${host}/api/auth/google/callback`;
+  // Desktop app (Tauri) uses deep link callback instead of web callback
+  const isDesktop = req.query?.desktop === '1';
+  const redirectUri = isDesktop
+    ? 'm4ster-tracker://auth/callback'
+    : `https://${host}/api/auth/google/callback`;
   const state = crypto.randomUUID();
   const secure = process.env.VERCEL_ENV === 'production' ? '; Secure' : '';
   res.setHeader(
     'Set-Cookie',
-    `mt_oauth_state=${state}; HttpOnly; Path=/; Max-Age=600; SameSite=Lax${secure}`
+    [
+      `mt_oauth_state=${state}; HttpOnly; Path=/; Max-Age=600; SameSite=Lax${secure}`,
+      `mt_oauth_desktop=${isDesktop ? '1' : '0'}; HttpOnly; Path=/; Max-Age=600; SameSite=Lax${secure}`,
+    ]
   );
 
   const params = new URLSearchParams({
