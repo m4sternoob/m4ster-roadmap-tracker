@@ -66,6 +66,8 @@ export function ProjectHeader({ project }: { project: Project }) {
         <div className="hidden sm:flex items-center gap-0.5">
           <button
             onClick={exportProject}
+            data-cursor="download"
+            data-magnet
             className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
             aria-label="Export board as JSON"
             title="Export board as JSON"

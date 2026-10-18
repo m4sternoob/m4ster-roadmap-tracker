@@ -26,6 +26,7 @@ import { SearchModal } from '@/components/ui/SearchModal/SearchModal';
 import { Toasts } from '@/components/ui/Toasts';
 import { AppSkeleton } from '@/components/ui/Skeletons';
 import { LiveBackground } from '@/components/ui/LiveBackground';
+import { CursorOrb } from '@/components/ui/CursorOrb';
 import { useSearch, useKeyboardShortcuts } from '@/hooks/useSearch';
 import type { Issue } from '@/types';
 
@@ -145,6 +146,7 @@ function App() {
       <AuthProvider>
         <div className="relative h-screen flex flex-col bg-[var(--bg-app)] text-[var(--text-primary)] font-sans overflow-hidden">
           <LiveBackground />
+          <CursorOrb />
           <div className="relative z-10 flex flex-col h-full min-h-0">
             {/* Skip link: first tab stop, visible only on keyboard focus. */}
             <a href="#board-content" className="skip-link">

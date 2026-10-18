@@ -78,7 +78,12 @@ export function SettingsModal({ project, onClose }: SettingsModalProps) {
           <p className="mb-3 text-sm text-slate-400">
             Download a JSON backup of your entire project (issues, epics, sprints).
           </p>
-          <button onClick={handleExport} className={`${modalPrimaryBtn} w-full justify-center`}>
+          <button
+            onClick={handleExport}
+            data-cursor="download"
+            data-magnet
+            className={`${modalPrimaryBtn} w-full justify-center`}
+          >
             <Download size={16} /> Export to JSON
           </button>
         </section>

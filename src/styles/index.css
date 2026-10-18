@@ -172,3 +172,146 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============================================================
+   m4ster signature cursor + live interactivity
+   (driven by <CursorOrb /> — desktop fine-pointer only)
+   ============================================================ */
+
+/* Hide the native cursor when the orb is active; touch keeps native. */
+@media (hover: hover) and (pointer: fine) {
+  body.custom-cursor,
+  body.custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+/* The trailing aura orb — violet glow, screen blend. Position + scale are
+   driven every frame by CursorOrb; only opacity transitions here. */
+.cursor-orb {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 46px;
+  height: 46px;
+  z-index: 9999;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0;
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent, #8b5cf6) 38%, transparent) 0%,
+    color-mix(in srgb, var(--accent, #8b5cf6) 16%, transparent) 42%,
+    transparent 68%
+  );
+  transition: opacity 200ms ease-out, background 250ms ease-out;
+  will-change: transform;
+}
+
+/* Signature DOWNLOAD state — bigger, brighter: the m4ster fingerprint.
+   Reserved for download buttons only. */
+.cursor-orb.is-download {
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent, #8b5cf6) 65%, transparent) 0%,
+    color-mix(in srgb, var(--accent, #8b5cf6) 30%, transparent) 45%,
+    transparent 70%
+  );
+}
+
+/* The fast core dot. */
+.cursor-orb-dot {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 7px;
+  height: 7px;
+  z-index: 10000;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0;
+  background: color-mix(in srgb, var(--accent-bright, #a78bfa) 90%, white);
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--accent, #8b5cf6) 80%, transparent);
+  transition: opacity 200ms ease-out, background 200ms ease-out, box-shadow 200ms ease-out;
+  will-change: transform;
+}
+
+/* White-hot core on the sacred download moment. */
+.cursor-orb-dot.is-download {
+  background: #ffffff;
+  box-shadow:
+    0 0 12px 3px rgba(255, 255, 255, 0.85),
+    0 0 32px 8px color-mix(in srgb, var(--accent, #8b5cf6) 90%, transparent);
+}
+
+/* Pulsing ring — radiates only on download buttons. */
+.cursor-orb-ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 76px;
+  height: 76px;
+  z-index: 9998;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0;
+  border: 2px solid color-mix(in srgb, var(--accent, #8b5cf6) 70%, transparent);
+  transition: opacity 250ms ease-out;
+  will-change: transform;
+}
+
+.cursor-orb-ring.is-download {
+  animation: cursor-ring-pulse 1.1s ease-out infinite;
+}
+
+@keyframes cursor-ring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent, #8b5cf6) 55%, transparent);
+    filter: brightness(1);
+  }
+  70% {
+    box-shadow: 0 0 0 14px transparent;
+    filter: brightness(1.5);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    filter: brightness(1);
+  }
+}
+
+/* Magnetic elements ease back when the JS releases them. */
+[data-magnet] {
+  will-change: transform;
+}
+
+/* Everything the cursor touches answers back: a soft accent lift on
+   interactive hover. Composes with existing hover styles (no transform,
+   so layout-affecting hovers like card lift keep working). */
+@media (hover: hover) and (pointer: fine) {
+  body.cursor-alive button:not(:disabled):hover,
+  body.cursor-alive [role='button']:hover,
+  body.cursor-alive a:hover {
+    filter: brightness(1.16);
+  }
+  body.cursor-alive .glow-hover:hover {
+    border-color: color-mix(in srgb, var(--accent, #8b5cf6) 55%, transparent);
+    box-shadow:
+      0 8px 24px -8px color-mix(in srgb, var(--accent, #8b5cf6) 45%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--accent, #8b5cf6) 25%, transparent);
+  }
+}
+
+/* Logo stays alive: hovering it quickens the breathing pulse. */
+.brand-alive:hover {
+  animation-duration: 1.1s;
+}
+
+/* Never show the orb layer under reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-orb,
+  .cursor-orb-dot,
+  .cursor-orb-ring {
+    display: none !important;
+  }
+}
