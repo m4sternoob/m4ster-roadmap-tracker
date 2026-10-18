@@ -315,19 +315,64 @@ body {
    The logo feels alive like the aura background, not static. */
 @keyframes brand-alive {
   0%, 100% {
-    box-shadow: 0 0 12px -2px color-mix(in srgb, var(--accent) 60%, transparent),
-                0 0 0 0 color-mix(in srgb, var(--accent) 35%, transparent);
-    transform: scale(1);
+    box-shadow: 0 0 16px -2px color-mix(in srgb, var(--accent) 80%, transparent),
+                0 0 32px -4px color-mix(in srgb, var(--accent) 40%, transparent),
+                0 0 0 0 color-mix(in srgb, var(--accent) 50%, transparent);
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  25% {
+    box-shadow: 0 0 24px 0 color-mix(in srgb, var(--accent) 90%, transparent),
+                0 0 48px -2px color-mix(in srgb, var(--accent) 55%, transparent),
+                0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+    transform: scale(1.06) rotate(1deg);
+    filter: brightness(1.15);
   }
   50% {
-    box-shadow: 0 0 20px 0 color-mix(in srgb, var(--accent) 75%, transparent),
-                0 0 0 5px transparent;
-    transform: scale(1.04);
+    box-shadow: 0 0 28px 2px color-mix(in srgb, var(--accent) 100%, transparent),
+                0 0 56px 0 color-mix(in srgb, var(--accent) 65%, transparent),
+                0 0 0 6px transparent;
+    transform: scale(1.08) rotate(0deg);
+    filter: brightness(1.25);
+  }
+  75% {
+    box-shadow: 0 0 24px 0 color-mix(in srgb, var(--accent) 90%, transparent),
+                0 0 48px -2px color-mix(in srgb, var(--accent) 55%, transparent),
+                0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+    transform: scale(1.06) rotate(-1deg);
+    filter: brightness(1.15);
   }
 }
 
 .brand-alive {
-  animation: brand-alive 2.4s ease-in-out infinite;
+  position: relative;
+  animation: brand-alive 2s ease-in-out infinite;
+}
+
+/* Rotating aura ring behind the logo */
+.brand-alive::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 10px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    color-mix(in srgb, var(--accent) 60%, transparent) 60deg,
+    transparent 120deg,
+    transparent 180deg,
+    color-mix(in srgb, var(--accent) 60%, transparent) 240deg,
+    transparent 300deg,
+    transparent 360deg
+  );
+  animation: aura-spin 4s linear infinite;
+  z-index: -1;
+  filter: blur(6px);
+}
+
+@keyframes aura-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Shimmer sweep for progress bars / loading accents. */
