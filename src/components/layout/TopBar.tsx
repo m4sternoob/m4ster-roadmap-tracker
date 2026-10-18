@@ -179,7 +179,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         aria-label="Go to board"
         title="Go to board"
       >
-        <span className="brand-alive w-7 h-7 rounded-[6px] bg-[var(--accent)] flex items-center justify-center shadow-sm">
+        <span className="brand-alive w-7 h-7 rounded-[6px] bg-[#17171f] flex items-center justify-center shadow-sm">
           <LogoMark size={17} />
         </span>
         <span className="text-[14px] font-semibold text-[var(--text-primary)] tracking-tight hidden sm:inline">

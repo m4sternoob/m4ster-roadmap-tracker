@@ -38,7 +38,7 @@ export function ProjectHeader({ project }: { project: Project }) {
       <div className="text-[12px] text-[var(--text-muted)] select-none">Spaces</div>
 
       <div className="flex items-center gap-3 mt-1">
-        <span className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--accent-bright)] to-[var(--accent)] text-white text-[13px] font-bold flex items-center justify-center shadow-sm shrink-0">
+        <span className="w-9 h-9 rounded-lg bg-[#17171f] text-white text-[13px] font-bold flex items-center justify-center shadow-sm shrink-0">
           <LogoMark size={20} />
         </span>
         <h1 className="text-[19px] font-semibold text-[var(--text-primary)] tracking-tight truncate">
