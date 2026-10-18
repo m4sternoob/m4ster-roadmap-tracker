@@ -311,6 +311,25 @@ body {
   animation: brand-pulse 1.6s var(--ease-out) infinite;
 }
 
+/* Brand mark: always alive — breathing glow + subtle float.
+   The logo feels alive like the aura background, not static. */
+@keyframes brand-alive {
+  0%, 100% {
+    box-shadow: 0 0 12px -2px color-mix(in srgb, var(--accent) 60%, transparent),
+                0 0 0 0 color-mix(in srgb, var(--accent) 35%, transparent);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px 0 color-mix(in srgb, var(--accent) 75%, transparent),
+                0 0 0 5px transparent;
+    transform: scale(1.04);
+  }
+}
+
+.brand-alive {
+  animation: brand-alive 2.4s ease-in-out infinite;
+}
+
 /* Shimmer sweep for progress bars / loading accents. */
 @keyframes shimmer-sweep {
   from {

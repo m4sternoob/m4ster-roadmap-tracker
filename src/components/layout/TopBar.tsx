@@ -174,7 +174,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
 
       {/* Brand */}
       <div className="flex items-center gap-2 pr-2 select-none">
-        <span className="brand-pulse w-7 h-7 rounded-[6px] bg-[var(--accent)] flex items-center justify-center shadow-sm">
+        <span className="brand-alive w-7 h-7 rounded-[6px] bg-[var(--accent)] flex items-center justify-center shadow-sm">
           <LogoMark size={17} />
         </span>
         <span className="text-[14px] font-semibold text-[var(--text-primary)] tracking-tight hidden sm:inline">
