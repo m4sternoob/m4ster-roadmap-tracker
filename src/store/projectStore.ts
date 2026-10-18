@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import type {
   Project,
   Issue,
+  IssueAttachment,
   Epic,
   Sprint,
   CreateIssueInput,
@@ -145,6 +146,8 @@ interface ProjectState {
   bulkUpdateIssues: (issueIds: string[], input: UpdateIssueInput) => void;
   addComment: (issueId: string, author: string, text: string) => void;
   deleteComment: (issueId: string, commentId: string) => void;
+  addAttachment: (issueId: string, file: Omit<IssueAttachment, 'id' | 'uploadedAt'>) => void;
+  removeAttachment: (issueId: string, attachmentId: string) => void;
   addDependency: (issueId: string, blockedById: string) => void;
   removeDependency: (issueId: string, blockedById: string) => void;
   logTime: (issueId: string, hours: number, note: string, author: string) => void;
@@ -197,6 +200,7 @@ function normalizeProject(project: Project): Project {
     issues: project.issues.map((i) => ({
       ...i,
       comments: i.comments ?? [],
+      attachments: i.attachments ?? [],
       blockedBy: i.blockedBy ?? [],
       timeEntries: i.timeEntries ?? [],
       archived: i.archived ?? false,
@@ -676,6 +680,7 @@ export const useProjectStore = create<ProjectState>()(
           parentId: input.parentId,
           sprintId: input.sprintId,
           comments: [],
+          attachments: [],
           createdAt: now,
           updatedAt: now,
           dueDate: input.dueDate,
@@ -812,6 +817,55 @@ export const useProjectStore = create<ProjectState>()(
                     ? {
                         ...issue,
                         comments: (issue.comments ?? []).filter((c) => c.id !== commentId),
+                        updatedAt: now,
+                      }
+                    : issue
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+      },
+
+      addAttachment: (issueId, file) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((issue) =>
+                  issue.id === issueId
+                    ? {
+                        ...issue,
+                        attachments: [
+                          ...(issue.attachments ?? []),
+                          { ...file, id: crypto.randomUUID(), uploadedAt: now },
+                        ],
+                        updatedAt: now,
+                      }
+                    : issue
+                ),
+                updatedAt: now,
+              }
+            : null,
+        }));
+        get().saveProject();
+      },
+
+      removeAttachment: (issueId, attachmentId) => {
+        const now = new Date().toISOString();
+        set((state) => ({
+          project: state.project
+            ? {
+                ...state.project,
+                issues: state.project.issues.map((issue) =>
+                  issue.id === issueId
+                    ? {
+                        ...issue,
+                        attachments: (issue.attachments ?? []).filter(
+                          (a) => a.id !== attachmentId
+                        ),
                         updatedAt: now,
                       }
                     : issue
