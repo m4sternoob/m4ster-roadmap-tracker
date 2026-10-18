@@ -434,9 +434,9 @@ function DetailView({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               onBlur={saveDescription}
-              rows={4}
-              placeholder="Add a description..."
-              className="w-full px-2.5 py-2 rounded-md bg-transparent border border-transparent hover:border-[var(--bg-raised)] focus:border-[var(--accent)] focus:bg-[var(--bg-app)] focus:outline-none text-[13.5px] text-[var(--text-secondary)] placeholder:text-[var(--text-faint)] resize-y motion-interactive"
+              rows={6}
+              placeholder="Add a description... (drag bottom-right corner to resize)"
+              className="w-full min-h-[140px] px-2.5 py-2 rounded-md bg-transparent border border-transparent hover:border-[var(--bg-raised)] focus:border-[var(--accent)] focus:bg-[var(--bg-app)] focus:outline-none text-[13.5px] text-[var(--text-secondary)] placeholder:text-[var(--text-faint)] resize-y motion-interactive cursor-ns-resize"
             />
           </div>
 
