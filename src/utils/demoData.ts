@@ -272,7 +272,6 @@ export function createSampleProject(): Project {
       completedAt: s.status === 'done' ? iso(3) : undefined,
       blockedBy: [],
       timeEntries: [],
-      attachments: [],
       archived: false,
     };
     if (epicId) epics.find((e) => e.id === epicId)!.issues.push(issue.id);
@@ -283,7 +282,7 @@ export function createSampleProject(): Project {
   return {
     id: 'sample-project',
     key: 'MT',
-    name: 'M4ster Roadmap Tracker',
+    name: 'M4ster Tracker',
     description: 'Sample workspace — ship games, track everything.',
     issues,
     epics,

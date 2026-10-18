@@ -178,7 +178,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
           <LogoMark size={17} />
         </span>
         <span className="text-[14px] font-semibold text-[var(--text-primary)] tracking-tight hidden sm:inline">
-          M4ster
+          M4ster Tracker
         </span>
       </div>
 
