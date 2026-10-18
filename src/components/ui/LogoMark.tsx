@@ -1,8 +1,8 @@
 /**
- * The M4ster brand mark — refined "MT" monogram.
- * Thin elegant strokes (not bold), balanced spacing, reads clearly
- * at all sizes. Inspired by neon app-icon aesthetics: clean lines,
- * subtle presence, professional.
+ * The M4ster brand mark — neon "MT" monogram.
+ * Thick rounded flowing strokes like neon signage: the M's right peak
+ * flows into the T's crossbar. Light lavender (#e9d5ff) for neon feel.
+ * Matches the purple neon app-icon aesthetic.
  * Rendered without its own background: the parent provides the
  * (theme-aware accent) rounded square behind it.
  */
@@ -17,17 +17,11 @@ export function LogoMark({ size = 16 }: { size?: number }) {
       focusable="false"
     >
       <path
-        d="M16 44 V20 L25 32 L34 20 V44"
-        stroke="#ffffff"
-        strokeWidth={4.5}
+        d="M12 48 V16 L26 34 L40 16 H56 M48 16 V48"
+        stroke="#e9d5ff"
+        strokeWidth={9}
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-      <path
-        d="M39 20 H53 M46 20 V44"
-        stroke="#ffffff"
-        strokeWidth={4.5}
-        strokeLinecap="round"
       />
     </svg>
   );
