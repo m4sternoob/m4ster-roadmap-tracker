@@ -1,8 +1,8 @@
 /**
- * The M4ster brand mark — geometric "MT" monogram.
- * Custom vector paths (not plain text): bold rounded strokes,
- * M with sharp valleys, T with clean crossbar. Designed to read
- * clearly at 14px favicon size up to full brand size.
+ * The M4ster brand mark — refined "MT" monogram.
+ * Thin elegant strokes (not bold), balanced spacing, reads clearly
+ * at all sizes. Inspired by neon app-icon aesthetics: clean lines,
+ * subtle presence, professional.
  * Rendered without its own background: the parent provides the
  * (theme-aware accent) rounded square behind it.
  */
@@ -16,19 +16,17 @@ export function LogoMark({ size = 16 }: { size?: number }) {
       aria-hidden="true"
       focusable="false"
     >
-      {/* M: bold geometric with rounded joins */}
       <path
-        d="M14 46 V18 L24 32 L34 18 V46"
+        d="M16 44 V20 L25 32 L34 20 V44"
         stroke="#ffffff"
-        strokeWidth={7}
+        strokeWidth={4.5}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {/* T: clean crossbar + stem */}
       <path
-        d="M38 18 H54 M46 18 V46"
+        d="M39 20 H53 M46 20 V44"
         stroke="#ffffff"
-        strokeWidth={7}
+        strokeWidth={4.5}
         strokeLinecap="round"
       />
     </svg>
