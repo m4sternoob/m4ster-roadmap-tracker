@@ -575,3 +575,42 @@ html[data-cursor='pro'] textarea,
 html[data-cursor='pro'] [contenteditable] {
   cursor: text;
 }
+
+/* Font system — Free vs Pro */
+html[data-font='inter'] {
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html[data-font='space-grotesk'] {
+  --font-ui: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html[data-font='outfit'] {
+  --font-ui: 'Outfit', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html[data-font='dm-sans'] {
+  --font-ui: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Apply fonts */
+body {
+  font-family: var(--font-ui, 'Inter', system-ui, sans-serif);
+}
+
+code, kbd, .kbd-badge, .shortcut-badge {
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+/* Pro font badges get special styling */
+html[data-font='space-grotesk'] .kbd-badge,
+html[data-font='outfit'] .kbd-badge,
+html[data-font='dm-sans'] .kbd-badge {
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color: white;
+  border: none;
+}
