@@ -167,7 +167,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const openUpgrade = usePlanStore((s) => s.openUpgrade);
 
   return (
-    <header className="h-12 shrink-0 flex items-center gap-1.5 px-3 bg-[var(--bg-app)] border-b border-[var(--bg-raised)] relative z-40">
+    <header className="h-12 shrink-0 flex items-center gap-1.5 px-3 topbar-premium relative z-40">
       <button
         onClick={onToggleSidebar}
         className="hidden md:block p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
