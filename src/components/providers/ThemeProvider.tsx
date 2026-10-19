@@ -4,9 +4,15 @@ import { applyIconPack } from '@/components/ui/iconPack';
 
 export const THEMES = [
   { id: 'violet', name: 'Violet', swatch: '#8b5cf6' },
-  { id: 'ocean', name: 'Ocean', swatch: '#0ea5e9' },
   { id: 'midnight', name: 'Midnight', swatch: '#0c66e4' },
+  { id: 'ocean', name: 'Ocean', swatch: '#0ea5e9' },
+  { id: 'ember', name: 'Ember', swatch: '#f97316' },
+  { id: 'forest', name: 'Forest', swatch: '#22c55e' },
   { id: 'porcelain', name: 'Porcelain', swatch: '#e2e8f0' },
+  { id: 'crimson', name: 'Crimson', swatch: '#ef4444' },
+  { id: 'gold', name: 'Gold', swatch: '#f59e0b' },
+  { id: 'rose', name: 'Rose', swatch: '#ec4899' },
+  { id: 'mint', name: 'Mint', swatch: '#14b8a6' },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]['id'];
