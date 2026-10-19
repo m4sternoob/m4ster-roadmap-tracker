@@ -614,3 +614,25 @@ html[data-font='dm-sans'] .kbd-badge {
   color: white;
   border: none;
 }
+/* Premium top bar — theme-aware gradient */
+.topbar-premium {
+  background: linear-gradient(
+    135deg,
+    var(--bg-app) 0%,
+    color-mix(in srgb, var(--accent) 8%, var(--bg-app)) 50%,
+    var(--bg-app) 100%
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 20%, var(--bg-raised));
+  box-shadow: 0 1px 12px color-mix(in srgb, var(--accent) 10%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* Premium bottom bar */
+.bottombar-premium {
+  background: linear-gradient(
+    135deg,
+    var(--bg-app) 0%,
+    color-mix(in srgb, var(--accent) 6%, var(--bg-app)) 100%
+  );
+  border-top: 1px solid color-mix(in srgb, var(--accent) 15%, var(--bg-raised));
+}
