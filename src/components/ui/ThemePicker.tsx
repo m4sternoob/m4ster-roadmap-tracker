@@ -409,12 +409,19 @@ export function ThemePicker() {
                                   border:
                                     '1px solid color-mix(in srgb, var(--accent-bright) 45%, transparent)',
                                 }
-                              : {
-                                  background: '#17171f',
-                                  color: 'var(--accent-bright)',
-                                  boxShadow:
-                                    '0 0 8px var(--accent), 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent)',
-                                };
+                              : p.id === 'hologram'
+                                ? {
+                                    background:
+                                      'linear-gradient(135deg, #8b5cf6, #ec4899, #06b6d4, #8b5cf6)',
+                                    color: '#ffffff',
+                                    border: '1px solid rgba(255,255,255,0.25)',
+                                  }
+                                : {
+                                    background: '#17171f',
+                                    color: 'var(--accent-bright)',
+                                    boxShadow:
+                                      '0 0 8px var(--accent), 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent)',
+                                  };
                 return (
                   <button
                     key={p.id}
