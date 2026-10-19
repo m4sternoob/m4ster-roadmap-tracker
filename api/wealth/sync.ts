@@ -1,5 +1,6 @@
 /**
  * GET /api/wealth/sync — get synced wealth data for the Google user.
+ * (deploy nudge)
  * POST /api/wealth/sync — save wealth data (last-write-wins by updatedAt).
  *
  * Auth: Authorization: Bearer <Google ID token> issued for the m4ster-tracker
