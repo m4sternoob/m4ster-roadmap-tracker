@@ -5,7 +5,7 @@
  * theme-accent). Rendered without its own background: the parent provides
  * the icon-pack rounded square behind it.
  */
-export function LogoMark({ size = 16 }: { size?: number }) {
+export function LogoMark({ size = 21 }: { size?: number }) {
   const gid = `neon-${size}`;
   return (
     <svg
@@ -29,7 +29,7 @@ export function LogoMark({ size = 16 }: { size?: number }) {
       <path
         d="M9 50 V14 L25 34 L41 14 H60 M51 14 V50"
         stroke="currentColor"
-        strokeWidth={8}
+        strokeWidth={10.4}
         strokeLinecap="round"
         strokeLinejoin="round"
         filter={`url(#${gid})`}
