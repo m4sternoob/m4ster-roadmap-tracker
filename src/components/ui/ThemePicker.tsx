@@ -759,6 +759,106 @@ export function ThemePicker() {
             </button>
             </ProGate>
           </section>
+
+        {/* ---- cursor style ---- */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
+              Cursor style
+            </span>
+          </div>
+          <div className="px-1">
+            <div role="group" aria-label="Cursor style" className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                aria-pressed={document.documentElement.dataset.cursor !== 'pro'}
+                onClick={() => {
+                  document.documentElement.dataset.cursor = 'normal';
+                  localStorage.setItem('mt_cursor_style', 'normal');
+                }}
+                className={`rounded-lg border px-3 py-2 text-[13px] font-medium transition-all ${
+                  document.documentElement.dataset.cursor !== 'pro'
+                    ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
+                    : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)]'
+                }`}
+              >
+                Normal
+              </button>
+              <button
+                type="button"
+                aria-pressed={document.documentElement.dataset.cursor === 'pro'}
+                onClick={() => {
+                  document.documentElement.dataset.cursor = 'pro';
+                  localStorage.setItem('mt_cursor_style', 'pro');
+                }}
+                className={`rounded-lg border px-3 py-2 text-[13px] font-medium transition-all ${
+                  document.documentElement.dataset.cursor === 'pro'
+                    ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
+                    : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)]'
+                }`}
+              >
+                Pro
+              </button>
+            </div>
+            <p className="mt-2 text-[12px] text-[var(--text-faint)]">
+              Pro uses custom accent-colored cursors
+            </p>
+          </div>
+        </section>
+
+        {/* ---- font ---- */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
+              Font
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 px-1">
+            {[
+              { id: 'inter', name: 'Inter', pro: false },
+              { id: 'space-grotesk', name: 'Space Grotesk', pro: true },
+              { id: 'outfit', name: 'Outfit', pro: true },
+              { id: 'dm-sans', name: 'DM Sans', pro: true },
+            ].map((font) => {
+              const isActive = document.documentElement.dataset.font === font.id;
+              const locked = font.pro;
+              return (
+                <button
+                  key={font.id}
+                  type="button"
+                  onClick={() => {
+                    if (locked) {
+                      // TODO: open upgrade modal
+                      return;
+                    }
+                    document.documentElement.dataset.font = font.id;
+                    localStorage.setItem('mt_font', font.id);
+                  }}
+                  className={`relative rounded-lg border px-3 py-2.5 text-left transition-all ${
+                    isActive
+                      ? 'border-[var(--accent)] bg-[var(--accent-soft)]'
+                      : 'border-[var(--border)] hover:border-[var(--accent)]'
+                  } ${locked ? 'opacity-60' : ''}`}
+                >
+                  <div className="text-[13px] font-medium text-[var(--text-primary)]">
+                    {font.name}
+                  </div>
+                  <div className="text-[11px] text-[var(--text-faint)]">
+                    {font.pro ? 'Pro' : 'Free'}
+                  </div>
+                  {locked && (
+                    <div className="absolute right-2 top-2 text-[var(--text-faint)]">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                      </svg>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </section>
         </div>
       )}
     </div>
