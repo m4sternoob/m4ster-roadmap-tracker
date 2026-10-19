@@ -27,12 +27,28 @@ export function Avatar({
   size = 24,
   title,
   ring = false,
+  src,
 }: {
   name: string;
   size?: number;
   title?: string;
   ring?: boolean;
+  src?: string;
 }) {
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={name}
+        title={title ?? name}
+        width={size}
+        height={size}
+        className="rounded-full object-cover"
+        style={{ width: size, height: size }}
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
   return (
     <span
       title={title ?? name}
