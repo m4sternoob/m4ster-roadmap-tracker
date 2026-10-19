@@ -44,7 +44,7 @@ export default async function handler(req: any, res: any) {
     if (!uname) return res.status(401).json({ error: 'not signed in' });
     const user = (await kv.get(`user:${uname}`)) as { id: string; username: string } | null;
     if (!user) return res.status(401).json({ error: 'not signed in' });
-    return res.status(200).json({ user: { id: user.id, username: user.username } });
+    return res.status(200).json({ user: { id: user.id, username: user.username, avatar: user.avatar ?? '' } });
   } catch (e) {
     console.error('me error', e);
     return res.status(500).json({ error: 'failed' });
