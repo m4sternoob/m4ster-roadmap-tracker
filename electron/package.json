@@ -1,1 +1,57 @@
-{"author":"m4ster","build":{"appId":"com.m4ster.tracker","directories":{"output":"dist"},"files":["main.js","preload.js","package.json"],"nsis":{"allowToChangeInstallationDirectory":true,"artifactName":"M4ster-Tracker-Setup-${version}.${ext}","oneClick":false,"perMachine":false,"shortcutName":"M4ster Tracker"},"productName":"M4ster Tracker","protocols":[{"name":"m4ster-tracker","schemes":["m4ster-tracker"]}],"win":{"icon":"assets/icon.ico","target":["nsis"]}},"description":"M4ster Tracker desktop app — Electron wrapper around the web app","devDependencies":{"electron":"^33.4.0","electron-builder":"^25.1.8"},"license":"UNLICENSED","main":"main.js","name":"m4ster-tracker-electron","private":true,"productName":"M4ster Tracker","scripts":{"dist":"electron-builder --win","dist:win":"electron-builder --win nsis","start":"electron ."},"version":"0.1.0"}
+{
+  "author": "m4ster",
+  "build": {
+    "appId": "com.m4ster.tracker",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "M4ster-Tracker-Setup-${version}.${ext}",
+      "oneClick": false,
+      "perMachine": false,
+      "shortcutName": "M4ster Tracker"
+    },
+    "productName": "M4ster Tracker",
+    "protocols": [
+      {
+        "name": "m4ster-tracker",
+        "schemes": [
+          "m4ster-tracker"
+        ]
+      }
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        "nsis"
+      ]
+    },
+    "publish": null
+  },
+  "description": "M4ster Tracker desktop app \u2014 Electron wrapper around the web app",
+  "devDependencies": {
+    "electron": "^33.4.0",
+    "electron-builder": "^25.1.8"
+  },
+  "license": "UNLICENSED",
+  "main": "main.js",
+  "name": "m4ster-tracker-electron",
+  "private": true,
+  "productName": "M4ster Tracker",
+  "scripts": {
+    "dist": "electron-builder --win",
+    "dist:win": "electron-builder --win nsis",
+    "start": "electron ."
+  },
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m4sternoob/m4ster-roadmap-tracker.git"
+  }
+}
