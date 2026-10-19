@@ -558,3 +558,20 @@ html[data-theme='mint'] {
   --orb-3: #fef3c7;
   --orb-opacity: 0.7;
 }
+
+/* Cursor styles — Normal (system default) vs Pro (custom accent) */
+html[data-cursor='pro'] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2 L20 12 L12 14 L9 22 Z' fill='%238b5cf6' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E") 4 2, auto;
+}
+
+html[data-cursor='pro'] a,
+html[data-cursor='pro'] button,
+html[data-cursor='pro'] [role="button"] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2 L20 12 L12 14 L9 22 Z' fill='%23ec4899' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E") 4 2, pointer;
+}
+
+html[data-cursor='pro'] input,
+html[data-cursor='pro'] textarea,
+html[data-cursor='pro'] [contenteditable] {
+  cursor: text;
+}
