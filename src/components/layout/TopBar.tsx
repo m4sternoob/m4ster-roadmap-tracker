@@ -127,7 +127,7 @@ function AccountButton() {
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <Avatar name={user.username} size={26} />
+        <Avatar name={user.username} size={26} src={user.avatar} />
       </button>
       {open && (
         <div
