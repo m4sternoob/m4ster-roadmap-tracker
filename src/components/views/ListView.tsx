@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, ChevronsUpDown, ListPlus } from 'lucide-react';
 import type { Issue, Priority, Project, Status } from '@/types';
 import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
@@ -43,6 +43,23 @@ const COLUMNS: { key: SortKey | null; label: string; className?: string }[] = [
   { key: 'dueDate', label: 'Due', className: 'w-28' },
 ];
 
+const COLUMN_ORDER_KEY = 'mt_list_column_order_v1';
+const DEFAULT_ORDER = ['type', 'key', 'title', 'status', 'assignee', 'priority', 'storyPoints', 'dueDate'];
+
+function loadColumnOrder(): string[] {
+  try {
+    const raw = localStorage.getItem(COLUMN_ORDER_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Validate: must contain all default columns
+      if (Array.isArray(parsed) && DEFAULT_ORDER.every(k => parsed.includes(k))) {
+        return parsed;
+      }
+    }
+  } catch {}
+  return [...DEFAULT_ORDER];
+}
+
 export function ListView({
   project,
   onIssueClick,
@@ -52,6 +69,41 @@ export function ListView({
 }) {
   const [sortKey, setSortKey] = useState<SortKey>('key');
   const [sortDir, setSortDir] = useState<1 | -1>(1);
+  const [columnOrder, setColumnOrder] = useState<string[]>(loadColumnOrder);
+  const [dragCol, setDragCol] = useState<string | null>(null);
+
+  const saveColumnOrder = (order: string[]) => {
+    setColumnOrder(order);
+    try {
+      localStorage.setItem(COLUMN_ORDER_KEY, JSON.stringify(order));
+    } catch {}
+  };
+
+  const handleDragStart = (e: React.DragEvent, colKey: string) => {
+    setDragCol(colKey);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetKey: string) => {
+    e.preventDefault();
+    if (!dragCol || dragCol === targetKey) return;
+    const newOrder = [...columnOrder];
+    const fromIdx = newOrder.indexOf(dragCol);
+    const toIdx = newOrder.indexOf(targetKey);
+    newOrder.splice(fromIdx, 1);
+    newOrder.splice(toIdx, 0, dragCol);
+    saveColumnOrder(newOrder);
+    setDragCol(null);
+  };
+
+  // Map column keys to their definitions
+  const colDef = (key: string) => COLUMNS.find(c => (c.key ?? 'type') === key)!;
+  const orderedCols = columnOrder.map(colDef);
 
   const issues = useMemo(() => {
     const sorted = [...project.issues].filter((i) => !i.archived).sort((a, b) => compare(a, b, sortKey));
@@ -74,14 +126,103 @@ export function ListView({
     s.setShowIssueModal(true);
   };
 
+  // Render a table cell for the given column key
+  const renderCell = (issue: Issue, colKey: string) => {
+    switch (colKey) {
+      case 'type':
+        return (
+          <td className="px-3 py-2">
+            <IssueTypeIcon type={issue.type} size={16} />
+          </td>
+        );
+      case 'key':
+        return (
+          <td className="px-3 py-2 font-mono text-[12px] text-[var(--text-muted)] whitespace-nowrap">
+            {issue.key}
+          </td>
+        );
+      case 'title':
+        return (
+          <td className="px-3 py-2 text-[13.5px] text-[var(--text-primary)] max-w-[320px] truncate">
+            {issue.title}
+          </td>
+        );
+      case 'status':
+        return (
+          <td className="px-3 py-2">
+            <StatusPill status={issue.status} />
+          </td>
+        );
+      case 'assignee':
+        return (
+          <td className="px-3 py-2">
+            {issue.assignee ? (
+              <span className="flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)]">
+                <Avatar name={issue.assignee} size={20} />
+                <span className="truncate max-w-[100px]">{issue.assignee}</span>
+              </span>
+            ) : (
+              <span className="text-[12.5px] text-[var(--text-faint)]">Unassigned</span>
+            )}
+          </td>
+        );
+      case 'priority':
+        return (
+          <td className="px-3 py-2">
+            <span className="flex items-center gap-1.5">
+              <PriorityIcon priority={issue.priority} size={13} />
+              <span className="text-[12.5px] text-[var(--text-muted)] capitalize">
+                {issue.priority}
+              </span>
+            </span>
+          </td>
+        );
+      case 'storyPoints':
+        return (
+          <td className="px-3 py-2 text-right text-[13px] text-[var(--text-secondary)]">
+            {issue.storyPoints > 0 ? (
+              issue.storyPoints
+            ) : (
+              <span className="text-[var(--chrome)]">–</span>
+            )}
+          </td>
+        );
+      case 'dueDate':
+        return (
+          <td className="px-3 py-2 text-[12.5px] text-[var(--text-muted)] whitespace-nowrap">
+            {issue.dueDate ? (
+              new Date(issue.dueDate).toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+              })
+            ) : (
+              <span className="text-[var(--chrome)]">–</span>
+            )}
+          </td>
+        );
+      default:
+        return <td className="px-3 py-2" />;
+    }
+  };
+
   return (
     <div className="rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-app)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[900px]">
           <thead>
             <tr className="border-b border-[var(--bg-raised)]">
-              {COLUMNS.map((col) => (
-                <th key={col.label} className={`px-3 py-2.5 ${col.className ?? ''}`}>
+              {orderedCols.map((col) => {
+                const colKey = col.key ?? 'type';
+                return (
+                <th
+                  key={col.label}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, colKey)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, colKey)}
+                  className={`px-3 py-2.5 cursor-grab active:cursor-grabbing ${col.className ?? ''} ${dragCol === colKey ? 'opacity-40' : ''}`}
+                  title="Drag to reorder column"
+                >
                   {col.key ? (
                     <button
                       onClick={() => toggleSort(col.key!)}
@@ -104,7 +245,8 @@ export function ListView({
                     </span>
                   )}
                 </th>
-              ))}
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -118,53 +260,11 @@ export function ListView({
                   if (e.key === 'Enter') onIssueClick(issue);
                 }}
               >
-                <td className="px-3 py-2">
-                  <IssueTypeIcon type={issue.type} size={16} />
-                </td>
-                <td className="px-3 py-2 font-mono text-[12px] text-[var(--text-muted)] whitespace-nowrap">
-                  {issue.key}
-                </td>
-                <td className="px-3 py-2 text-[13.5px] text-[var(--text-primary)] max-w-[320px] truncate">
-                  {issue.title}
-                </td>
-                <td className="px-3 py-2">
-                  <StatusPill status={issue.status} />
-                </td>
-                <td className="px-3 py-2">
-                  {issue.assignee ? (
-                    <span className="flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)]">
-                      <Avatar name={issue.assignee} size={20} />
-                      <span className="truncate max-w-[100px]">{issue.assignee}</span>
-                    </span>
-                  ) : (
-                    <span className="text-[12.5px] text-[var(--text-faint)]">Unassigned</span>
-                  )}
-                </td>
-                <td className="px-3 py-2">
-                  <span className="flex items-center gap-1.5">
-                    <PriorityIcon priority={issue.priority} size={13} />
-                    <span className="text-[12.5px] text-[var(--text-muted)] capitalize">
-                      {issue.priority}
-                    </span>
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-right text-[13px] text-[var(--text-secondary)]">
-                  {issue.storyPoints > 0 ? (
-                    issue.storyPoints
-                  ) : (
-                    <span className="text-[var(--chrome)]">–</span>
-                  )}
-                </td>
-                <td className="px-3 py-2 text-[12.5px] text-[var(--text-muted)] whitespace-nowrap">
-                  {issue.dueDate ? (
-                    new Date(issue.dueDate).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                    })
-                  ) : (
-                    <span className="text-[var(--chrome)]">–</span>
-                  )}
-                </td>
+                {columnOrder.map((colKey) => (
+                  <React.Fragment key={colKey}>
+                    {renderCell(issue, colKey)}
+                  </React.Fragment>
+                ))}
               </tr>
             ))}
           </tbody>
