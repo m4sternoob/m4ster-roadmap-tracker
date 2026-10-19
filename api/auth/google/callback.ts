@@ -117,6 +117,11 @@ export default async function handler(req: any, res: any) {
       const existing = uname ? ((await kv.get(`user:${uname}`)) as any) : null;
       if (!existing) return fail(res, 'error');
       username = existing.username;
+      // Refresh avatar from Google on every login (in case they changed it)
+      if (profile.picture && existing.avatar !== profile.picture) {
+        existing.avatar = profile.picture;
+        await kv.set(`user:${username.toLowerCase()}`, existing);
+      }
     } else {
       username = await uniqueUsername(kv, profile.email);
       uid = crypto.randomUUID();
