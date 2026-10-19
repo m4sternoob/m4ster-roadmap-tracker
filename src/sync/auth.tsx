@@ -2,10 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { AuthModal } from '@/components/auth/AuthModal';
 import { useProjectStore } from '@/store/projectStore';
 
-export interface AuthUser {
-  id: string;
-  username: string;
-}
+export interface AuthUser { id: string; username: string; avatar?: string; }
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -98,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Cookie may already be gone — still sign out locally.
     }
     setUser(null);
-    // Next push 401s → store flips to local + "sign in to sync".
+    // Next push 401s — store flips to local + "sign in to sync".
     void useProjectStore.getState().syncPush();
   }, []);
 
