@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased — test build]
+
+### Added
+
+- **Multiplayer boards**: share a board with an invite link; signed-in members who join sync against one shared board record
+- **Live presence**: who's online, which view they're on, which card they're editing, Figma-style live cursors, and an activity feed
+- **Team chat**: #general / #board / #random channels in the team panel (People / Chat / Activity)
+- **Reports download**: Download Report button generating a standalone HTML board report, alongside CSV and JSON exports
+
 ## [1.0.0] - 2024-09-27
 
 ### Added
