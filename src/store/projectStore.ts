@@ -36,7 +36,12 @@ export type AppView =
   | 'calendar'
   | 'timeline'
   | 'workload'
-  | 'archived';
+  | 'archived'
+  | 'summary'
+  | 'foryou'
+  | 'docs'
+  | 'development'
+  | 'assets';
 
 export type ToastKind = 'success' | 'error' | 'info';
 
