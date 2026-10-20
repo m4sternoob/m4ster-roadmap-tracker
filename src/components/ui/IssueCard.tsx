@@ -1,6 +1,7 @@
 import type { Issue, Status } from '@/types';
 import { STATUSES } from '@/types';
 import {
+  AlertTriangle,
   Calendar,
   Check,
   MessageSquare,
@@ -216,23 +217,17 @@ export function IssueCardView({
           document.body
         )}
 
-      {/* Issue key — Jira pattern: small uppercase micro-label above the title */}
-      <div className="mb-1 flex items-center gap-1.5">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-faint)]">
-          {issue.key}
-        </span>
-        {(issue.blockedBy ?? []).length > 0 && issue.status !== 'done' && (
+      {/* Blocked flag (the key lives in the footer row, like the reference cards) */}
+      {(issue.blockedBy ?? []).length > 0 && issue.status !== 'done' && (
+        <div className="mb-1.5">
           <Pill
             tone="danger"
             title={`Blocked by ${issue.blockedBy.length} issue${issue.blockedBy.length === 1 ? '' : 's'}`}
           >
             <OctagonAlert size={11} aria-hidden="true" /> Blocked
           </Pill>
-        )}
-        {issue.status === 'done' && (
-          <Check size={13} className="text-[var(--success)] ml-auto" aria-label="Done" />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Epic tag */}
       {epicName && (
@@ -250,6 +245,23 @@ export function IssueCardView({
         {issue.title}
       </h4>
 
+      {/* Due line — calendar + date, warning triangle when overdue */}
+      {!compact && issue.dueDate && (
+        <div
+          className={`flex items-center gap-1.5 mb-1.5 text-[11.5px] font-medium ${
+            isOverdue(issue.dueDate) && issue.status !== 'done'
+              ? 'text-[var(--danger)]'
+              : 'text-[var(--text-muted)]'
+          }`}
+        >
+          <Calendar size={11} aria-hidden="true" />
+          {formatDue(issue.dueDate)}
+          {isOverdue(issue.dueDate) && issue.status !== 'done' && (
+            <AlertTriangle size={12} className="text-amber-400" aria-label="Overdue" />
+          )}
+        </div>
+      )}
+
       {/* Labels */}
       {!compact && issue.labels.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-1">
@@ -261,25 +273,20 @@ export function IssueCardView({
         </div>
       )}
 
-      {/* Meta row */}
+      {/* Meta row — type icon + key on the left (reference card footer) */}
       <div className="flex items-center gap-1.5">
         <IssueTypeIcon type={issue.type} size={14} />
+        <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--text-faint)]">
+          {issue.key}
+        </span>
+        {issue.status === 'done' && (
+          <Check size={13} className="text-[var(--success)]" aria-label="Done" />
+        )}
         <PriorityIcon priority={issue.priority} size={13} />
         {!compact && issue.storyPoints > 0 && (
           <Pill tone="neutral" title="Story points">
             {issue.storyPoints}
           </Pill>
-        )}
-        {!compact && issue.dueDate && (
-          <span
-            className={`flex items-center gap-1 text-[11.5px] font-medium ${
-              isOverdue(issue.dueDate) ? 'text-[var(--danger)]' : 'text-[var(--text-muted)]'
-            }`}
-            title={`Due ${new Date(issue.dueDate).toLocaleDateString()}`}
-          >
-            <Calendar size={11} aria-hidden="true" />
-            {formatDue(issue.dueDate)}
-          </span>
         )}
         {!compact && issue.comments.length > 0 && (
           <span
