@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased — test build]
+
+### Added — workspace views pass
+- Summary, For you, Docs, Development views and an Assets register.
+- List view rebuilt as an issue table (Reporter + Resolution + Created +
+  Updated columns, row selection with an "N of M" footer, inline status
+  dropdown, inline Create row).
+- Board cards rearranged to the reference layout (due line with overdue
+  warning, key in the footer row).
+- Plan picker modal with Free / Pro / Team cards (flat yearly price).
+- Sidebar: current space expands into its views, Operations opens
+  Development, Apps opens a launcher popover — no dead buttons.
+- Non-board views code-split; initial JS bundle down ~13%.
+
+### Added
+
+- **Multiplayer boards**: share a board with an invite link; signed-in members who join sync against one shared board record
+- **Live presence**: who's online, which view they're on, which card they're editing, Figma-style live cursors, and an activity feed
+- **Team chat**: #general / #board / #random channels in the team panel (People / Chat / Activity)
+- **Reports download**: Download Report button generating a standalone HTML board report, alongside CSV and JSON exports
+
 ## [1.0.0] - 2024-09-27
 
 ### Added

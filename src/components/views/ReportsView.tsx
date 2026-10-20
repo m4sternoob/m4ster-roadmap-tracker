@@ -1,5 +1,7 @@
-import { BarChart2, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { BarChart2, TrendingUp, TrendingDown, Minus, Download, FileSpreadsheet, FileJson } from 'lucide-react';
 import type { Project } from '@/types';
+import { useProjectStore } from '@/store/projectStore';
+import { computeReportStats, downloadBoardReport } from '@/utils/report';
 
 /** "Oct 5" — treats YYYY-MM-DD as a calendar day (no UTC-midnight shift). */
 function formatShortDate(iso: string): string {
@@ -46,6 +48,74 @@ function getSprintBurndownData(project: Project, sprintId: string) {
   return { ideal, actual, totalPoints, donePoints, totalDays, elapsedDays, sprint };
 }
 
+function ReportsHeader({ project }: { project: Project }) {
+  const exportCSV = useProjectStore((s) => s.exportCSV);
+  const exportProject = useProjectStore((s) => s.exportProject);
+  const pushToast = useProjectStore((s) => s.pushToast);
+  const stats = computeReportStats(project);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-start gap-3">
+        <div className="flex-1 min-w-52">
+          <h2 className="text-2xl font-bold mb-1 flex items-center gap-2">
+            <BarChart2 size={24} /> Reports
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Board health at a glance — download a full report to share with your team.
+          </p>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => {
+              downloadBoardReport(project);
+              pushToast('success', 'Report downloaded');
+            }}
+            data-cursor="download"
+            data-magnet
+            className="h-9 px-4 rounded-full bg-[var(--accent)] text-white text-[13px] font-medium flex items-center gap-1.5 btn-artcraft shadow-sm"
+          >
+            <Download size={15} /> Download Report
+          </button>
+          <button
+            onClick={() => exportCSV()}
+            data-cursor="download"
+            className="h-9 px-3.5 rounded-full border border-[var(--bg-raised)] text-[13px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1.5 motion-interactive"
+            title="Download all issues as CSV"
+          >
+            <FileSpreadsheet size={15} /> CSV
+          </button>
+          <button
+            onClick={() => exportProject()}
+            data-cursor="download"
+            className="h-9 px-3.5 rounded-full border border-[var(--bg-raised)] text-[13px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1.5 motion-interactive"
+            title="Download a JSON backup of the whole board"
+          >
+            <FileJson size={15} /> JSON
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { num: String(stats.total), lbl: 'Total issues' },
+          { num: `${stats.donePct}%`, lbl: `Complete · ${stats.done} done` },
+          { num: `${stats.donePoints}/${stats.totalPoints}`, lbl: 'Story points done' },
+          { num: String(stats.overdue.length), lbl: 'Overdue open issues' },
+        ].map((c) => (
+          <div
+            key={c.lbl}
+            className="rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-surface)] px-4 py-3"
+          >
+            <div className="text-[22px] font-bold leading-tight">{c.num}</div>
+            <div className="text-[12px] text-muted-foreground">{c.lbl}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ReportsView({ project }: { project: Project }) {
   const activeSprints = project.sprints.filter(
     (s) => s.status === 'active' || s.status === 'completed'
@@ -53,22 +123,27 @@ export function ReportsView({ project }: { project: Project }) {
 
   if (activeSprints.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center">
-        <BarChart2 size={64} className="text-muted-foreground/30 mb-4" />
-        <h2 className="text-xl font-semibold mb-2">No Active Sprints</h2>
-        <p className="text-muted-foreground max-w-md">
-          Create a sprint and add issues with story points to see burndown charts.
-        </p>
+      <div className="space-y-8 max-w-4xl mx-auto p-4">
+        <ReportsHeader project={project} />
+        <div className="flex flex-col items-center justify-center text-center py-14">
+          <BarChart2 size={48} className="text-muted-foreground/30 mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No Active Sprints</h3>
+          <p className="text-muted-foreground max-w-md text-sm">
+            Create a sprint and add issues with story points to see burndown charts. The board
+            summary and report download above work any time.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto p-4">
+      <ReportsHeader project={project} />
       <div>
-        <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-          <BarChart2 size={24} /> Sprint Burndown
-        </h2>
+        <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+          <BarChart2 size={20} /> Sprint Burndown
+        </h3>
         <p className="text-muted-foreground">
           Track sprint progress. Ideal line = planned pace. Actual line = real progress.
         </p>

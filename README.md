@@ -36,8 +36,13 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 - **List:** Compact table view
 - **Calendar:** Month grid with visible borders (light/dark themes)
 - **Timeline:** Gantt-style
-- **Reports:** Burndown charts, sprint health
+- **Reports:** Burndown charts, sprint health, board summary — plus a **Download Report** button (standalone HTML report, CSV and JSON exports)
 - **Backlog & Sprints:** Planning → Active → Complete lifecycle
+
+### Multiplayer (test build)
+- **Share + invite:** the board owner shares a board and sends an invite link; signed-in teammates join the *same* board — card moves and edits sync for everyone
+- **Live presence:** avatar stack in the top bar shows who's online and what they're doing (viewing a view, editing a card), with Figma-style live cursors
+- **Team chat:** Slack/Discord-style channels (#general, #board, #random) in the team panel, plus a live activity feed of creates, moves and assignments
 
 ### Customization
 - 6 theme swatches (Midnight, Ocean, Ember, Forest, Violet, Porcelain)

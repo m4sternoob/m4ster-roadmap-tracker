@@ -5,16 +5,20 @@ import { useProjectStore, type AppView } from '@/store/projectStore';
 import { usePlanStore } from '@/store/planStore';
 import { canUse, type ProFeature } from '@/lib/plan';
 import { LogoMark } from '@/components/ui/LogoMark';
+import { useCollabStore } from '@/collab/collab';
 
 const TABS: { id: AppView; label: string; feature?: ProFeature }[] = [
-  { id: 'board', label: 'Board' },
+  { id: 'summary', label: 'Summary' },
   { id: 'list', label: 'List' },
+  { id: 'board', label: 'Board' },
   { id: 'backlog', label: 'Backlog', feature: 'view:backlog' },
   { id: 'calendar', label: 'Calendar', feature: 'view:calendar' },
   { id: 'timeline', label: 'Timeline', feature: 'view:timeline' },
   { id: 'workload', label: 'Workload', feature: 'view:workload' },
   { id: 'sprints', label: 'Sprints', feature: 'view:sprints' },
   { id: 'reports', label: 'Reports', feature: 'view:reports' },
+  { id: 'docs', label: 'Docs' },
+  { id: 'development', label: 'Development' },
   { id: 'archived', label: 'Archived', feature: 'view:archived' },
 ];
 
@@ -53,9 +57,10 @@ export function ProjectHeader({ project }: { project: Project }) {
         </h1>
         <div className="flex items-center gap-0.5">
           <button
+            onClick={() => useCollabStore.getState().setPanel(true, 'people')}
             className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
             aria-label="Team"
-            title="Team"
+            title="Team — who's here, invite, chat"
           >
             <Users size={15} />
           </button>
@@ -99,9 +104,10 @@ export function ProjectHeader({ project }: { project: Project }) {
             onChange={(e) => onImportFile(e.target.files?.[0])}
           />
           <button
+            onClick={() => useCollabStore.getState().setPanel(true, 'people')}
             className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
             aria-label="Share"
-            title="Share"
+            title="Share — invite your team to this board"
           >
             <Share2 size={15} />
           </button>

@@ -67,6 +67,8 @@ export interface Issue {
   priority: Priority;
   storyPoints: number;
   assignee?: string;
+  /** Who reported/created the work item (list view column). */
+  reporter?: string;
   labels: string[];
   epicId?: string;
   parentId?: string;

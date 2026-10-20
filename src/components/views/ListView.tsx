@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from 'react';
-import { ArrowDown, ArrowUp, ChevronsUpDown, ListPlus } from 'lucide-react';
+import React, { useMemo, useRef, useState } from 'react';
+import { ArrowDown, ArrowUp, Check, ChevronsUpDown, ListPlus, Plus } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import type { Issue, Priority, Project, Status } from '@/types';
+import { STATUSES } from '@/types';
 import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { PriorityIcon } from '@/components/issues/PriorityIcon';
 import { Avatar } from '@/components/issues/Avatar';
@@ -8,10 +10,31 @@ import { StatusPill } from '@/components/issues/StatusPill';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useProjectStore } from '@/store/projectStore';
 
-type SortKey = 'key' | 'title' | 'status' | 'priority' | 'assignee' | 'storyPoints' | 'dueDate';
+/**
+ * List view — modeled on the classic issue-table layout (see the user's
+ * reference screenshots): checkbox column, Work (type + key + title),
+ * Assignee, Reporter, Priority, Status (click the lozenge to change it
+ * inline), Resolution, Created, Updated — plus our own extras kept from
+ * the base app: drag-to-reorder columns, click-to-sort headers, row
+ * checkboxes with a live "N of M" footer, and an inline Create row.
+ */
+
+type SortKey =
+  | 'key'
+  | 'title'
+  | 'status'
+  | 'priority'
+  | 'assignee'
+  | 'reporter'
+  | 'createdAt'
+  | 'updatedAt';
 
 const STATUS_ORDER: Status[] = ['backlog', 'todo', 'in-progress', 'review', 'done'];
 const PRIORITY_ORDER: Priority[] = ['critical', 'high', 'medium', 'low'];
+
+function reporterOf(issue: Issue): string {
+  return issue.reporter ?? issue.comments[0]?.author ?? 'You';
+}
 
 function compare(a: Issue, b: Issue, key: SortKey): number {
   switch (key) {
@@ -25,34 +48,115 @@ function compare(a: Issue, b: Issue, key: SortKey): number {
       return PRIORITY_ORDER.indexOf(a.priority) - PRIORITY_ORDER.indexOf(b.priority);
     case 'assignee':
       return (a.assignee ?? '').localeCompare(b.assignee ?? '');
-    case 'storyPoints':
-      return a.storyPoints - b.storyPoints;
-    case 'dueDate':
-      return (a.dueDate ?? '').localeCompare(b.dueDate ?? '');
+    case 'reporter':
+      return reporterOf(a).localeCompare(reporterOf(b));
+    case 'createdAt':
+      return a.createdAt.localeCompare(b.createdAt);
+    case 'updatedAt':
+      return a.updatedAt.localeCompare(b.updatedAt);
   }
 }
 
-const COLUMNS: { key: SortKey | null; label: string; className?: string }[] = [
-  { key: null, label: 'Type', className: 'w-12' },
-  { key: 'key', label: 'Key', className: 'w-24' },
-  { key: 'title', label: 'Summary' },
-  { key: 'status', label: 'Status', className: 'w-32' },
-  { key: 'assignee', label: 'Assignee', className: 'w-36' },
-  { key: 'priority', label: 'Priority', className: 'w-28' },
-  { key: 'storyPoints', label: 'Points', className: 'w-16 text-right' },
-  { key: 'dueDate', label: 'Due', className: 'w-28' },
+const FMT_DATE: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString(undefined, FMT_DATE);
+}
+
+/** Inline status picker: click the lozenge, pick a new status. */
+function StatusMenu({ issue }: { issue: Issue }) {
+  const moveIssue = useProjectStore((s) => s.moveIssue);
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  const toggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!open) {
+      const r = btnRef.current?.getBoundingClientRect();
+      if (r) setPos({ top: r.bottom + 4, left: Math.max(8, r.left) });
+    }
+    setOpen((v) => !v);
+  };
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={toggle}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        title="Change status"
+        className="rounded motion-press hover:ring-2 hover:ring-[var(--accent)]/40"
+      >
+        <StatusPill status={issue.status} />
+      </button>
+      {open &&
+        createPortal(
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+            <div
+              role="menu"
+              aria-label={`Change status of ${issue.key}`}
+              className="fixed z-50 w-44 rounded-lg border border-[var(--bg-raised)] bg-[var(--bg-sunken)] shadow-2xl shadow-black/50 py-1 animate-scale-in"
+              style={{ top: pos.top, left: pos.left }}
+            >
+              {STATUSES.map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setOpen(false);
+                    if (s.value !== issue.status) moveIssue(issue.id, s.value);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-1.5 text-[13px] text-left ${
+                    s.value === issue.status
+                      ? 'text-[var(--accent-bright)] font-medium'
+                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]'
+                  }`}
+                >
+                  {s.label}
+                  {s.value === issue.status && <Check size={13} aria-hidden="true" />}
+                </button>
+              ))}
+            </div>
+          </>,
+          document.body
+        )}
+    </>
+  );
+}
+
+interface ColDef {
+  id: string;
+  label: string;
+  sortKey: SortKey | null;
+  className?: string;
+}
+
+const COLUMNS: ColDef[] = [
+  { id: 'work', label: 'Work', sortKey: 'title' },
+  { id: 'assignee', label: 'Assignee', sortKey: 'assignee', className: 'w-40' },
+  { id: 'reporter', label: 'Reporter', sortKey: 'reporter', className: 'w-40' },
+  { id: 'priority', label: 'Priority', sortKey: 'priority', className: 'w-28' },
+  { id: 'status', label: 'Status', sortKey: 'status', className: 'w-36' },
+  { id: 'resolution', label: 'Resolution', sortKey: null, className: 'w-28' },
+  { id: 'created', label: 'Created', sortKey: 'createdAt', className: 'w-32' },
+  { id: 'updated', label: 'Updated', sortKey: 'updatedAt', className: 'w-32' },
 ];
 
-const COLUMN_ORDER_KEY = 'mt_list_column_order_v1';
-const DEFAULT_ORDER = ['type', 'key', 'title', 'status', 'assignee', 'priority', 'storyPoints', 'dueDate'];
+const COLUMN_ORDER_KEY = 'mt_list_column_order_v2';
+const DEFAULT_ORDER = COLUMNS.map((c) => c.id);
 
 function loadColumnOrder(): string[] {
   try {
     const raw = localStorage.getItem(COLUMN_ORDER_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      // Validate: must contain all default columns
-      if (Array.isArray(parsed) && DEFAULT_ORDER.every(k => parsed.includes(k))) {
+      if (Array.isArray(parsed) && DEFAULT_ORDER.every((k) => parsed.includes(k))) {
         return parsed;
       }
     }
@@ -71,6 +175,7 @@ export function ListView({
   const [sortDir, setSortDir] = useState<1 | -1>(1);
   const [columnOrder, setColumnOrder] = useState<string[]>(loadColumnOrder);
   const [dragCol, setDragCol] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const saveColumnOrder = (order: string[]) => {
     setColumnOrder(order);
@@ -79,34 +184,33 @@ export function ListView({
     } catch {}
   };
 
-  const handleDragStart = (e: React.DragEvent, colKey: string) => {
-    setDragCol(colKey);
+  const handleDragStart = (e: React.DragEvent, colId: string) => {
+    setDragCol(colId);
     e.dataTransfer.effectAllowed = 'move';
   };
-
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
-
-  const handleDrop = (e: React.DragEvent, targetKey: string) => {
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
-    if (!dragCol || dragCol === targetKey) return;
-    const newOrder = [...columnOrder];
-    const fromIdx = newOrder.indexOf(dragCol);
-    const toIdx = newOrder.indexOf(targetKey);
-    newOrder.splice(fromIdx, 1);
-    newOrder.splice(toIdx, 0, dragCol);
-    saveColumnOrder(newOrder);
+    if (!dragCol || dragCol === targetId) return;
+    const next = [...columnOrder];
+    const from = next.indexOf(dragCol);
+    const to = next.indexOf(targetId);
+    next.splice(from, 1);
+    next.splice(to, 0, dragCol);
+    saveColumnOrder(next);
     setDragCol(null);
   };
 
-  // Map column keys to their definitions
-  const colDef = (key: string) => COLUMNS.find(c => (c.key ?? 'type') === key)!;
+  const colDef = (id: string) => COLUMNS.find((c) => c.id === id)!;
   const orderedCols = columnOrder.map(colDef);
 
   const issues = useMemo(() => {
-    const sorted = [...project.issues].filter((i) => !i.archived).sort((a, b) => compare(a, b, sortKey));
+    const sorted = [...project.issues]
+      .filter((i) => !i.archived)
+      .sort((a, b) => compare(a, b, sortKey));
     return sortDir === 1 ? sorted : sorted.reverse();
   }, [project.issues, sortKey, sortDir]);
 
@@ -118,6 +222,18 @@ export function ListView({
     }
   };
 
+  const toggleRow = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const allSelected = issues.length > 0 && issues.every((i) => selected.has(i.id));
+  const toggleAll = () =>
+    setSelected(allSelected ? new Set() : new Set(issues.map((i) => i.id)));
+
   const openCreate = () => {
     const s = useProjectStore.getState();
     s.setNewIssueDefaultStatus('backlog');
@@ -126,31 +242,19 @@ export function ListView({
     s.setShowIssueModal(true);
   };
 
-  // Render a table cell for the given column key
-  const renderCell = (issue: Issue, colKey: string) => {
-    switch (colKey) {
-      case 'type':
+  const renderCell = (issue: Issue, colId: string) => {
+    switch (colId) {
+      case 'work':
         return (
           <td className="px-3 py-2">
-            <IssueTypeIcon type={issue.type} size={16} />
-          </td>
-        );
-      case 'key':
-        return (
-          <td className="px-3 py-2 font-mono text-[12px] text-[var(--text-muted)] whitespace-nowrap">
-            {issue.key}
-          </td>
-        );
-      case 'title':
-        return (
-          <td className="px-3 py-2 text-[13.5px] text-[var(--text-primary)] max-w-[320px] truncate">
-            {issue.title}
-          </td>
-        );
-      case 'status':
-        return (
-          <td className="px-3 py-2">
-            <StatusPill status={issue.status} />
+            <span className="flex items-center gap-2 min-w-0">
+              <IssueTypeIcon type={issue.type} size={16} />
+              <span className="font-mono text-[12px] text-[var(--info)] shrink-0">{issue.key}</span>
+              <span className="text-[13.5px] text-[var(--text-primary)] truncate">{issue.title}</span>
+              {issue.status === 'done' && (
+                <Check size={14} className="text-[var(--success)] shrink-0" aria-label="Done" />
+              )}
+            </span>
           </td>
         );
       case 'assignee':
@@ -158,12 +262,21 @@ export function ListView({
           <td className="px-3 py-2">
             {issue.assignee ? (
               <span className="flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)]">
-                <Avatar name={issue.assignee} size={20} />
-                <span className="truncate max-w-[100px]">{issue.assignee}</span>
+                <Avatar name={issue.assignee} size={22} />
+                <span className="truncate max-w-[110px]">{issue.assignee}</span>
               </span>
             ) : (
               <span className="text-[12.5px] text-[var(--text-faint)]">Unassigned</span>
             )}
+          </td>
+        );
+      case 'reporter':
+        return (
+          <td className="px-3 py-2">
+            <span className="flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)]">
+              <Avatar name={reporterOf(issue)} size={22} />
+              <span className="truncate max-w-[110px]">{reporterOf(issue)}</span>
+            </span>
           </td>
         );
       case 'priority':
@@ -177,27 +290,28 @@ export function ListView({
             </span>
           </td>
         );
-      case 'storyPoints':
+      case 'status':
         return (
-          <td className="px-3 py-2 text-right text-[13px] text-[var(--text-secondary)]">
-            {issue.storyPoints > 0 ? (
-              issue.storyPoints
-            ) : (
-              <span className="text-[var(--chrome)]">–</span>
-            )}
+          <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+            <StatusMenu issue={issue} />
           </td>
         );
-      case 'dueDate':
+      case 'resolution':
+        return (
+          <td className="px-3 py-2 text-[12.5px] text-[var(--text-muted)]">
+            {issue.status === 'done' ? 'Done' : 'Unresolved'}
+          </td>
+        );
+      case 'created':
         return (
           <td className="px-3 py-2 text-[12.5px] text-[var(--text-muted)] whitespace-nowrap">
-            {issue.dueDate ? (
-              new Date(issue.dueDate).toLocaleDateString(undefined, {
-                month: 'short',
-                day: 'numeric',
-              })
-            ) : (
-              <span className="text-[var(--chrome)]">–</span>
-            )}
+            {fmtDate(issue.createdAt)}
+          </td>
+        );
+      case 'updated':
+        return (
+          <td className="px-3 py-2 text-[12.5px] text-[var(--text-muted)] whitespace-nowrap">
+            {fmtDate(issue.updatedAt)}
           </td>
         );
       default:
@@ -208,28 +322,35 @@ export function ListView({
   return (
     <div className="rounded-xl border border-[var(--bg-raised)] bg-[var(--bg-app)] overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[900px]">
+        <table className="w-full text-left border-collapse min-w-[980px]">
           <thead>
             <tr className="border-b border-[var(--bg-raised)]">
-              {orderedCols.map((col) => {
-                const colKey = col.key ?? 'type';
-                return (
+              <th className="w-10 px-3 py-2.5">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  aria-label="Select all work items"
+                  className="w-3.5 h-3.5 rounded accent-[var(--accent)] align-middle"
+                />
+              </th>
+              {orderedCols.map((col) => (
                 <th
-                  key={col.label}
+                  key={col.id}
                   draggable
-                  onDragStart={(e) => handleDragStart(e, colKey)}
+                  onDragStart={(e) => handleDragStart(e, col.id)}
                   onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, colKey)}
-                  className={`px-3 py-2.5 cursor-grab active:cursor-grabbing ${col.className ?? ''} ${dragCol === colKey ? 'opacity-40' : ''}`}
+                  onDrop={(e) => handleDrop(e, col.id)}
+                  className={`px-3 py-2.5 cursor-grab active:cursor-grabbing ${col.className ?? ''} ${dragCol === col.id ? 'opacity-40' : ''}`}
                   title="Drag to reorder column"
                 >
-                  {col.key ? (
+                  {col.sortKey ? (
                     <button
-                      onClick={() => toggleSort(col.key!)}
+                      onClick={() => toggleSort(col.sortKey!)}
                       className="flex items-center gap-1 text-[11.5px] font-semibold uppercase tracking-wider text-[var(--text-faint)] hover:text-[var(--text-secondary)] motion-press"
                     >
                       {col.label}
-                      {sortKey === col.key ? (
+                      {sortKey === col.sortKey ? (
                         sortDir === 1 ? (
                           <ArrowUp size={11} className="text-[var(--accent-bright)]" />
                         ) : (
@@ -245,8 +366,7 @@ export function ListView({
                     </span>
                   )}
                 </th>
-                );
-              })}
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -254,16 +374,25 @@ export function ListView({
               <tr
                 key={issue.id}
                 onClick={() => onIssueClick(issue)}
-                className="border-b border-[var(--bg-raised)]/60 last:border-0 hover:bg-[var(--bg-surface)] cursor-pointer motion-interactive"
+                className={`border-b border-[var(--bg-raised)]/60 last:border-0 cursor-pointer motion-interactive ${
+                  selected.has(issue.id) ? 'bg-[var(--accent)]/10' : 'hover:bg-[var(--bg-surface)]'
+                }`}
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') onIssueClick(issue);
                 }}
               >
-                {columnOrder.map((colKey) => (
-                  <React.Fragment key={colKey}>
-                    {renderCell(issue, colKey)}
-                  </React.Fragment>
+                <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selected.has(issue.id)}
+                    onChange={() => toggleRow(issue.id)}
+                    aria-label={`Select ${issue.key}`}
+                    className="w-3.5 h-3.5 rounded accent-[var(--accent)] align-middle"
+                  />
+                </td>
+                {columnOrder.map((colId) => (
+                  <React.Fragment key={colId}>{renderCell(issue, colId)}</React.Fragment>
                 ))}
               </tr>
             ))}
@@ -280,8 +409,18 @@ export function ListView({
           onAction={openCreate}
         />
       ) : (
-        <div className="px-3 py-2 border-t border-[var(--bg-raised)] text-[12px] text-[var(--text-faint)]">
-          {issues.length} issue{issues.length === 1 ? '' : 's'}
+        <div className="flex items-center gap-4 px-3 py-2 border-t border-[var(--bg-raised)]">
+          <button
+            type="button"
+            onClick={openCreate}
+            className="flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] motion-press"
+          >
+            <Plus size={13} /> Create
+          </button>
+          <span className="flex-1" />
+          <span className="text-[12px] text-[var(--text-faint)]">
+            {selected.size} of {issues.length} selected
+          </span>
         </div>
       )}
     </div>
