@@ -63,7 +63,20 @@ export default async function handler(req: any, res: any) {
   }
 
   // Per-user namespace — one account, same boards on every device.
-  const key = `u:${user.id}:ws:${slug.toLowerCase()}`;
+  // Exception: if this board is shared (see api/collab) and the user is
+  // a member, everyone syncs against one shared record instead.
+  let key = `u:${user.id}:ws:${slug.toLowerCase()}`;
+  try {
+    const share = (await kv.get(`share:${slug.toLowerCase()}`)) as { ownerId: string } | null;
+    if (share) {
+      const members = (await kv.get(`share:${slug.toLowerCase()}:members`)) as string[] | null;
+      if (Array.isArray(members) && members.includes(user.id)) {
+        key = `shared:${slug.toLowerCase()}:data`;
+      }
+    }
+  } catch (e) {
+    console.error('share lookup error', e);
+  }
 
   try {
     if (req.method === 'GET') {

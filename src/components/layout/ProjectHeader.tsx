@@ -5,6 +5,7 @@ import { useProjectStore, type AppView } from '@/store/projectStore';
 import { usePlanStore } from '@/store/planStore';
 import { canUse, type ProFeature } from '@/lib/plan';
 import { LogoMark } from '@/components/ui/LogoMark';
+import { useCollabStore } from '@/collab/collab';
 
 const TABS: { id: AppView; label: string; feature?: ProFeature }[] = [
   { id: 'board', label: 'Board' },
@@ -53,9 +54,10 @@ export function ProjectHeader({ project }: { project: Project }) {
         </h1>
         <div className="flex items-center gap-0.5">
           <button
+            onClick={() => useCollabStore.getState().setPanel(true, 'people')}
             className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
             aria-label="Team"
-            title="Team"
+            title="Team — who's here, invite, chat"
           >
             <Users size={15} />
           </button>
@@ -99,9 +101,10 @@ export function ProjectHeader({ project }: { project: Project }) {
             onChange={(e) => onImportFile(e.target.files?.[0])}
           />
           <button
+            onClick={() => useCollabStore.getState().setPanel(true, 'people')}
             className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
             aria-label="Share"
-            title="Share"
+            title="Share — invite your team to this board"
           >
             <Share2 size={15} />
           </button>

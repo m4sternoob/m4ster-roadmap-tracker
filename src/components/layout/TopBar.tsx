@@ -19,6 +19,7 @@ import { Avatar } from '@/components/issues/Avatar';
 import { LogoMark } from '@/components/ui/LogoMark';
 import { ThemePicker } from '@/components/ui/ThemePicker';
 import { NotificationsBell } from '@/components/layout/NotificationsBell';
+import { PresenceBar } from '@/collab/CollabUI';
 import { DEFAULT_SLUG } from '@/sync/workspace';
 import { useAuth } from '@/sync/auth';
 
@@ -228,6 +229,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         >
           <Plus size={15} /> <span className="hidden sm:inline">Create</span>
         </button>
+        <PresenceBar />
         <ThemePicker />
         <NotificationsBell />
         <button

@@ -30,6 +30,7 @@ import { AppSkeleton } from '@/components/ui/Skeletons';
 import { LiveBackground } from '@/components/ui/LiveBackground';
 import { CursorOrb } from '@/components/ui/CursorOrb';
 import { useSearch, useKeyboardShortcuts } from '@/hooks/useSearch';
+import { CollabRoot } from '@/collab/CollabUI';
 import type { Issue } from '@/types';
 
 function App() {
@@ -251,6 +252,7 @@ function App() {
 
           {showWelcome && <WelcomeModal onClose={dismissWelcome} />}
 
+          <CollabRoot />
           <Toasts />
         </div>
       </AuthProvider>
