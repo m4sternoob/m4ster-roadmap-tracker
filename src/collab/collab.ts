@@ -3,7 +3,8 @@
  *
  * Two transports, one store:
  *  - Server mode (signed in + KV backend): share/invite membership,
- *    presence heartbeats and chat go through /api/collab/:slug, and
+ *    presence heartbeats and chat go through the workspace function
+ *    (?collab=1 — the Hobby plan caps serverless functions at 12), and
  *    board data syncs through the shared workspace record, so every
  *    member is literally on the same board.
  *  - Local mode (signed out / no backend): BroadcastChannel between
@@ -259,12 +260,17 @@ export const useCollabStore = create<CollabState>()((set, get) => ({
 /* Server transport                                                    */
 /* ------------------------------------------------------------------ */
 
+/** Collab rides on the workspace function (Hobby 12-function cap). */
+function collabUrl(slug: string): string {
+  return `/api/workspaces/${encodeURIComponent(slug)}?collab=1`;
+}
+
 async function serverPostRaw(
   slug: string,
   body: Record<string, unknown>
 ): Promise<{ ok: boolean; status: number; json: unknown }> {
   try {
-    const res = await fetch(`/api/collab/${encodeURIComponent(slug)}`, {
+    const res = await fetch(collabUrl(slug), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -303,7 +309,7 @@ interface ServerMember {
 async function refreshState(): Promise<void> {
   const s = useCollabStore.getState();
   try {
-    const res = await fetch(`/api/collab/${encodeURIComponent(s.slug)}`);
+    const res = await fetch(collabUrl(s.slug));
     if (!res.ok) return;
     const body = (await res.json()) as {
       shared: boolean;
@@ -348,7 +354,7 @@ async function refreshChat(channel: ChatChannel): Promise<void> {
   const s = useCollabStore.getState();
   try {
     const res = await fetch(
-      `/api/collab/${encodeURIComponent(s.slug)}?type=chat&channel=${channel}`
+      `${collabUrl(s.slug)}&type=chat&channel=${channel}`
     );
     if (!res.ok) return;
     const body = (await res.json()) as { messages: ChatMsg[] };
@@ -500,7 +506,7 @@ export async function startCollab(slug: string, user: { id: string; username: st
   let mode: 'server' | 'local' = 'local';
   if (user) {
     try {
-      const res = await fetch(`/api/collab/${encodeURIComponent(slug)}`);
+      const res = await fetch(collabUrl(slug));
       if (res.ok) mode = 'server';
     } catch {
       mode = 'local';
