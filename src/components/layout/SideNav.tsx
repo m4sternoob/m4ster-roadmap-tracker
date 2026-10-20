@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  Activity,
   Check,
   ChevronDown,
   ChevronRight,
@@ -10,7 +11,6 @@ import {
   LayoutDashboard,
   LayoutGrid,
   ListFilter,
-  Plus,
   Rocket,
   Settings2,
   Star,
@@ -182,7 +182,9 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
   const setSelectedIssue = useProjectStore((s) => s.setSelectedIssue);
   const setShowIssueModal = useProjectStore((s) => s.setShowIssueModal);
   const setShowSettingsModal = useProjectStore((s) => s.setShowSettingsModal);
-  const pushToast = useProjectStore((s) => s.pushToast);
+  const setShowSearchModal = useProjectStore((s) => s.setShowSearchModal);
+  const setShowAutomationsModal = useProjectStore((s) => s.setShowAutomationsModal);
+  const setShowShortcutsModal = useProjectStore((s) => s.setShowShortcutsModal);
   const applyBoardFilterPatch = useProjectStore((s) => s.applyBoardFilterPatch);
   const setBoardFilterPanelOpen = useProjectStore((s) => s.setBoardFilterPanelOpen);
   const recentIds = useProjectStore((s) => s.recentIds);
@@ -216,9 +218,6 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
     count: issues.filter((i) => i.epicId === e.id).length,
   }));
 
-  const notInDemo = (what: string) =>
-    pushToast('info', `${what} isn't part of this demo workspace`);
-
   return (
     <aside
       className={`shrink-0 h-full bg-[var(--bg-app)] border-r border-[var(--bg-raised)] hidden md:flex flex-col py-2 px-1.5 gap-0.5 overflow-y-auto overflow-x-hidden motion-layout ${
@@ -232,10 +231,8 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
             icon={User}
             label="For you"
             collapsed={collapsed}
-            onClick={() => {
-              applyBoardFilterPatch({ onlyMine: true, assignees: [], quickAssignee: null });
-              goBoard();
-            }}
+            active={activeView === 'foryou'}
+            onClick={() => setActiveView('foryou')}
           />
           <NavPopover
             icon={Clock}
@@ -273,11 +270,35 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
       {sections.workspace && (
         <>
           <SectionLabel collapsed={collapsed}>Workspace</SectionLabel>
-          <Item
+          <NavPopover
             icon={LayoutGrid}
             label="Apps"
             collapsed={collapsed}
-            onClick={() => notInDemo('Apps')}
+            panelLabel="Apps"
+            panel={
+              <div>
+                <p className="px-2.5 pt-1.5 pb-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
+                  Apps
+                </p>
+                {(
+                  [
+                    ['Search everything', () => setShowSearchModal(true)],
+                    ['Automations', () => setShowAutomationsModal(true)],
+                    ['Reports + downloads', () => setActiveView('reports')],
+                    ['Keyboard shortcuts', () => setShowShortcutsModal(true)],
+                    ['Settings', () => setShowSettingsModal(true)],
+                  ] as [string, () => void][]
+                ).map(([label, run]) => (
+                  <button
+                    key={label}
+                    onClick={run}
+                    className="w-full text-left px-2.5 py-2 rounded-lg text-[13px] text-[var(--text-secondary)] hover:bg-[var(--bg-raised)] hover:text-[var(--text-primary)] motion-interactive"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            }
           />
           <Item
             icon={ListFilter}
@@ -301,14 +322,6 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
             )}
             {!collapsed && (
               <span className="flex items-center gap-0.5">
-                <button
-                  className="p-1 rounded text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]"
-                  aria-label="Create space"
-                  title="Create space"
-                  onClick={() => notInDemo('Creating new spaces')}
-                >
-                  <Plus size={13} />
-                </button>
                 <button
                   className="p-1 rounded text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]"
                   aria-label="Space settings"
@@ -345,12 +358,42 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
             {!collapsed && <ChevronRight size={13} className="text-[var(--text-faint)] shrink-0" />}
           </button>
 
+          {/* Expanded project views (matches the reference sidebar: the
+              current space expands into its view list). */}
           {!collapsed && (
-            <div className="px-2.5 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-faint)] select-none">
-              Recent
+            <div className="ml-4 border-l border-[var(--bg-raised)] pl-1.5 space-y-0.5 pb-1">
+              {(
+                [
+                  ['summary', 'Summary'],
+                  ['list', 'List'],
+                  ['board', 'Board'],
+                  ['backlog', 'Backlog'],
+                  ['development', 'Development'],
+                ] as [typeof activeView, string][]
+              ).map(([view, label]) => (
+                <button
+                  key={view}
+                  onClick={() => setActiveView(view)}
+                  className={`w-full text-left px-2 py-1 rounded-md text-[12.5px] motion-interactive ${
+                    activeView === view
+                      ? 'bg-[var(--accent)]/15 text-[var(--accent-bright)] font-medium'
+                      : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           )}
-          <Item icon={Boxes} label="Sample roadmap" collapsed={collapsed} onClick={goBoard} />
+
+          {!collapsed && (
+            <button
+              onClick={() => setActiveView('foryou')}
+              className="w-full text-left px-2.5 py-1.5 text-[12.5px] text-[var(--text-faint)] hover:text-[var(--text-secondary)] motion-interactive"
+            >
+              View all spaces
+            </button>
+          )}
         </>
       )}
 
@@ -383,12 +426,29 @@ export function SideNav({ project, collapsed }: { project: Project; collapsed: b
       {sections.manage && (
         <>
           <SectionLabel collapsed={collapsed}>Manage</SectionLabel>
+          <button
+            onClick={() => setActiveView('development')}
+            title={collapsed ? 'Operations' : undefined}
+            className={`w-full flex items-center gap-2.5 px-2.5 h-8 rounded-md text-[13px] motion-interactive nav-pill ${
+              activeView === 'development'
+                ? 'bg-[var(--accent)]/15 text-[var(--accent-bright)] font-medium'
+                : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]'
+            } ${collapsed ? 'justify-center px-0' : ''}`}
+          >
+            <Activity size={16} className="shrink-0" />
+            {!collapsed && <span className="flex-1 text-left truncate">Operations</span>}
+            {!collapsed && (
+              <span className="text-[9.5px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-[var(--accent)] text-white">
+                New
+              </span>
+            )}
+          </button>
           <Item
             icon={Boxes}
             label="Assets"
-            external
             collapsed={collapsed}
-            onClick={() => notInDemo('Asset management')}
+            active={activeView === 'assets'}
+            onClick={() => setActiveView('assets')}
           />
           <NavPopover
             icon={Users}

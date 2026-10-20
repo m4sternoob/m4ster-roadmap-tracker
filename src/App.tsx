@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { useProjectStore } from '@/store/projectStore';
 import { usePlanStore } from '@/store/planStore';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
@@ -7,14 +7,31 @@ import { TopBar } from '@/components/layout/TopBar';
 import { SideNav } from '@/components/layout/SideNav';
 import { ProjectHeader } from '@/components/layout/ProjectHeader';
 import { BoardView } from '@/components/views/BoardView';
-import { ListView } from '@/components/views/ListView';
-import { BacklogView } from '@/components/views/BacklogView';
-import { SprintsView } from '@/components/views/SprintsView';
-import { ReportsView } from '@/components/views/ReportsView';
-import { CalendarView } from '@/components/views/CalendarView';
-import { TimelineView } from '@/components/views/TimelineView';
-import { WorkloadView } from '@/components/views/WorkloadView';
-import { ArchivedView } from '@/components/views/ArchivedView';
+// Non-board views are code-split: the board is the landing view, everything
+// else loads on first open (keeps the initial bundle lean).
+const ListView = lazy(() => import('@/components/views/ListView').then((m) => ({ default: m.ListView })));
+const BacklogView = lazy(() => import('@/components/views/BacklogView').then((m) => ({ default: m.BacklogView })));
+const SprintsView = lazy(() => import('@/components/views/SprintsView').then((m) => ({ default: m.SprintsView })));
+const ReportsView = lazy(() => import('@/components/views/ReportsView').then((m) => ({ default: m.ReportsView })));
+const CalendarView = lazy(() => import('@/components/views/CalendarView').then((m) => ({ default: m.CalendarView })));
+const TimelineView = lazy(() => import('@/components/views/TimelineView').then((m) => ({ default: m.TimelineView })));
+const WorkloadView = lazy(() => import('@/components/views/WorkloadView').then((m) => ({ default: m.WorkloadView })));
+const ArchivedView = lazy(() => import('@/components/views/ArchivedView').then((m) => ({ default: m.ArchivedView })));
+const SummaryView = lazy(() => import('@/components/views/SummaryView').then((m) => ({ default: m.SummaryView })));
+const ForYouView = lazy(() => import('@/components/views/ForYouView').then((m) => ({ default: m.ForYouView })));
+const DocsView = lazy(() => import('@/components/views/DocsView').then((m) => ({ default: m.DocsView })));
+const DevelopmentView = lazy(() => import('@/components/views/DevelopmentView').then((m) => ({ default: m.DevelopmentView })));
+const AssetsView = lazy(() => import('@/components/views/AssetsView').then((m) => ({ default: m.AssetsView })));
+
+function ViewFallback() {
+  return (
+    <div className="space-y-3 animate-pulse" aria-label="Loading view">
+      <div className="h-8 w-56 rounded-lg bg-[var(--bg-raised)]" />
+      <div className="h-40 rounded-xl bg-[var(--bg-raised)]/70" />
+      <div className="h-40 rounded-xl bg-[var(--bg-raised)]/50" />
+    </div>
+  );
+}
 import { IssueModal } from '@/components/modals/IssueModal';
 import { EpicModal } from '@/components/modals/EpicModal';
 import { SprintModal } from '@/components/modals/SprintModal';
@@ -173,8 +190,20 @@ function App() {
                   }`}
                 >
                   <div key={activeView} className="animate-view-enter h-full">
+                    <Suspense fallback={<ViewFallback />}>
                     {activeView === 'board' && (
                       <BoardView project={project} onIssueClick={handleIssueClick} />
+                    )}
+                    {activeView === 'summary' && (
+                      <SummaryView project={project} onIssueClick={handleIssueClick} />
+                    )}
+                    {activeView === 'foryou' && (
+                      <ForYouView project={project} onIssueClick={handleIssueClick} />
+                    )}
+                    {activeView === 'docs' && <DocsView project={project} />}
+                    {activeView === 'assets' && <AssetsView project={project} />}
+                    {activeView === 'development' && (
+                      <DevelopmentView project={project} onIssueClick={handleIssueClick} />
                     )}
                     {activeView === 'list' && (
                       <ListView project={project} onIssueClick={handleIssueClick} />
@@ -198,6 +227,7 @@ function App() {
                     {activeView === 'archived' && (
                       <ArchivedView project={project} onIssueClick={handleIssueClick} />
                     )}
+                    </Suspense>
                   </div>
                 </main>
               </div>

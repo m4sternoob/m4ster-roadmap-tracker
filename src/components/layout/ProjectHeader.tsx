@@ -8,14 +8,17 @@ import { LogoMark } from '@/components/ui/LogoMark';
 import { useCollabStore } from '@/collab/collab';
 
 const TABS: { id: AppView; label: string; feature?: ProFeature }[] = [
-  { id: 'board', label: 'Board' },
+  { id: 'summary', label: 'Summary' },
   { id: 'list', label: 'List' },
+  { id: 'board', label: 'Board' },
   { id: 'backlog', label: 'Backlog', feature: 'view:backlog' },
   { id: 'calendar', label: 'Calendar', feature: 'view:calendar' },
   { id: 'timeline', label: 'Timeline', feature: 'view:timeline' },
   { id: 'workload', label: 'Workload', feature: 'view:workload' },
   { id: 'sprints', label: 'Sprints', feature: 'view:sprints' },
   { id: 'reports', label: 'Reports', feature: 'view:reports' },
+  { id: 'docs', label: 'Docs' },
+  { id: 'development', label: 'Development' },
   { id: 'archived', label: 'Archived', feature: 'view:archived' },
 ];
 
