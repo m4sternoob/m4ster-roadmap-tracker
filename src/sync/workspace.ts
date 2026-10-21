@@ -13,6 +13,9 @@ export function getWorkspaceSlug(): string {
   if (typeof window === 'undefined') return DEFAULT_SLUG;
   const seg = window.location.pathname.split('/').filter(Boolean)[0];
   if (!seg) return DEFAULT_SLUG;
+  // `/app` is the tracker app's front door (the marketing site lives at `/`),
+  // never a workspace slug.
+  if (seg === 'app') return DEFAULT_SLUG;
   // Ignore well-known non-workspace paths.
   if (seg === 'api' || seg === 'w') {
     const next = window.location.pathname.split('/').filter(Boolean)[1];
