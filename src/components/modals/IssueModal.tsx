@@ -606,6 +606,7 @@ function DetailView({
                   updateIssue(live.id, { assignee: e.target.value.trim() || undefined })
                 }
                 placeholder="Unassigned"
+                list="assignee-suggestions"
                 className={inputCls}
                 aria-label="Assignee"
               />
