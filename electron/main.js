@@ -1,8 +1,8 @@
 /**
  * M4ster Tracker — Electron desktop wrapper.
  *
- * Loads the production web app (https://m4ster-tracker.vercel.app/) in a
- * native window. Handles the `m4ster-tracker://` deep-link scheme used by the
+ * Loads the production web app (https://m4ster-tracker.vercel.app/app) in a
+ * native window. The bare origin is the marketing site; the app lives at /app. Handles the `m4ster-tracker://` deep-link scheme used by the
  * Google OAuth desktop flow and forwards deep-link URLs to the renderer.
  *
  * No Rust, no native toolchain — just Node.js + Electron.
@@ -11,7 +11,7 @@
 const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('path');
 
-const APP_URL = process.env.M4STER_TRACKER_URL || 'https://m4ster-tracker.vercel.app/';
+const APP_URL = process.env.M4STER_TRACKER_URL || 'https://m4ster-tracker.vercel.app/app';
 const APP_ORIGIN = new URL(APP_URL).origin;
 const PROTOCOL = 'm4ster-tracker';
 

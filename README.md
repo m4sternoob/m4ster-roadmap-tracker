@@ -20,6 +20,16 @@
 - **Production:** https://m4ster-tracker.vercel.app
 - **Experimental (Pro trial build):** https://m4ster-tracker-git-experimental-m4ster-verse.vercel.app/
 
+## 🌐 Site structure
+
+One deployment, two doors:
+
+- **`/`** — the public website: what the product is, plans, and app downloads.
+- **`/app`** — the full tracker app (this is also where the installed PWA and the desktop app open).
+- **`/{workspace-slug}`** — a shared workspace board, same app, scoped to that workspace.
+
+Links with a query string (invite links like `/?join=CODE`, sign-in returns) always open the app, never the website — old bookmarks keep working.
+
 Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless on Vercel + Upstash Redis.
 
 ## ✨ Features
