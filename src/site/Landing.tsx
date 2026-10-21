@@ -81,73 +81,24 @@ const FEATURES = [
 
 /* ------------------------------ board preview ----------------------------- */
 
-const PREVIEW_COLUMNS: { name: string; dot: string; cards: { title: string; tag: string }[] }[] = [
-  {
-    name: 'To Do',
-    dot: 'var(--text-faint)',
-    cards: [
-      { title: 'Design the new onboarding flow', tag: 'Design' },
-      { title: 'Write launch announcement', tag: 'Docs' },
-    ],
-  },
-  {
-    name: 'In Progress',
-    dot: 'var(--accent)',
-    cards: [
-      { title: 'Fix checkout double-submit', tag: 'Bug' },
-      { title: 'API rate limits for exports', tag: 'Backend' },
-      { title: 'Empty-state illustrations', tag: 'Design' },
-    ],
-  },
-  {
-    name: 'Done',
-    dot: 'var(--success)',
-    cards: [
-      { title: 'Sprint 12 retrospective', tag: 'Team' },
-      { title: 'Dark theme polish pass', tag: 'Design' },
-    ],
-  },
-];
-
+/** Real capture of the live board — a card dragged between columns. */
 function BoardPreview() {
+  const [reduceMotion] = useState(
+    () =>
+      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
   return (
-    <div
-      aria-hidden="true"
-      className="rounded-2xl border border-[var(--chrome)] bg-[var(--bg-surface)] shadow-2xl p-3 sm:p-4 select-none"
-    >
-      <div className="grid grid-cols-3 gap-3">
-        {PREVIEW_COLUMNS.map((col) => (
-          <div key={col.name} className="rounded-xl bg-[var(--bg-app)] p-2.5 min-w-0">
-            <div className="flex items-center gap-2 px-1 pb-2">
-              <span
-                className="w-2 h-2 rounded-full shrink-0"
-                style={{ background: col.dot }}
-              />
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)] truncate">
-                {col.name}
-              </span>
-              <span className="ml-auto text-[11px] text-[var(--text-faint)]">
-                {col.cards.length}
-              </span>
-            </div>
-            <div className="space-y-2">
-              {col.cards.map((card) => (
-                <div
-                  key={card.title}
-                  className="rounded-lg bg-[var(--bg-raised)] border border-[var(--chrome)] p-2.5"
-                >
-                  <p className="text-[12px] leading-snug text-[var(--text-primary)]">
-                    {card.title}
-                  </p>
-                  <span className="inline-block mt-2 rounded-full bg-[var(--accent-soft)] text-[var(--accent-bright)] px-2 py-0.5 text-[10px] font-medium">
-                    {card.tag}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="rounded-2xl border border-[var(--chrome)] bg-[var(--bg-surface)] shadow-2xl p-2 sm:p-2.5">
+      <video
+        className="block w-full rounded-xl"
+        src="/media/board-drag.mp4"
+        poster="/media/board-drag-poster.png"
+        autoPlay={!reduceMotion}
+        muted
+        loop
+        playsInline
+        aria-label="Screen recording of a card being dragged between board columns in M4ster Tracker"
+      />
     </div>
   );
 }
@@ -183,9 +134,7 @@ function DownloadSection() {
         if (cancelled || !release.assets) return;
         const next: Record<string, DownloadState> = {};
         for (const platform of PLATFORMS) {
-          const asset = release.assets.find((a) =>
-            a.name.toLowerCase().includes(platform.ext)
-          );
+          const asset = release.assets.find((a) => a.name.toLowerCase().includes(platform.ext));
           next[platform.key] = {
             url: asset ? asset.browser_download_url : null,
             version: asset ? (release.tag_name ?? null) : null,
@@ -250,9 +199,7 @@ function DownloadSection() {
                   <span className="block text-[14px] font-semibold text-[var(--text-primary)]">
                     {platform.label}
                   </span>
-                  <span className="block text-[12px] text-[var(--text-muted)]">
-                    In development
-                  </span>
+                  <span className="block text-[12px] text-[var(--text-muted)]">In development</span>
                 </span>
               </button>
             );
@@ -261,17 +208,17 @@ function DownloadSection() {
 
         {anyMissing && (
           <p className="mt-4 text-[12.5px] text-[var(--text-faint)] max-w-xl mx-auto">
-            Native desktop &amp; mobile apps are in active development — the web app
-            above is the full product today.
+            Native desktop &amp; mobile apps are in active development — the web app above is the
+            full product today.
           </p>
         )}
 
         <div className="mt-10 mx-auto max-w-2xl rounded-xl border border-[var(--chrome)] bg-[var(--bg-surface)] px-5 py-4 text-left flex flex-col sm:flex-row sm:items-center gap-3">
           <MonitorDown size={22} className="shrink-0 text-[var(--accent-bright)]" />
           <p className="text-[13.5px] text-[var(--text-secondary)] flex-1">
-            <span className="font-semibold text-[var(--text-primary)]">Install App:</span>{' '}
-            the web app is a PWA — open it in your browser and choose “Install app” to
-            pin it like a native app, no download needed.
+            <span className="font-semibold text-[var(--text-primary)]">Install App:</span> the web
+            app is a PWA — open it in your browser and choose “Install app” to pin it like a native
+            app, no download needed.
           </p>
           <a
             href="/app"
@@ -326,8 +273,8 @@ function LandingPage() {
             Project boards for small teams that ship.
           </h1>
           <p className="mt-4 text-[16px] leading-relaxed text-[var(--text-secondary)] max-w-lg">
-            Boards, sprints and reports in one calm workspace — free to start, one flat
-            price when you grow. No per-seat math, ever.
+            Boards, sprints and reports in one calm workspace — free to start, one flat price when
+            you grow. No per-seat math, ever.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <a
@@ -357,8 +304,8 @@ function LandingPage() {
             Everything a small team needs
           </h2>
           <p className="mt-3 text-[15px] text-[var(--text-secondary)] max-w-xl">
-            The full workflow — plan it, track it, ship it, report on it — without the
-            enterprise bloat.
+            The full workflow — plan it, track it, ship it, report on it — without the enterprise
+            bloat.
           </p>
           <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {FEATURES.map((feature) => (
@@ -386,22 +333,16 @@ function LandingPage() {
             Simple pricing, honestly priced
           </h2>
           <p className="mt-3 text-[15px] text-[var(--text-secondary)] max-w-xl">
-            One flat yearly price. No per-seat math, no “contact sales”, no enterprise
-            tier. Ever.
+            One flat yearly price. No per-seat math, no “contact sales”, no enterprise tier. Ever.
           </p>
           <div className="mt-10 grid md:grid-cols-3 gap-4 items-stretch max-w-4xl">
             {/* Free */}
             <div className="rounded-xl border border-[var(--chrome)] bg-[var(--bg-surface)] p-5 flex flex-col">
               <div className="text-[15px] font-semibold">Free</div>
-              <p className="mt-0.5 text-[12.5px] text-[var(--text-muted)]">
-                For trying things out
-              </p>
+              <p className="mt-0.5 text-[12.5px] text-[var(--text-muted)]">For trying things out</p>
               <div className="mt-3 text-[26px] font-bold">
                 $0
-                <span className="text-[13px] font-medium text-[var(--text-muted)]">
-                  {' '}
-                  forever
-                </span>
+                <span className="text-[13px] font-medium text-[var(--text-muted)]"> forever</span>
               </div>
               <ul className="mt-4 space-y-2 flex-1">
                 {FREE_FEATURES.map((f) => (
@@ -428,9 +369,7 @@ function LandingPage() {
                 Most popular
               </div>
               <div className="mt-4 text-[15px] font-semibold">Pro</div>
-              <p className="mt-0.5 text-[12.5px] text-[var(--text-muted)]">
-                For makers who ship
-              </p>
+              <p className="mt-0.5 text-[12.5px] text-[var(--text-muted)]">For makers who ship</p>
               <div className="mt-3 text-[26px] font-bold">
                 {PRO_PRICE.replace('/year', '')}
                 <span className="text-[13px] font-medium text-[var(--text-muted)]">/year</span>
@@ -465,13 +404,9 @@ function LandingPage() {
               </p>
               <div className="mt-3 text-[26px] font-bold">
                 {PRO_PRICE.replace('/year', '')}
-                <span className="text-[13px] font-medium text-[var(--text-muted)]">
-                  /year flat
-                </span>
+                <span className="text-[13px] font-medium text-[var(--text-muted)]">/year flat</span>
               </div>
-              <p className="text-[12px] text-[var(--text-faint)]">
-                Per workspace, not per person.
-              </p>
+              <p className="text-[12px] text-[var(--text-faint)]">Per workspace, not per person.</p>
               <ul className="mt-4 space-y-2 flex-1">
                 {TEAM_FEATURES.map((f) => (
                   <li
