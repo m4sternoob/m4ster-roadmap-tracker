@@ -12,7 +12,7 @@
 
 ## 🎯 Overview
 
-**m4ster-tracker** is a freemium project tracker for solo devs, indie hackers, and small teams (2-10) who are fed up with Jira's per-seat pricing. 
+**m4ster-tracker** is a freemium project tracker for solo devs, indie hackers, and small teams (2-10) who are fed up with Jira's per-seat pricing.
 
 **Pricing:** Free tier for everyone. Pro at **$20/year flat** — no per-seat math, no "contact sales", no enterprise tier. Ever.
 
@@ -55,7 +55,7 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 - **Team chat:** Slack/Discord-style channels (#general, #board, #random) in the team panel, plus a live activity feed of creates, moves and assignments
 
 ### Customization
-- 6 theme swatches (Midnight, Ocean, Ember, Forest, Violet, Porcelain)
+- 6 theme switches (Midnight, Ocean, Ember, Forest, Violet, Porcelain)
 - Custom theme builder (hex/HSL, 23-var palette)
 - Theme profiles (save/load/share)
 - Background aura controls (Aurora, Intensity, Motion, Cursor glow, Tap ripples)
@@ -76,25 +76,21 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 
 ## 🚀 Quick Start
 
-```bash
-git clone https://github.com/m4sternoob/m4ster-roadmap-tracker.git
-cd m4ster-roadmap-tracker
-npm install
-npm run dev
-```
+    git clone https://github.com/m4sternoob/m4ster-roadmap-tracker.git
+    cd m4ster-roadmap-tracker
+    npm install
+    npm run dev
 
 ## 📦 Scripts
 
-```bash
-npm run dev          # Dev server
-npm run build        # Production build
-npm run preview      # Preview build
-npm run test         # Vitest
-npm run lint         # Oxlint
-npm run typecheck    # TypeScript
-```
+    npm run dev          # Dev server
+    npm run build        # Production build
+    npm run preview      # Preview build
+    npm run test         # Vitest
+    npm run lint         # Oxlint
+    npm run typecheck    # TypeScript
 
-## 🏗️ Stack
+## 🏺 Stack
 
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4
 - **State:** Zustand with persist middleware
@@ -105,13 +101,10 @@ npm run typecheck    # TypeScript
 
 ## 🗺️ Roadmap
 
-See [LAUNCH.md](LAUNCH.md) for the full launch plan.
-
 **Phase 1:** Trial build ✅ Done
 **Phase 2:** Paywall (Stripe) — next
 **Phase 3:** Pro feature mix (Triage, Goals, Forms, dependencies, dashboards)
 **Phase 4:** Landing page + launch
-**Phase 5:** Famous (word of mouth from small teams)
 
 **Strategy:** No enterprise. Target solo devs, indie hackers, teams of 2-10. Land 1-2 small teams → they love it → word of mouth → famous.
 
@@ -133,7 +126,6 @@ No per-seat pricing. No "contact sales". No enterprise tier. Ever.
 
 1. Fork → feature branch → PR
 2. Conventional commits (`feat:`, `fix:`, `docs:`, `chore:`)
-3. Human-written messages, no AI slop
 4. Update README in the same pass as code changes
 
 ## 📄 License
