@@ -12,9 +12,10 @@ import {
 } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useProjectStore } from '@/store/projectStore';
+import { cardNodes } from '@/lib/cardNodes';
 import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { PriorityIcon } from '@/components/issues/PriorityIcon';
 import { Avatar } from '@/components/issues/Avatar';
@@ -351,9 +352,19 @@ export function IssueCard({
         transition,
       };
 
+  // Register the card's node so the board's glide animation can measure it.
+  const cardRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      setNodeRef(node);
+      if (node) cardNodes.set(issue.id, node);
+      else cardNodes.delete(issue.id);
+    },
+    [issue.id, setNodeRef]
+  );
+
   return (
     <div
-      ref={setNodeRef}
+      ref={cardRef}
       style={style}
       {...attributes}
       {...listeners}
