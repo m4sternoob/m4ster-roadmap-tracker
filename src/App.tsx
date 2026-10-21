@@ -78,13 +78,16 @@ function App() {
   const demoSeeded = useProjectStore((s) => s.demoSeeded);
 
   // First-run greeting: show once when a fresh visitor lands on demo data.
+  // Keys off the store's write-once mt_fresh_seed_v1 marker (demoSeeded
+  // itself races with the multiple initializeProject calls).
   const [showWelcome, setShowWelcome] = useState(false);
   useEffect(() => {
-    if (!project || !demoSeeded) return;
+    if (!project) return;
     try {
       if (localStorage.getItem('mt_welcomed_v1')) return;
+      if (!demoSeeded && !localStorage.getItem('mt_fresh_seed_v1')) return;
     } catch {
-      return;
+      if (!demoSeeded) return;
     }
     setShowWelcome(true);
   }, [project, demoSeeded]);
@@ -92,6 +95,7 @@ function App() {
   const dismissWelcome = () => {
     try {
       localStorage.setItem('mt_welcomed_v1', '1');
+      localStorage.removeItem('mt_fresh_seed_v1');
     } catch {
       // Non-fatal.
     }

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased — test build]
 
+### Demo data + first-run tutorial
+- Demo seed is now neutral sample content (fictional product team) — a
+  fresh visitor no longer lands on the owner's personal board.
+- Welcome modal upgraded to a 5-step quick tour: welcome, dragging cards,
+  views, inviting the team, day/night + customize. Step dots, Back/Skip,
+  shown once per browser.
+
 ### Fixed — appearance controls
 - Font picker: Pro fonts were hardcoded-locked on every build (production
   included). Locks now follow the plan only where enforcement is on;

@@ -12,7 +12,7 @@ interface ModalShellProps {
 }
 
 const DEFAULT_PANEL =
-  'max-w-md w-full rounded-xl border border-white/10 bg-[var(--bg-deep)] text-slate-100 shadow-2xl shadow-black/50 animate-scale-in max-h-[90vh] overflow-y-auto';
+  'max-w-md w-full rounded-xl border border-[var(--chrome)] bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-2xl shadow-black/30 animate-scale-in max-h-[90vh] overflow-y-auto';
 
 /**
  * Shared modal chrome: fading blurred backdrop, scaling panel entry,
@@ -67,15 +67,15 @@ export function ModalHeader({
   icon?: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-      <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
+    <div className="flex items-center justify-between border-b border-[var(--chrome)] px-5 py-4">
+      <h2 className="flex items-center gap-2 text-lg font-semibold text-[var(--text-primary)]">
         {icon}
         {title}
       </h2>
       <button
         onClick={onClose}
         aria-label="Close"
-        className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-slate-100 motion-press"
+        className="rounded-lg p-1.5 text-[var(--text-muted)] hover:bg-[var(--bg-raised)] hover:text-[var(--text-primary)] motion-press"
       >
         <X size={18} />
       </button>
@@ -85,12 +85,12 @@ export function ModalHeader({
 
 /** Shared field styling for modal forms. */
 export const modalFieldClass =
-  'w-full rounded-lg border border-white/10 bg-[var(--bg-deep)] px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40';
+  'w-full rounded-lg border border-[var(--chrome)] bg-[var(--bg-sunken)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-faint)] focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40';
 
 /** Shared footer button row. */
 export function ModalFooter({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-center justify-end gap-2 border-t border-white/10 px-5 py-4">
+    <div className="flex items-center justify-end gap-2 border-t border-[var(--chrome)] px-5 py-4">
       {children}
     </div>
   );
@@ -100,4 +100,4 @@ export const modalPrimaryBtn =
   'rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400 motion-press flex items-center gap-2';
 
 export const modalGhostBtn =
-  'rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-white/10 motion-press';
+  'rounded-lg px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-raised)] motion-press';

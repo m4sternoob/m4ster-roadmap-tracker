@@ -219,6 +219,18 @@ function normalizeProject(project: Project): Project {
   };
 }
 
+
+/** Write-once marker that this browser got a fresh demo seed. The store's
+ * demoSeeded flag races (initializeProject runs from App + auth + collab),
+ * so the welcome tour keys off this marker instead. Cleared on dismiss. */
+function markFreshSeed() {
+  try {
+    localStorage.setItem('mt_fresh_seed_v1', '1');
+  } catch {
+    // Storage blocked — the in-memory flag still applies this session.
+  }
+}
+
 function createDefaultProject(): Project {
   return createSampleProject();
 }
@@ -545,6 +557,7 @@ export const useProjectStore = create<ProjectState>()(
             } else {
               project = createDefaultProject();
               seededDemo = true;
+              markFreshSeed();
             }
             if (!local) {
               try {
@@ -560,6 +573,7 @@ export const useProjectStore = create<ProjectState>()(
             } else if (cloud.reason === 'not-found') {
               project = createDefaultProject();
               seededDemo = true;
+              markFreshSeed();
               try {
                 localStorage.setItem(storageKey, JSON.stringify(project));
               } catch {
@@ -572,6 +586,7 @@ export const useProjectStore = create<ProjectState>()(
             } else {
               project = createDefaultProject();
               seededDemo = true;
+              markFreshSeed();
             }
           }
 
@@ -579,6 +594,7 @@ export const useProjectStore = create<ProjectState>()(
         } catch (e) {
           set({ error: 'Failed to load project', isLoading: false, syncStatus: 'error' });
           const project = createDefaultProject();
+          markFreshSeed();
           set({ project, demoSeeded: true });
         }
       },
