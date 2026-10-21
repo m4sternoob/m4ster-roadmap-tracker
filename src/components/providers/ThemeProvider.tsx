@@ -101,7 +101,9 @@ function readStoredTheme(customs: CustomTheme[]): string {
   } catch {
     // Private mode / storage blocked — fall through to default.
   }
-  return 'violet';
+  // Default is the friendly light theme (Porcelain), not dark — a stored
+  // choice always wins, this only applies to first visits.
+  return 'porcelain';
 }
 
 /** Apply a variable map as the active custom theme. */
@@ -131,7 +133,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       applyCustomVars(generateThemeVars(custom.accent, custom.bg, custom.dark), custom.dark);
     } else {
       clearCustomVars();
-      root.dataset.theme = THEME_IDS.has(id) ? id : 'violet';
+      root.dataset.theme = THEME_IDS.has(id) ? id : 'porcelain';
       root.classList.toggle('dark', id !== 'porcelain');
     }
     try {
@@ -172,7 +174,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const next = customs.filter((c) => c.id !== id);
     setCustoms(next);
     persistCustomThemes(next);
-    if (theme === id) setThemeState('violet');
+    if (theme === id) setThemeState('porcelain');
   };
 
   const previewCustomTheme = (accent: string, bg: string, dark: boolean) => {

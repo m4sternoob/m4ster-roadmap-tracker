@@ -5,6 +5,17 @@ import App from './App';
 import './styles/index.css';
 import { initPWA } from './utils/pwa';
 
+// Restore the saved cursor style + font before first paint so the choices
+// survive reloads (the Customize panel writes these keys).
+try {
+  const cursor = localStorage.getItem('mt_cursor_style');
+  if (cursor) document.documentElement.dataset.cursor = cursor;
+  const font = localStorage.getItem('mt_font');
+  if (font) document.documentElement.dataset.font = font;
+} catch {
+  // Storage blocked (private mode) — defaults apply.
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />

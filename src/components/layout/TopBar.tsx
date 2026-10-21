@@ -6,11 +6,13 @@ import {
   Crown,
   Loader2,
   LogOut,
+  Moon,
   PanelLeft,
   Plus,
   Save,
   Search,
   Settings,
+  Sun,
 } from 'lucide-react';
 import { useProjectStore } from '@/store/projectStore';
 import { usePlanStore } from '@/store/planStore';
@@ -18,6 +20,43 @@ import { PLAN_ENFORCEMENT } from '@/lib/plan';
 import { Avatar } from '@/components/issues/Avatar';
 import { LogoMark } from '@/components/ui/LogoMark';
 import { ThemePicker } from '@/components/ui/ThemePicker';
+import { useTheme } from '@/components/providers/ThemeProvider';
+
+/**
+ * One-click day/night toggle, next to the theme (Customize) button.
+ * Day = Porcelain (the friendly light default). Night = the last dark
+ * theme the user had (Violet until they pick another). The icon shows
+ * the CURRENT mode — sun in day mode, moon in dark — and the choice is
+ * saved by the theme store, so it sticks across reloads.
+ */
+function DayNightToggle() {
+  const { theme, setTheme } = useTheme();
+  const isDay = theme === 'porcelain';
+  const toggle = () => {
+    if (isDay) {
+      let lastDark = 'violet';
+      try {
+        lastDark = localStorage.getItem('mt_last_dark') || 'violet';
+      } catch {}
+      setTheme(lastDark);
+    } else {
+      try {
+        localStorage.setItem('mt_last_dark', theme);
+      } catch {}
+      setTheme('porcelain');
+    }
+  };
+  return (
+    <button
+      onClick={toggle}
+      className="p-2 rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)] motion-press"
+      aria-label={isDay ? 'Switch to dark mode' : 'Switch to light mode'}
+      title={isDay ? 'Dark mode' : 'Light mode'}
+    >
+      {isDay ? <Sun size={17} /> : <Moon size={17} />}
+    </button>
+  );
+}
 import { NotificationsBell } from '@/components/layout/NotificationsBell';
 import { PresenceBar } from '@/collab/CollabUI';
 import { DEFAULT_SLUG } from '@/sync/workspace';
@@ -230,6 +269,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
           <Plus size={15} /> <span className="hidden sm:inline">Create</span>
         </button>
         <PresenceBar />
+        <DayNightToggle />
         <ThemePicker />
         <NotificationsBell />
         <button

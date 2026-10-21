@@ -174,6 +174,38 @@ export function ThemePicker() {
     saveIconPack(id);
     applyIconPack(id);
   };
+  // Cursor style + font — reactive state (the old code poked the DOM
+  // imperatively, so the active highlight never moved and the buttons
+  // looked dead). Persisted to localStorage and boot-restored in main.tsx.
+  const [cursorStyle, setCursorStyle] = useState<'normal' | 'pro'>(() => {
+    try {
+      return localStorage.getItem('mt_cursor_style') === 'pro' ? 'pro' : 'normal';
+    } catch {
+      return 'normal';
+    }
+  });
+  const chooseCursor = (v: 'normal' | 'pro') => {
+    setCursorStyle(v);
+    document.documentElement.dataset.cursor = v;
+    try {
+      localStorage.setItem('mt_cursor_style', v);
+    } catch {}
+  };
+  const [fontId, setFontId] = useState<string>(() => {
+    try {
+      return localStorage.getItem('mt_font') ?? 'inter';
+    } catch {
+      return 'inter';
+    }
+  });
+  const chooseFont = (id: string) => {
+    setFontId(id);
+    document.documentElement.dataset.font = id;
+    try {
+      localStorage.setItem('mt_font', id);
+    } catch {}
+  };
+
   const plan = usePlanStore((s) => s.plan);
   const openUpgrade = usePlanStore((s) => s.openUpgrade);
 
@@ -771,13 +803,10 @@ export function ThemePicker() {
             <div role="group" aria-label="Cursor style" className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                aria-pressed={document.documentElement.dataset.cursor !== 'pro'}
-                onClick={() => {
-                  document.documentElement.dataset.cursor = 'normal';
-                  localStorage.setItem('mt_cursor_style', 'normal');
-                }}
+                aria-pressed={cursorStyle !== 'pro'}
+                onClick={() => chooseCursor('normal')}
                 className={`rounded-lg border px-3 py-2 text-[13px] font-medium transition-all ${
-                  document.documentElement.dataset.cursor !== 'pro'
+                  cursorStyle !== 'pro'
                     ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
                     : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)]'
                 }`}
@@ -786,13 +815,10 @@ export function ThemePicker() {
               </button>
               <button
                 type="button"
-                aria-pressed={document.documentElement.dataset.cursor === 'pro'}
-                onClick={() => {
-                  document.documentElement.dataset.cursor = 'pro';
-                  localStorage.setItem('mt_cursor_style', 'pro');
-                }}
+                aria-pressed={cursorStyle === 'pro'}
+                onClick={() => chooseCursor('pro')}
                 className={`rounded-lg border px-3 py-2 text-[13px] font-medium transition-all ${
-                  document.documentElement.dataset.cursor === 'pro'
+                  cursorStyle === 'pro'
                     ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
                     : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)]'
                 }`}
@@ -820,19 +846,21 @@ export function ThemePicker() {
               { id: 'outfit', name: 'Outfit', pro: true },
               { id: 'dm-sans', name: 'DM Sans', pro: true },
             ].map((font) => {
-              const isActive = document.documentElement.dataset.font === font.id;
-              const locked = font.pro;
+              const isActive = fontId === font.id;
+              // Locked only where the plan split is actually enforced
+              // (test preview). On production canUse() allows everything,
+              // so no font is ever locked there.
+              const locked = font.pro && !canUse(plan, 'theme:extra');
               return (
                 <button
                   key={font.id}
                   type="button"
                   onClick={() => {
                     if (locked) {
-                      // TODO: open upgrade modal
+                      openUpgrade('theme:extra');
                       return;
                     }
-                    document.documentElement.dataset.font = font.id;
-                    localStorage.setItem('mt_font', font.id);
+                    chooseFont(font.id);
                   }}
                   className={`relative rounded-lg border px-3 py-2.5 text-left transition-all ${
                     isActive

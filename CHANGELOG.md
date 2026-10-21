@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased — test build]
 
+### Fixed — appearance controls
+- Font picker: Pro fonts were hardcoded-locked on every build (production
+  included). Locks now follow the plan only where enforcement is on;
+  production has every font open, and a locked font opens the upgrade modal.
+- Cursor style + font are reactive and persist across reloads (they were
+  applied imperatively and lost on refresh).
+- Default theme is now Porcelain (friendly light) instead of Violet dark.
+- New one-click Sun/Moon day-night toggle in the top bar; the choice is
+  saved, and deep customization stays in the Customize panel.
+
 ### Added — workspace views pass
 - Summary, For you, Docs, Development views and an Assets register.
 - List view rebuilt as an issue table (Reporter + Resolution + Created +
