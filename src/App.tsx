@@ -47,6 +47,7 @@ import { AppSkeleton } from '@/components/ui/Skeletons';
 import { LiveBackground } from '@/components/ui/LiveBackground';
 import { CursorOrb } from '@/components/ui/CursorOrb';
 import { useSearch, useKeyboardShortcuts } from '@/hooks/useSearch';
+import { useDueReminders } from '@/hooks/useDueReminders';
 import { CollabRoot } from '@/collab/CollabUI';
 import type { Issue } from '@/types';
 
@@ -75,6 +76,7 @@ function App() {
 
   const { close: closeSearch, isOpen: showSearchModal } = useSearch();
   useKeyboardShortcuts();
+  useDueReminders();
   const demoSeeded = useProjectStore((s) => s.demoSeeded);
 
   // First-run greeting: show once when a fresh visitor lands on demo data.

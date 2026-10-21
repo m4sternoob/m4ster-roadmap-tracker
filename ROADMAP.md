@@ -36,7 +36,7 @@ one focused improvement per day, every day.
 
 - [x] **Comments on cards** — discuss work right on the issue
 - [x] **File attachments** — Vercel Blob storage for screenshots and docs
-- [ ] **Due dates + reminders** — date picker, overdue highlighting
+- [x] **Due dates + reminders** — date picker, overdue highlighting, in-app due/overdue reminders
 - [ ] **Subtasks / checklists** — break a card into checkable steps
 - [ ] **Board templates** — start from Sprint, Bug triage, or Roadmap presets
 - [ ] **Bulk actions** — multi-select cards, move/assign/delete in one go
