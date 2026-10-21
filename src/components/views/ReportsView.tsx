@@ -1,7 +1,27 @@
-import { BarChart2, TrendingUp, TrendingDown, Minus, Download, FileSpreadsheet, FileJson } from 'lucide-react';
-import type { Project } from '@/types';
+import {
+  BarChart2,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Download,
+  FileSpreadsheet,
+  FileJson,
+  Mountain,
+} from 'lucide-react';
+import type { Project, Status } from '@/types';
+import { STATUSES } from '@/types';
 import { useProjectStore } from '@/store/projectStore';
 import { computeReportStats, downloadBoardReport } from '@/utils/report';
+import { getEpicProgress } from '@/utils/helpers';
+
+/** Status colors — same palette the Search modal and Workload view use. */
+const STATUS_COLORS: Record<Status, string> = {
+  backlog: '#64748b',
+  todo: '#0ea5e9',
+  'in-progress': '#f59e0b',
+  review: '#8b5cf6',
+  done: '#22c55e',
+};
 
 /** "Oct 5" — treats YYYY-MM-DD as a calendar day (no UTC-midnight shift). */
 function formatShortDate(iso: string): string {
@@ -116,15 +136,143 @@ function ReportsHeader({ project }: { project: Project }) {
   );
 }
 
+function EpicProgressSection({ project }: { project: Project }) {
+  const epicIssues = project.issues.filter((i) => i.epicId);
+  const totalDone = epicIssues.filter((i) => i.status === 'done').length;
+  const totalPoints = epicIssues.reduce((sum, i) => sum + i.storyPoints, 0);
+  const donePoints = epicIssues
+    .filter((i) => i.status === 'done')
+    .reduce((sum, i) => sum + i.storyPoints, 0);
+  const overall = epicIssues.length > 0 ? Math.round((totalDone / epicIssues.length) * 100) : 0;
+
+  const stats = [
+    { value: String(epicIssues.length), label: 'Issues in Epics' },
+    { value: String(totalDone), label: 'Completed' },
+    { value: `${overall}%`, label: 'Overall Complete' },
+    { value: `${donePoints} / ${totalPoints}`, label: 'Story Points' },
+  ];
+
+  return (
+    <div>
+      <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+        <Mountain size={20} /> Epic Progress
+      </h3>
+      <p className="text-muted-foreground mb-6">
+        How much of each epic is done — by issues and by story points.
+      </p>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {stats.map((s) => (
+          <div
+            key={s.label}
+            className="text-center p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50"
+          >
+            <div className="font-bold text-lg">{s.value}</div>
+            <div className="text-muted-foreground">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-4">
+        {project.epics.map((epic) => {
+          const p = getEpicProgress(project, epic.id);
+
+          return (
+            <div
+              key={epic.id}
+              className="dark:bg-dark-card bg-white rounded-xl border dark:border-dark-border p-6"
+            >
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className="w-3 h-3 rounded-full shrink-0"
+                    style={{ backgroundColor: epic.color }}
+                  />
+                  <h3 className="font-semibold truncate">{epic.name}</h3>
+                  <span className="text-xs font-mono text-muted-foreground">{epic.key}</span>
+                </div>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                  {p.doneIssues} / {p.totalIssues} issues
+                </span>
+              </div>
+
+              {p.totalIssues === 0 ? (
+                <p className="text-sm text-muted-foreground">No issues linked to this epic yet.</p>
+              ) : (
+                <>
+                  <div
+                    className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden mb-2"
+                    role="progressbar"
+                    aria-valuenow={p.percentComplete}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${epic.name} completion`}
+                  >
+                    <div
+                      className="h-full rounded-full bg-green-500"
+                      style={{ width: `${p.percentComplete}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm mb-4">
+                    <span className="font-semibold">{p.percentComplete}% complete</span>
+                    <span className="text-muted-foreground">
+                      {p.donePoints} / {p.totalPoints} pts
+                    </span>
+                  </div>
+
+                  <div className="flex h-2.5 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800">
+                    {STATUSES.map((s) => {
+                      const count = p.statusBreakdown[s.value];
+                      if (count === 0) return null;
+                      return (
+                        <div
+                          key={s.value}
+                          title={`${s.label}: ${count}`}
+                          className="h-full"
+                          style={{
+                            width: `${(count / p.totalIssues) * 100}%`,
+                            backgroundColor: STATUS_COLORS[s.value],
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
+                    {STATUSES.map((s) => {
+                      const count = p.statusBreakdown[s.value];
+                      if (count === 0) return null;
+                      return (
+                        <span key={s.value} className="flex items-center gap-1.5">
+                          <span
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: STATUS_COLORS[s.value] }}
+                          />
+                          {s.label}: {count}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function ReportsView({ project }: { project: Project }) {
   const activeSprints = project.sprints.filter(
     (s) => s.status === 'active' || s.status === 'completed'
   );
+  const hasEpics = project.epics.length > 0;
 
   if (activeSprints.length === 0) {
     return (
       <div className="space-y-8 max-w-4xl mx-auto p-4">
         <ReportsHeader project={project} />
+        {hasEpics && <EpicProgressSection project={project} />}
         <div className="flex flex-col items-center justify-center text-center py-14">
           <BarChart2 size={48} className="text-muted-foreground/30 mb-4" />
           <h3 className="text-lg font-semibold mb-2">No Active Sprints</h3>
@@ -140,6 +288,7 @@ export function ReportsView({ project }: { project: Project }) {
   return (
     <div className="space-y-8 max-w-4xl mx-auto p-4">
       <ReportsHeader project={project} />
+      {hasEpics && <EpicProgressSection project={project} />}
       <div>
         <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
           <BarChart2 size={20} /> Sprint Burndown

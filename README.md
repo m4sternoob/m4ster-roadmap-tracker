@@ -46,7 +46,7 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 - **List:** Compact table view
 - **Calendar:** Month grid with visible borders (light/dark themes)
 - **Timeline:** Gantt-style
-- **Reports:** Burndown charts, sprint health, board summary — plus a **Download Report** button (standalone HTML report, CSV and JSON exports)
+- **Reports:** Burndown charts, sprint health, board summary, epic progress (completion %, story points, per-status breakdown for each epic) — plus a **Download Report** button (standalone HTML report, CSV and JSON exports)
 - **Backlog & Sprints:** Planning → Active → Complete lifecycle
 
 ### Multiplayer (test build)
