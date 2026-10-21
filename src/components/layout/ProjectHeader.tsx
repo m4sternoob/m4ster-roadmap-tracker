@@ -4,6 +4,7 @@ import type { Project } from '@/types';
 import { useProjectStore, type AppView } from '@/store/projectStore';
 import { usePlanStore } from '@/store/planStore';
 import { canUse, type ProFeature } from '@/lib/plan';
+import { IS_TEST_BUILD } from '@/lib/build';
 import { LogoMark } from '@/components/ui/LogoMark';
 import { useCollabStore } from '@/collab/collab';
 
@@ -55,6 +56,11 @@ export function ProjectHeader({ project }: { project: Project }) {
         <h1 className="text-[19px] font-semibold text-[var(--text-primary)] tracking-tight truncate">
           {project.name}
         </h1>
+        {IS_TEST_BUILD && (
+          <span className="shrink-0 rounded-md bg-amber-400/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-950">
+            Test
+          </span>
+        )}
         <div className="flex items-center gap-0.5">
           <button
             onClick={() => useCollabStore.getState().setPanel(true, 'people')}

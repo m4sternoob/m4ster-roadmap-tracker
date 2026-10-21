@@ -1,9 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
-import Root from './Root';
+import App from './App';
 import './styles/index.css';
 import { initPWA } from './utils/pwa';
+import { IS_TEST_BUILD } from './lib/build';
+
+// Test deployments carry "Test" in the tab title; production stays clean.
+if (IS_TEST_BUILD && !document.title.includes('Test')) {
+  document.title = `${document.title} — Test`;
+}
 
 // Restore the saved cursor style + font before first paint so the choices
 // survive reloads (the Customize panel writes these keys).
@@ -18,7 +24,7 @@ try {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Root />
+    <App />
     <Toaster
       position="bottom-right"
       toastOptions={{

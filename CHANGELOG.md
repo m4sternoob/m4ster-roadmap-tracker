@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased — test build]
 
+### Test-build branding
+- Preview/test deployments (VITE_TEST_BUILD=true in the Vercel Preview
+  environment) now carry TEST branding: "— Test" in the tab title and a
+  TEST pill beside the space name. Production keeps the clean name.
+
 ### Demo data + first-run tutorial
 - Demo seed is now neutral sample content (fictional product team) — a
   fresh visitor no longer lands on the owner's personal board.
