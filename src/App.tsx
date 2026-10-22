@@ -43,6 +43,7 @@ import { WelcomeModal } from '@/components/modals/WelcomeModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SearchModal } from '@/components/ui/SearchModal/SearchModal';
 import { Toasts } from '@/components/ui/Toasts';
+import { Celebration } from '@/components/ui/Celebration';
 import { AppSkeleton } from '@/components/ui/Skeletons';
 import { LiveBackground } from '@/components/ui/LiveBackground';
 import { CursorOrb } from '@/components/ui/CursorOrb';
@@ -290,6 +291,7 @@ function App() {
 
           <CollabRoot />
           <Toasts />
+          <Celebration />
         </div>
       </AuthProvider>
     </ThemeProvider>
