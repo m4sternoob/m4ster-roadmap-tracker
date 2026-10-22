@@ -95,7 +95,7 @@ export const PRO_FEATURE_LIST: string[] = [
   'Unlimited boards & projects',
   'All views: Backlog, Calendar, Timeline, Sprints, Reports, Workload',
   'Automations engine',
-  'All 6 themes + background aura',
+  'All 10 themes + background aura',
   'Theme profiles & custom theme builder',
   'CSV export',
 ];

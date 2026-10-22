@@ -1,6 +1,6 @@
 # m4ster-tracker
 
-> Freemium Jira alternative — project tracker without the per-seat tax. Free forever, Pro at $20/year flat.
+> Freemium project tracker — without the per-seat tax. Free forever, Pro at $20/year flat.
 
 [![Live](https://img.shields.io/badge/Live-m4ster--tracker.vercel.app-0ea5e9?style=for-the-badge)](https://m4ster-tracker.vercel.app)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
@@ -12,7 +12,7 @@
 
 ## 🎯 Overview
 
-**m4ster-tracker** is a freemium project tracker for solo devs, indie hackers, and small teams (2-10) who are fed up with Jira's per-seat pricing.
+**m4ster-tracker** is a freemium project tracker for solo devs, indie hackers, and small teams (2-10) who are fed up with per-seat pricing.
 
 **Pricing:** Free tier for everyone. Pro at **$20/year flat** — no per-seat math, no "contact sales", no enterprise tier. Ever.
 
@@ -48,6 +48,7 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 - **Timeline:** Gantt-style
 - **Reports:** Burndown charts, sprint health, board summary, epic progress (completion %, story points, per-status breakdown for each epic) — plus a **Download Report** button (standalone HTML report, CSV and JSON exports)
 - **Backlog & Sprints:** Planning → Active → Complete lifecycle
+- **Plus:** Summary, For You, Docs, Development, Assets and Archived views
 
 ### Multiplayer
 - **Share + invite:** the board owner shares a board and sends an invite link; signed-in teammates join the *same* board — card moves and edits sync for everyone
@@ -55,16 +56,15 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 - **Team chat:** Slack/Discord-style channels (#general, #board, #random) in the team panel, plus a live activity feed of creates, moves and assignments
 
 ### Customization
-- 6 theme switches (Midnight, Ocean, Ember, Forest, Violet, Porcelain)
+- 10 themes (Violet, Midnight, Ocean, Ember, Forest, Porcelain, Crimson, Gold, Rose, Mint)
 - Custom theme builder (hex/HSL, 23-var palette)
 - Theme profiles (save/load/share)
 - Background aura controls (Aurora, Intensity, Motion, Cursor glow, Tap ripples)
-- MT logo mark (white on blue gradient)
+- MT logo mark (vector monogram, tinted by the active icon pack)
 
-### Pro Features (Trial Build)
-- Plan system (Free vs Pro)
-- Locked Pro tabs, automations, themes, aura, profiles, CSV export
-- Upgrade modal ($20/year pitch)
+### Plans
+- Plan system (Free vs Pro) with an upgrade modal ($20/year pitch)
+- Pro gates: extra views, automations, themes, aura, profiles, CSV export — enforced on the preview build while Stripe checkout is pending; production keeps every feature open
 - "Free trial" / "PRO" pill in top bar
 
 ### Data & Sync
@@ -97,14 +97,14 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 - **Drag-drop:** @dnd-kit
 - **Backend:** Vercel serverless functions (self-contained, zero imports)
 - **DB:** Upstash Redis
-- **Auth:** GitHub OAuth, Google sign-in
+- **Auth:** Google sign-in, email/password
 
 ## 🗺️ Roadmap
 
 **Phase 1:** Trial build ✅ Done
 **Phase 2:** Paywall (Stripe) — next
 **Phase 3:** Pro feature mix (Triage, Goals, Forms, dependencies, dashboards)
-**Phase 4:** Landing page + launch
+**Phase 4:** Landing page + launch ✅ Done (public front door live, app at /app)
 
 **Strategy:** No enterprise. Target solo devs, indie hackers, teams of 2-10. Land 1-2 small teams → they love it → word of mouth → famous.
 
@@ -113,10 +113,10 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 | | Free | Pro |
 |---|---|---|
 | Price | $0 | **$20/year flat** |
-| Boards | Unlimited | Unlimited |
-| Views | All | All |
+| Boards | 1 project | Unlimited |
+| Views | Board + List | All |
 | Automations | — | ✅ |
-| Custom themes | 6 presets | ✅ Builder + profiles |
+| Custom themes | 2 of 10 (Midnight, Porcelain) | ✅ All 10 + builder + profiles |
 | CSV export | — | ✅ |
 | Aura effects | Basic | ✅ Full |
 
@@ -126,7 +126,7 @@ No per-seat pricing. No "contact sales". No enterprise tier. Ever.
 
 1. Fork → feature branch → PR
 2. Conventional commits (`feat:`, `fix:`, `docs:`, `chore:`)
-4. Update README in the same pass as code changes
+3. Update README in the same pass as code changes
 
 ## 📄 License
 
