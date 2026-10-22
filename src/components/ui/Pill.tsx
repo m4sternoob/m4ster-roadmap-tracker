@@ -11,7 +11,7 @@ const TONE_CLASSES: Record<PillTone, string> = {
 };
 
 /**
- * Pill — the one consistent label component (Linear/Jira lozenge style):
+ * Pill — the one consistent label component (Linear lozenge style):
  * tinted background + colored text, 11px, fully rounded. Reused for labels,
  * counts, epic tags, and status flags across the product.
  */

@@ -7,7 +7,7 @@ const FREE_FEATURES = [
   'Board + List views',
   '1 project, core tracking',
   'Midnight + Porcelain themes',
-  'Local data on your device',
+  'Cloud sync across your devices',
 ];
 
 const TEAM_FEATURES = [
@@ -88,7 +88,7 @@ export function UpgradeModal() {
             <div className="mt-4 text-[15px] font-semibold text-[var(--text-primary)]">Pro</div>
             <p className="mt-0.5 text-[12.5px] text-[var(--text-muted)]">For makers who ship</p>
             <div className="mt-3 text-[26px] font-bold text-[var(--text-primary)]">
-              {PRO_PRICE}
+              {PRO_PRICE.replace('/year', '')}
               <span className="text-[13px] font-medium text-[var(--text-muted)]">/year</span>
             </div>
             <p className="text-[12px] text-[var(--text-faint)]">One price. Every feature. No per-seat math.</p>
@@ -119,7 +119,7 @@ export function UpgradeModal() {
             <div className="text-[15px] font-semibold text-[var(--text-primary)]">Team</div>
             <p className="mt-0.5 text-[12.5px] text-[var(--text-muted)]">Pro, shared with your crew</p>
             <div className="mt-3 text-[26px] font-bold text-[var(--text-primary)]">
-              {PRO_PRICE}
+              {PRO_PRICE.replace('/year', '')}
               <span className="text-[13px] font-medium text-[var(--text-muted)]">/year flat</span>
             </div>
             <p className="text-[12px] text-[var(--text-faint)]">Per workspace, not per person.</p>
