@@ -34,7 +34,7 @@ const FREE_FEATURES = [
   'Board + List views',
   '1 project, core tracking',
   'Midnight + Porcelain themes',
-  'Local data on your device',
+  'Cloud sync across your devices',
 ];
 
 const TEAM_FEATURES = [
@@ -60,7 +60,7 @@ const FEATURES = [
   {
     icon: FileDown,
     title: 'Sprints & downloadable reports',
-    text: 'Plan sprints, watch the burndown, and export reports as HTML, CSV or JSON — ready to share with anyone, in or out of the app.',
+    text: 'Plan sprints, watch the burndown, track epic progress, and export reports as HTML, CSV or JSON — ready to share with anyone, in or out of the app.',
   },
   {
     icon: Users,
