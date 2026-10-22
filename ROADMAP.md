@@ -49,7 +49,7 @@ one focused improvement per day, every day.
 
 - [x] **Drag physics** — springy card pickup, drop targets that breathe
 - [x] **Column transitions** — cards glide when status changes elsewhere
-- [ ] **Celebration** — confetti burst when a card hits Done
+- [x] **Celebration** — confetti burst when a card hits Done
 - [ ] **Skeleton polish** — shimmer loading states everywhere, no layout jumps
 - [ ] **Micro-interactions** — star pop, checkbox tick, toggle springs
 - [ ] **View transitions** — board ↔ list ↔ backlog morph smoothly

@@ -116,6 +116,12 @@ interface ProjectState {
   pushToast: (kind: ToastKind, message: string) => void;
   dismissToast: (id: string) => void;
 
+  // Celebration — a confetti burst fires when a card lands in Done.
+  // The overlay component watches `nonce` and clears the state when done.
+  celebration: { issueId: string; title: string; nonce: number } | null;
+  triggerCelebration: (issueId: string, title: string) => void;
+  clearCelebration: () => void;
+
   // Actions
   initializeProject: () => Promise<void>;
   saveProject: () => Promise<void>;
@@ -400,6 +406,15 @@ export const useProjectStore = create<ProjectState>()(
         })),
       dragOverColumn: null,
       setDragOverColumn: (status) => set({ dragOverColumn: status }),
+
+      // Celebration state. `nonce` lets repeat Done-moves of different cards
+      // retrigger the overlay; the component clears it when the burst ends.
+      celebration: null,
+      triggerCelebration: (issueId, title) =>
+        set((state) => ({
+          celebration: { issueId, title, nonce: (state.celebration?.nonce ?? 0) + 1 },
+        })),
+      clearCelebration: () => set({ celebration: null }),
 
       // Undo / redo. All issue mutations are immutable (map/filter/spread), so
       // the pre-change project reference is already an effective snapshot.
@@ -779,6 +794,10 @@ export const useProjectStore = create<ProjectState>()(
         }
         get().saveProject();
         if (!silent && prev) {
+          // Status flips that land a card in Done earn a confetti burst.
+          if ('status' in input && input.status === 'done' && prev.status !== 'done') {
+            get().triggerCelebration(issueId, prev.title);
+          }
           const updated = get().project?.issues.find((i) => i.id === issueId);
           if (updated) {
             const api = { updateIssue: get().updateIssue, addNotification: get().addNotification };
@@ -1155,6 +1174,7 @@ export const useProjectStore = create<ProjectState>()(
         }));
         get().saveProject();
         get().pushToast('success', `${issue.key} moved to ${label}`);
+        if (newStatus === 'done') get().triggerCelebration(issue.id, issue.title);
       },
 
       bulkUpdateIssues: (issueIds: string[], input: UpdateIssueInput) => {
