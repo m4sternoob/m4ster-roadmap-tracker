@@ -65,7 +65,7 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 ### Plans
 - Plan system (Free vs Pro) with an upgrade modal ($20/year pitch)
 - Pro gates: extra views, automations, themes, aura, profiles, CSV export — enforced on the preview build while Stripe checkout is pending; production keeps every feature open
-- "Free trial" / "PRO" pill in top bar
+- "Free trial" / "PRO" pill in the top bar (enforced builds only)
 
 ### Data & Sync
 - Offline-first with localStorage
