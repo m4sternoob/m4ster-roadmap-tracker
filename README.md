@@ -18,7 +18,7 @@
 
 **Live:**
 - **Production:** https://m4ster-tracker.vercel.app
-- **Experimental (Pro trial build):** https://m4ster-tracker-git-experimental-m4ster-verse.vercel.app/
+- **Experimental branch preview:** https://m4ster-tracker-git-experimental-m4ster-verse.vercel.app/
 
 ## 🌐 Site structure
 
@@ -49,19 +49,19 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 - **Reports:** Burndown charts, sprint health, board summary, epic progress (completion %, story points, per-status breakdown for each epic) — plus a **Download Report** button (standalone HTML report, CSV and JSON exports)
 - **Backlog & Sprints:** Planning → Active → Complete lifecycle
 
-### Multiplayer (test build)
+### Multiplayer
 - **Share + invite:** the board owner shares a board and sends an invite link; signed-in teammates join the *same* board — card moves and edits sync for everyone
 - **Live presence:** avatar stack in the top bar shows who's online and what they're doing (viewing a view, editing a card), with Figma-style live cursors
 - **Team chat:** Slack/Discord-style channels (#general, #board, #random) in the team panel, plus a live activity feed of creates, moves and assignments
 
 ### Customization
-- 6 theme switches (Midnight, Ocean, Ember, Forest, Violet, Porcelain)
+- 10 theme presets (Midnight, Ocean, Ember, Forest, Violet, Porcelain, Crimson, Gold, Rose, Mint)
 - Custom theme builder (hex/HSL, 23-var palette)
 - Theme profiles (save/load/share)
 - Background aura controls (Aurora, Intensity, Motion, Cursor glow, Tap ripples)
 - MT logo mark (white on blue gradient)
 
-### Pro Features (Trial Build)
+### Pro Features
 - Plan system (Free vs Pro)
 - Locked Pro tabs, automations, themes, aura, profiles, CSV export
 - Upgrade modal ($20/year pitch)
@@ -116,7 +116,7 @@ Built with React + TypeScript + Vite + Tailwind + Zustand + dnd-kit. Serverless 
 | Boards | Unlimited | Unlimited |
 | Views | All | All |
 | Automations | — | ✅ |
-| Custom themes | 6 presets | ✅ Builder + profiles |
+| Custom themes | 10 presets | ✅ Builder + profiles |
 | CSV export | — | ✅ |
 | Aura effects | Basic | ✅ Full |
 
@@ -126,7 +126,7 @@ No per-seat pricing. No "contact sales". No enterprise tier. Ever.
 
 1. Fork → feature branch → PR
 2. Conventional commits (`feat:`, `fix:`, `docs:`, `chore:`)
-4. Update README in the same pass as code changes
+3. Update README in the same pass as code changes
 
 ## 📄 License
 
