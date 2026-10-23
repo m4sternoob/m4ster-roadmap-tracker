@@ -61,7 +61,7 @@ Every control must do something honest. No dead clicks, no fake buttons.
 
 - [x] Audit pass 1: sidebar + top bar
 - [x] Audit pass 2: issue modal + all dialogs
-- [ ] Audit pass 3: settings + empty states
+- [x] Audit pass 3: settings + empty states
 - [ ] Anything decorative becomes a real feature or an honest "not in demo" note
 
 ## Phase 6 — Integrations
