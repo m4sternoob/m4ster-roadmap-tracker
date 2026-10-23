@@ -18,6 +18,7 @@ import { SearchX, Inbox } from 'lucide-react';
 import { Column } from '@/components/ui/Column';
 import { IssueCardView } from '@/components/ui/IssueCard';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { openCreateIssue } from '@/utils/openCreateIssue';
 import { BoardToolbar } from '@/components/board/BoardToolbar';
 import { useCardGlide } from '@/hooks/useCardGlide';
 import {
@@ -251,13 +252,7 @@ export function BoardView({
   const activeFilterCount = countActiveFilters(filters);
   const hasFilters = activeFilterCount > 0 || filters.query.trim() !== '';
 
-  const handleCreateFirst = () => {
-    const store = useProjectStore.getState();
-    store.setNewIssueDefaultStatus('backlog');
-    store.setNewIssuePreset(null);
-    store.setSelectedIssue(null);
-    store.setShowIssueModal(true);
-  };
+  const handleCreateFirst = () => openCreateIssue();
 
   return (
     <div className="flex flex-col h-full">
