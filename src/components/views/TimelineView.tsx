@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, GanttChart } from 'lucide-react';
 import type { Issue, Project } from '@/types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { openCreateIssue } from '@/utils/openCreateIssue';
 
 interface Props {
   project: Project;
@@ -52,6 +53,8 @@ export function TimelineView({ project, onIssueClick }: Props) {
           icon={<GanttChart size={28} />}
           title="Nothing to plot yet"
           hint="Issues with due dates and sprints with date ranges show up on the timeline."
+          actionLabel="Create issue"
+          onAction={() => openCreateIssue()}
         />
       </div>
     );

@@ -36,7 +36,7 @@ one focused improvement per day, every day.
 
 - [x] **Comments on cards** — discuss work right on the issue
 - [x] **File attachments** — Vercel Blob storage for screenshots and docs
-- [ ] **Due dates + reminders** — date picker, overdue highlighting
+- [x] **Due dates + reminders** — date picker, overdue highlighting, in-app due/overdue reminders
 - [ ] **Subtasks / checklists** — break a card into checkable steps
 - [ ] **Board templates** — start from Sprint, Bug triage, or Roadmap presets
 - [ ] **Bulk actions** — multi-select cards, move/assign/delete in one go
@@ -49,7 +49,7 @@ one focused improvement per day, every day.
 
 - [x] **Drag physics** — springy card pickup, drop targets that breathe
 - [x] **Column transitions** — cards glide when status changes elsewhere
-- [ ] **Celebration** — confetti burst when a card hits Done
+- [x] **Celebration** — confetti burst when a card hits Done
 - [ ] **Skeleton polish** — shimmer loading states everywhere, no layout jumps
 - [ ] **Micro-interactions** — star pop, checkbox tick, toggle springs
 - [ ] **View transitions** — board ↔ list ↔ backlog morph smoothly
@@ -61,7 +61,7 @@ Every control must do something honest. No dead clicks, no fake buttons.
 
 - [x] Audit pass 1: sidebar + top bar
 - [x] Audit pass 2: issue modal + all dialogs
-- [ ] Audit pass 3: settings + empty states
+- [x] Audit pass 3: settings + empty states
 - [ ] Anything decorative becomes a real feature or an honest "not in demo" note
 
 ## Phase 6 — Integrations

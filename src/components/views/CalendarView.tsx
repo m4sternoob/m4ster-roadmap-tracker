@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import type { Issue, Project } from '@/types';
 import { IssueTypeIcon } from '@/components/issues/IssueTypeIcon';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { openCreateIssue } from '@/utils/openCreateIssue';
 
 interface Props {
   project: Project;
@@ -108,6 +109,8 @@ export function CalendarView({ project, onIssueClick }: Props) {
             icon={<CalendarDays size={28} />}
             title="No due dates yet"
             hint="Set a due date on an issue and it'll appear on this calendar."
+            actionLabel="Create issue"
+            onAction={() => openCreateIssue()}
           />
         ) : (
           <div className="rounded-xl border border-[var(--chrome)] bg-[var(--bg-surface)]/40 overflow-hidden">

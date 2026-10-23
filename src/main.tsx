@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
-import App from './App';
+import Root from './Root';
 import './styles/index.css';
 import { initPWA } from './utils/pwa';
 import { IS_TEST_BUILD } from './lib/build';
@@ -24,7 +24,7 @@ try {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <Root />
     <Toaster
       position="bottom-right"
       toastOptions={{

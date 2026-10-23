@@ -77,7 +77,7 @@ export function Column({
       role="list"
       aria-label={`${title} column`}
     >
-      {/* Header: micro-label + count pill (Linear/Jira style) — sticky on scroll */}
+      {/* Header: micro-label + count pill (Linear style) — sticky on scroll */}
       <div className="group sticky top-0 z-10 flex items-center gap-1.5 px-2.5 pt-2.5 pb-2 bg-[var(--bg-surface)]/95 backdrop-blur-sm">
         <button
           onClick={onToggleCollapse}
